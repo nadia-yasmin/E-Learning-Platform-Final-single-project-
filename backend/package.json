@@ -9,8 +9,10 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "cors": "^2.8.5",
+    "@aws-sdk/client-s3": "^3.440.0",
+    "aws-sdk": "^2.1485.0",
     "bcrypt": "^5.1.1",
+    "cors": "^2.8.5",
     "docker": "^1.0.0",
     "dotenv": "^16.3.1",
     "ejs": "^3.1.9",
