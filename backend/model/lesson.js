@@ -9,11 +9,6 @@ const lessonSchema = new mongoose.Schema(
       type: Number,
       required: true,
     },
-    instructor: {
-      type: mongoose.Types.ObjectId,
-      ref: "instructors",
-      required: true,
-    },
     course: {
       type: mongoose.Types.ObjectId,
       ref: "courses",
