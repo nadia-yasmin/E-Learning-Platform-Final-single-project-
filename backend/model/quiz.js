@@ -1,12 +1,10 @@
 const mongoose = require("mongoose");
 const quizSchema = new mongoose.Schema(
   {
-    lessonId: [
-      {
-        type: mongoose.Types.ObjectId,
-        ref: "lessons",
-      },
-    ],
+    lessonId: {
+      type: mongoose.Types.ObjectId,
+      ref: "lessons",
+    },
     quiz: [
       {
         question: {

@@ -16,32 +16,6 @@ const AWS = require("aws-sdk");
 const multer = require("multer");
 const upload = require("../config/file");
 class courseController {
-  async createBucket(req, res) {
-    try {
-      AWS.config.update({
-        accessKeyId: "AKIARBUZNPTUDGAEUUQX",
-        secretAccessKey: "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",
-        region: "eu-west-3",
-      });
-      const s3 = new AWS.S3();
-      const params = {
-        Bucket: "nadia-bucket",
-        Key: req.file.originalname,
-        Body: req.file.buffer,
-      };
-      console.log("Params", params);
-      s3.upload(params, (err, data) => {
-        if (err) {
-          console.error(err);
-          return res.status(500).send("Error uploading file");
-        }
-        res.send(data.Location);
-      });
-    } catch (error) {
-      console.log("Book add error", error);
-      return res.status(500).send(failure("Internal server error"));
-    }
-  }
   async addCourse(req, res) {
     try {
       const { title, instructor, category, description } = req.body;
