@@ -7,7 +7,6 @@ const courseController = require("../controller/courseController");
 const { MulterError } = require("multer");
 
 //COURSE
-routes.post("/addbucket", upload.single("file"), courseController.createBucket);
 routes.post(
   "/addcourse",
   upload.fields([
