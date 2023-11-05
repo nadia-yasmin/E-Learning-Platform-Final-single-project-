@@ -18,8 +18,8 @@ const upload = require("../config/file");
 class courseController {
   async addCourse(req, res) {
     try {
-      const { title, instructor, category, description } = req.body;
-      let image = req.files["image"][0]; // Access the image file
+      const { title, instructor, category, description,paid } = req.body;
+      let image = req.files["image"][0]; 
       let intro = req.files["intro"][0];
       AWS.config.update({
         accessKeyId: "AKIARBUZNPTUDGAEUUQX",
@@ -81,6 +81,7 @@ class courseController {
         description: description,
         image: image1,
         intro: intro1,
+        paid:paid
       });
       if (result) {
         return res.status(200).send(success("New course added", result));

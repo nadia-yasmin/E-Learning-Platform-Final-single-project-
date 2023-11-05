@@ -15,33 +15,27 @@ const HTTP_STATUS = require("../constants/statusCodes");
 const AWS = require("aws-sdk");
 const multer = require("multer");
 const upload = require("../config/file");
+const courseModel = require("../model/course.js");
 class lessonController {
   async addLesson(req, res) {
     try {
-      const { title, instructor, category, description } = req.body;
-      let image = req.files["image"][0]; // Access the image file
-      let intro = req.files["intro"][0];
+      const {courseId}= req.query;
+      const { title, description } = req.body;
+      let video1 = req.files["video"][0];
+      let slides1 = req.files["slides"][0];
       AWS.config.update({
         accessKeyId: "AKIARBUZNPTUDGAEUUQX",
         secretAccessKey: "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",
         region: "eu-west-3",
       });
-
-      console.log("req.image", image);
-      console.log("req.intro", intro);
       const s3 = new AWS.S3();
       const params = {
         Bucket: "nadia-bucket",
-        Key: image.originalname,
-        Body: image.buffer,
-      };
-      const paramstwo = {
-        Bucket: "nadia-bucket",
-        Key: intro.originalname,
-        Body: intro.buffer,
+        Key: video1.originalname,
+        Body: video1.buffer,
       };
       console.log("Params", params);
-      const uploadImage = async () => {
+      const uploadvideo = async () => {
         return new Promise((resolve, reject) => {
           s3.upload(params, (err, data) => {
             if (err) {
@@ -52,13 +46,16 @@ class lessonController {
           });
         });
       };
-
-      const image1 = await uploadImage();
-      console.log("image url", image1);
-
-      const uploadIntro = async () => {
+      const videoUrl = await uploadvideo();
+      const paramsTwo = {
+        Bucket: "nadia-bucket",
+        Key: slides1.originalname,
+        Body: slides1.buffer,
+      };
+      console.log("Params", params);
+      const uploadslides = async () => {
         return new Promise((resolve, reject) => {
-          s3.upload(paramstwo, (err, data) => {
+          s3.upload(paramsTwo, (err, data) => {
             if (err) {
               reject(err);
             } else {
@@ -68,27 +65,30 @@ class lessonController {
         });
       };
 
-      const intro1 = await uploadIntro();
-      console.log("intro url", intro1);
-      const existingCourse = await courseModel.findOne({ title: title });
-      if (existingCourse) {
-        return res.status(400).send(failure("This course already exists"));
+      const slidesUrl = await uploadslides();
+      console.log("slide url", slidesUrl);
+      const existingLesson = await lessonModel.findOne({ title: title });
+      const course = await courseModel.findById(courseId);
+      const lessonNumber = course.lesson.length === 0 ? 1 : course.lesson.length;
+      if (existingLesson) {
+        return res.status(400).send(failure("A lesson with this title already exists"));
       }
-      const result = await courseModel.create({
+      const result = await lessonModel.create({
         title: title,
-        instructor: instructor,
-        category: category,
+        courseId: courseId,
         description: description,
-        image: image1,
-        intro: intro1,
+        video: videoUrl,
+        slides: slidesUrl,
+        number: lessonNumber
+
       });
       if (result) {
-        return res.status(200).send(success("New course added", result));
+        return res.status(200).send(success("New lesson added", result));
       } else {
-        return res.status(400).send(failure("Could not add a new course"));
+        return res.status(400).send(failure("Could not add a new lesson"));
       }
     } catch (error) {
-      console.log("Course add error", error);
+      console.log("Lesson add error", error);
       return res.status(500).send(failure("Internal server error"));
     }
   }
