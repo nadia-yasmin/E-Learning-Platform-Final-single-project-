@@ -9,6 +9,10 @@ const lessonSchema = new mongoose.Schema(
       type: Number,
       required: true,
     },
+    description: {
+      type: String,
+      required: true,
+    },
     courseId: {
       type: mongoose.Types.ObjectId,
       ref: "courses",
@@ -19,7 +23,12 @@ const lessonSchema = new mongoose.Schema(
       required: false,
     },
     assignment: {
-      type: String,
+      diagram: {
+        type: String,
+      },
+      text: {
+        type: String,
+      },
     },
     discussion: [
       {

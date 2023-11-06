@@ -7,5 +7,6 @@ const fileTypes = [
   ".JPG",
   ".webp",
   ".mp4",
+  ".ppt",
 ];
 module.exports = fileTypes;

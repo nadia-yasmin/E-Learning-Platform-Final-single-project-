@@ -29,6 +29,9 @@ const instructorSchema = new mongoose.Schema(
       type: String,
       required: [true, "role must be given"],
     },
+    image: {
+      type: String,
+    },
   },
   { timestamps: true }
 );
