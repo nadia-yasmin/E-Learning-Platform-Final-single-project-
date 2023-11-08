@@ -2,6 +2,8 @@ const path = require("path");
 const fs = require("fs").promises;
 const { success, failure } = require("../constants/common.js");
 const courseModel = require("../model/course");
+const cartModel = require("../model/cart");
+const learnerModel = require("../model/learner");
 const mongoose = require("mongoose");
 const express = require("express");
 const app = express();
@@ -90,6 +92,35 @@ class courseController {
       }
     } catch (error) {
       console.log("Course add error", error);
+      return res.status(500).send(failure("Internal server error"));
+    }
+  }
+  async enrollCourse(req, res) {
+    try {
+      const {courseId}=req.query;
+      const { learnerId } = req.body;
+      console.log("courseId, learnerId",courseId, learnerId)
+      const cart = await cartModel.findOne({ learnerId });
+    if (cart && cart.courseId.includes(courseId)) {
+      return res.status(400).send(failure("Course is already in the cart"));
+    }
+
+  
+    const learner = await learnerModel.findOne({ _id: learnerId, 'course.courseId': courseId });
+    if (learner && learner.course.some(course => course.courseId.equals(courseId) && course.enrollment)) {
+      return res.status(400).send(failure("You have already checked out this course"));
+    }
+      const result = await cartModel.create({
+        courseId: courseId,
+        learnerId: learnerId,
+      });
+      if (result) {
+        return res.status(200).send(success("Course added to cart", result));
+      } else {
+        return res.status(400).send(failure("Could not add course to cart"));
+      }
+    } catch (error) {
+      console.log("Add to cart error", error);
       return res.status(500).send(failure("Internal server error"));
     }
   }
