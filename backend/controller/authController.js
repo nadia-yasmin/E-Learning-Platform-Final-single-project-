@@ -127,5 +127,97 @@ class authController {
         .send(success("Internal server error"));
     }
   }
+
+  async login(req, res) {
+    try {
+      const { email, password, role } = req.body;
+      const auth = await authModel.findOne({ email: email });
+      if (!auth) {
+        return res
+          .status(HTTP_STATUS.NOT_FOUND)
+          .send(success("User is not registered"));
+      }
+      if (auth.blocked) {
+        const now = moment();
+        const lastUnsuccessfulLoginTime = moment(
+          auth.loginAttempts[auth.loginAttempts.length - 1].timestamp
+        );
+        if (now.diff(lastUnsuccessfulLoginTime, "minutes") >= 5) {
+          auth.blocked = false;
+          auth.loginAttempts = [];
+          await auth.save();
+        } else {
+          return res
+            .status(HTTP_STATUS.FORBIDDEN)
+            .send(success("User is blocked. Please try again after 1 minute"));
+        }
+      }
+      const checkedPassword = await bcrypt.compare(password, auth.password);
+      if (checkedPassword) {
+        let additionalInfo;
+
+        switch (auth.role) {
+          case "learner":
+            additionalInfo = await learnerModel.findOne({
+              _id: auth.learnerId,
+            });
+            break;
+          case "admin":
+            additionalInfo = await adminModel.findOne({
+              _id: auth.adminId,
+            });
+            break;
+          case "instructor":
+            additionalInfo = await instructorModel.findOne({
+              _id: auth.instructorId,
+            });
+            break;
+          default:
+            break;
+        }
+        if (additionalInfo) {
+          additionalInfo = additionalInfo.toObject();
+        }
+        const jwt = jsonwebtoken.sign(additionalInfo, process.env.SECRET_KEY, {
+          expiresIn: "1h",
+        });
+
+        additionalInfo.token = jwt;
+        return res
+          .status(HTTP_STATUS.OK)
+          .send(success("Successfully logged in", additionalInfo));
+      } else {
+        const now = moment();
+        const lastHour = moment().subtract(1, "hours");
+        const recentLoginAttempts = auth.loginAttempts.filter((attempt) =>
+          moment(attempt.timestamp).isAfter(lastHour)
+        );
+
+        if (recentLoginAttempts.length >= 5) {
+          auth.blocked = true;
+          await auth.save();
+          return res
+            .status(HTTP_STATUS.FORBIDDEN)
+            .send(
+              success(
+                "User is blocked due to too many unsuccessful login attempts."
+              )
+            );
+        }
+
+        auth.loginAttempts = recentLoginAttempts;
+        auth.loginAttempts.push({ timestamp: now });
+        await auth.save();
+        return res
+          .status(HTTP_STATUS.UNAUTHORIZED)
+          .send(success("Incorrect credentials"));
+      }
+    } catch (error) {
+      console.log("Login error", error);
+      return res
+        .status(HTTP_STATUS.INTERNAL_SERVER_ERROR)
+        .send(success("Could not login"));
+    }
+  }
 }
 module.exports = new authController();

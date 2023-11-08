@@ -118,6 +118,9 @@ class lessonController {
       });
       if (result) {
         course.lesson.push(result._id);
+        course.content.assignment++;
+        course.content.videos++;
+        course.content.slides++;
         await course.save();
         return res.status(200).send(success("New lesson added", result));
       } else {
