@@ -40,6 +40,18 @@ const learnerSchema = new mongoose.Schema(
     image: {
       type: String,
     },
+    quiz: [
+      {
+        quizId: {
+          type: mongoose.Types.ObjectId,
+          ref: "quizzes",
+        },
+        score: {
+          type: Number,
+          default: 0,
+        },
+      },
+    ],
   },
   { timestamps: true }
 );

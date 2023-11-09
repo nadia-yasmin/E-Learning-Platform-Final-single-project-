@@ -7,6 +7,7 @@ const learnerModel = require("../model/learner");
 const transactionModel = require("../model/transaction");
 const categoryModel = require("../model/category");
 const typeModel = require("../model/types");
+const rateModel = require("../model/rate");
 const mongoose = require("mongoose");
 const express = require("express");
 const app = express();
@@ -23,7 +24,8 @@ const upload = require("../config/file");
 class courseController {
   async addCourse(req, res) {
     try {
-      const { title, instructor, category, description, paid } = req.body;
+      const { title, instructor, categoryId, typeId, description, paid } =
+        req.body;
       let image = req.files["image"][0];
       let intro = req.files["intro"][0];
       AWS.config.update({
@@ -79,10 +81,30 @@ class courseController {
       if (existingCourse) {
         return res.status(400).send(failure("This course already exists"));
       }
+      //new mongoose.Types.ObjectId(bookId);
+      const categoryObjectId = new mongoose.Types.ObjectId(categoryId);
+      const typeObjectId = new mongoose.Types.ObjectId(typeId);
+      const category = await categoryModel.findById(categoryObjectId);
+      const type = await typeModel.findById(typeObjectId);
+
+      if (!category) {
+        return res.status(400).send(failure("Category not found"));
+      }
+      if (!type) {
+        return res.status(400).send(failure("Type not found"));
+      }
+
+      // Validate if the type ID exists in the category's type array
+      if (!category.type.includes(type._id)) {
+        return res
+          .status(400)
+          .send(failure("Type does not belong to the selected category"));
+      }
       const result = await courseModel.create({
         title: title,
         instructor: instructor,
-        category: category,
+        category: category.name,
+        type: type.name,
         description: description,
         image: image1,
         intro: intro1,
@@ -231,9 +253,9 @@ class courseController {
         order,
         sortField,
         category,
+        type,
         rate,
         rateFlow,
-        paid,
         courseId,
       } = req.query;
 
@@ -248,30 +270,29 @@ class courseController {
         page = 1;
       }
       if (!limit) {
-        limit = 12;
+        limit = 3;
       }
 
       if (searchParam) {
         const regex = new RegExp(searchParam, "i"); // 'i' flag for case-insensitive search
         query.$or = [
           { category: regex },
-          // { instructor: regex }, //instructor id theke populate kora lagbe
+          { type: regex },
           { title: regex },
           { description: regex },
         ];
       }
 
-      if (query.ratings) {
-        if (rate && (rateFlow === "upper" || rateFlow === "lower")) {
+      if (rate) {
+        query["ratings.rate"] = { $exists: true };
+        if (rateFlow === "upper" || rateFlow === "lower") {
           if (rateFlow === "upper") {
-            query.ratings.rate = { $gte: parseFloat(rate) };
+            query["ratings.rate"] = { $gte: parseFloat(rate) };
           } else {
-            query.ratings.rate = { $lte: parseFloat(rate) };
+            query["ratings.rate"] = { $lte: parseFloat(rate) };
           }
-        } else if (rate) {
-          query.ratings.rate = {
-            $eq: parseFloat(rate),
-          };
+        } else {
+          query["ratings.rate"] = { $eq: parseFloat(rate) };
         }
       }
 
@@ -303,9 +324,8 @@ class courseController {
       if (category) {
         query.category = new RegExp(category, "i");
       }
-      // Filter based on the 'paid' property (if provided)
-      if (paid !== undefined && paid !== null) {
-        query.paid = paid === "true" ? true : paid === "false" ? false : null;
+      if (type) {
+        query.type = new RegExp(type, "i");
       }
 
       // Find documents that match the query
@@ -359,6 +379,18 @@ class courseController {
       if (!existingCategory) {
         return res.status(404).send(failure("Category not found"));
       }
+      const existingType = await typeModel.findOne({
+        name,
+        category: existingCategory._id,
+      });
+
+      if (existingType) {
+        return res
+          .status(400)
+          .send(
+            failure("Type with the same name already exists in the category.")
+          );
+      }
       const newType = new typeModel({
         name,
         category: existingCategory._id,
@@ -372,6 +404,71 @@ class courseController {
     } catch (error) {
       console.log("Create type error", error);
       return res.status(500).send(failure("Internal server error"));
+    }
+  }
+
+  async addRate(req, res) {
+    try {
+      const { rate, courseId, learnerId } = req.body;
+      const learner = await learnerModel.findById(learnerId);
+      if (!learner) {
+        return res.status(404).send(failure("learner not found"));
+      }
+      const isEnrolled = learner.course.some(
+        (course) =>
+          course.courseId.equals(courseId) && course.enrollment === true
+      );
+
+      if (!isEnrolled) {
+        return res
+          .status(400)
+          .send(failure("Learner is not enrolled in this course."));
+      }
+      const existingRate = await rateModel.findOne({
+        courseId,
+        learnerId: learner._id,
+      });
+
+      if (existingRate) {
+        return res
+          .status(400)
+          .send(failure("You have already provided a rate for this course."));
+      }
+      const newRate = new rateModel({
+        rate,
+        courseId,
+        learnerId: learner._id,
+      });
+
+      const savedRate = await newRate.save();
+      await courseModel.updateOne(
+        { _id: new mongoose.Types.ObjectId(courseId) },
+        { $push: { "ratings.userRate": savedRate._id } }
+      );
+      const averageRate = await rateModel.aggregate([
+        {
+          $match: { courseId: new mongoose.Types.ObjectId(courseId) },
+        },
+        {
+          $group: {
+            _id: null,
+            averageRate: { $avg: "$rate" },
+          },
+        },
+      ]);
+      if (averageRate.length > 0) {
+        const average = averageRate[0].averageRate;
+        await courseModel.updateOne(
+          { _id: new mongoose.Types.ObjectId(courseId) },
+          { $set: { "ratings.rate": average } }
+        );
+      }
+      return res
+        .status(200)
+        .json({ message: "Rate added successfully", rate: savedRate });
+    } catch (error) {
+      console.error("Add rate error", error);
+      return res.status(500).json({ error: "Internal server error" });
     }
   }
 }

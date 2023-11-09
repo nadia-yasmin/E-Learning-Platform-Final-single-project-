@@ -3,6 +3,7 @@ const fs = require("fs").promises;
 const { success, failure } = require("../constants/common.js");
 const lessonModel = require("../model/lesson");
 const quizModel = require("../model/quiz");
+const learnerModel = require("../model/learner");
 const mongoose = require("mongoose");
 const express = require("express");
 const app = express();
@@ -181,6 +182,55 @@ class lessonController {
     } catch (error) {
       console.log("Quiz add error", error);
       return res.status(500).send(failure("Internal server error"));
+    }
+  }
+  async attemptQuiz(req, res) {
+    try {
+      const { quizId } = req.query;
+      const { learnerId, answers } = req.body;
+      console.log("learnerId,answers", learnerId, answers);
+      const quiz = await quizModel.findById(quizId);
+      console.log("quiz", quiz);
+      if (!quiz) {
+        return res.status(404).send(failure("Quiz not found"));
+      }
+      let score = 0;
+      for (const submittedAnswer of answers) {
+        const question = quiz.quiz.find((q) => {
+          return q._id.toString() === submittedAnswer.questionId;
+        });
+        if (!question) {
+          continue;
+        }
+        const selectedOption = question.options.find(
+          (opt) =>
+            opt._id.toString() === submittedAnswer.selectedOptionId.toString()
+        );
+        if (!selectedOption) {
+          continue;
+        }
+        if (selectedOption.correct) {
+          score += 1;
+        }
+      }
+      const learner = await learnerModel.findById(learnerId);
+      if (learner) {
+        learner.quiz.push({ quizId: quizId, score });
+        await learner.save();
+      }
+      const totalQuestions = quiz.quiz.length;
+      const feedback = {
+        score,
+        totalQuestions,
+        percentage: (score / totalQuestions) * 100,
+      };
+
+      return res
+        .status(200)
+        .json({ message: "Quiz completed successfully", feedback });
+    } catch (error) {
+      console.error("Attempt quiz error", error);
+      return res.status(500).json({ error: "Internal server error" });
     }
   }
 }

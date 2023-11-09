@@ -38,6 +38,10 @@ routes.post("/addtocart", courseController.enrollCourse);
 routes.post("/login", authController.login);
 routes.post("/transaction", courseController.createTransaction);
 routes.post("/createcategory", courseController.createCategory);
+routes.post("/createtype", courseController.createType);
+routes.post("/addrate", courseController.addRate);
+routes.get("/getcourses", courseController.getCourses);
+routes.post("/attemptquiz", lessonController.attemptQuiz);
 //URL NOT FOUND
 routes.use(urlnotfound.notFound);
 module.exports = routes;

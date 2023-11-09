@@ -74,10 +74,6 @@ const courseSchema = new mongoose.Schema({
       default: 0,
     },
   },
-  paid: {
-    type: Boolean,
-    required: true,
-  },
 });
 
 const courseModel = mongoose.model("courses", courseSchema);
