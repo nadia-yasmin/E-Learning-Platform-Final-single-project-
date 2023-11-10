@@ -6,6 +6,7 @@ const urlnotfound = require("../constants/urlnotfound");
 const courseController = require("../controller/courseController");
 const lessonController = require("../controller/lessonController");
 const authController = require("../controller/authController");
+const userController = require("../controller/userController");
 const { MulterError } = require("multer");
 
 //COURSE
@@ -42,6 +43,19 @@ routes.post("/createtype", courseController.createType);
 routes.post("/addrate", courseController.addRate);
 routes.get("/getcourses", courseController.getCourses);
 routes.post("/attemptquiz", lessonController.attemptQuiz);
+routes.post("/submitquiz", lessonController.submitQuiz);
+routes.post("/addtowishlist", courseController.addtoWishlist);
+routes.get("/showwishlist", courseController.showWishlist);
+routes.get("/showalladmins", userController.showalladmins);
+routes.get("/showallinstructors", userController.showallinstructors);
+routes.get("/showalllearners", userController.showalllearners);
+routes.post(
+  "/submitassignment",
+  upload.single("file"),
+  lessonController.submitassignment
+);
+//evaluateassignment
+routes.post("/evaluateassignment", lessonController.evaluateassignment);
 //URL NOT FOUND
 routes.use(urlnotfound.notFound);
 module.exports = routes;

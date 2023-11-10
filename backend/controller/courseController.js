@@ -8,6 +8,7 @@ const transactionModel = require("../model/transaction");
 const categoryModel = require("../model/category");
 const typeModel = require("../model/types");
 const rateModel = require("../model/rate");
+const wishlistModel = require("../model/wishlist");
 const mongoose = require("mongoose");
 const express = require("express");
 const app = express();
@@ -468,6 +469,81 @@ class courseController {
         .json({ message: "Rate added successfully", rate: savedRate });
     } catch (error) {
       console.error("Add rate error", error);
+      return res.status(500).json({ error: "Internal server error" });
+    }
+  }
+  async addtoWishlist(req, res) {
+    try {
+      const { learnerId, courseId } = req.body;
+      const learner = await learnerModel.findById(learnerId);
+      if (!learner) {
+        return res.status(404).json({ error: "Learner not found" });
+      }
+      const isEnrolled = learner.course.some(
+        (course) => course.courseId.toString() === courseId && course.enrollment
+      );
+
+      if (isEnrolled) {
+        return res
+          .status(400)
+          .json({ error: "You are already enrolled in this course" });
+      }
+      if (learner.wishlistId) {
+        const existingWishlist = await wishlistModel.findById(
+          learner.wishlistId
+        );
+        if (existingWishlist && existingWishlist.courseId.includes(courseId)) {
+          return res
+            .status(400)
+            .json({ error: "Course is already in the wishlist" });
+        }
+        existingWishlist.courseId.push(courseId);
+        await existingWishlist.save();
+      } else {
+        const newWishlist = new wishlistModel({
+          learnerId,
+          courseId: [courseId],
+        });
+        await newWishlist.save();
+        learner.wishlistId = newWishlist._id;
+        await learner.save();
+      }
+
+      return res
+        .status(200)
+        .json({ message: "Course added to wishlist successfully" });
+    } catch (error) {
+      console.error("Add to wishlist error", error);
+      return res.status(500).json({ error: "Internal server error" });
+    }
+  }
+
+  async showWishlist(req, res) {
+    try {
+      const { learnerId } = req.body;
+      const learner = await learnerModel.findById(learnerId);
+
+      if (!learner) {
+        return res.status(404).json({ error: "Learner not found" });
+      }
+
+      if (!learner.wishlistId) {
+        return res.status(200).json({ wishlist: [] });
+      }
+      const wishlist = await wishlistModel
+        .findById(learner.wishlistId)
+        .populate({
+          path: "courseId",
+          select: "-_id -learnerId", // Exclude _id and learnerId fields
+        });
+
+      if (!wishlist) {
+        return res.status(404).json({ error: "Wishlist not found" });
+      }
+
+      return res.status(200).json({ wishlist: wishlist.courseId });
+    } catch (error) {
+      console.error("Show wishlist error", error);
       return res.status(500).json({ error: "Internal server error" });
     }
   }

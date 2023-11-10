@@ -4,6 +4,8 @@ const { success, failure } = require("../constants/common.js");
 const lessonModel = require("../model/lesson");
 const quizModel = require("../model/quiz");
 const learnerModel = require("../model/learner");
+const quizsubmissionModel = require("../model/quizsubmissions");
+const assignmentsubmissionModel = require("../model/assignmentsubmission");
 const mongoose = require("mongoose");
 const express = require("express");
 const app = express();
@@ -187,15 +189,88 @@ class lessonController {
   async attemptQuiz(req, res) {
     try {
       const { quizId } = req.query;
-      const { learnerId, answers } = req.body;
-      console.log("learnerId,answers", learnerId, answers);
+      const { learnerId, answer } = req.body;
+      let submissionId;
+      console.log("learnerId,answer", learnerId, answer);
       const quiz = await quizModel.findById(quizId);
       console.log("quiz", quiz);
       if (!quiz) {
         return res.status(404).send(failure("Quiz not found"));
       }
+
+      const existingSubmission = await quizsubmissionModel.findOne({
+        learnerId,
+        quizId,
+      });
+      if (!existingSubmission) {
+        const newSubmission = new quizsubmissionModel({
+          learnerId,
+          quizId,
+          submission: [
+            {
+              questionId: answer.questionId,
+              optionId: answer.selectedOptionId,
+            },
+          ],
+        });
+        const savedSubmission = await newSubmission.save();
+        submissionId = savedSubmission._id;
+      } else {
+        const submission = existingSubmission.submission || [];
+        const existingAnswerIndex = submission.findIndex(
+          (item) => item.questionId === answer.questionId
+        );
+
+        if (existingAnswerIndex !== -1) {
+          submission[existingAnswerIndex].optionId = answer.selectedOptionId;
+        } else {
+          submission.push({
+            questionId: answer.questionId,
+            optionId: answer.selectedOptionId,
+          });
+        }
+
+        const savedSubmission = await existingSubmission.save();
+        submissionId = savedSubmission._id;
+      }
+      const learner = await learnerModel.findById(learnerId);
+      if (learner) {
+        learner.quizsubmissionId = submissionId;
+        await learner.save();
+      }
+      return res.status(200).json({ message: "One question attempted" });
+    } catch (error) {
+      console.error("Attempt quiz error", error);
+      return res.status(500).json({ error: "Internal server error" });
+    }
+  }
+  async submitQuiz(req, res) {
+    try {
+      const { learnerId } = req.body;
+      const learner = await learnerModel.findById(learnerId);
+
+      if (!learner) {
+        return res.status(404).json({ error: "Learner not found" });
+      }
+
+      const quizsubmissionId = learner.quizsubmissionId;
+
+      if (!quizsubmissionId || quizsubmissionId.length === 0) {
+        return res
+          .status(400)
+          .json({ error: "No quiz submission found for the learner" });
+      }
+      const quizsubmission = await quizsubmissionModel.findById(
+        quizsubmissionId
+      );
+      const submittedAnswers = quizsubmission.submission;
+      const quiz = await quizModel.findById(quizsubmission.quizId);
+
+      if (!quiz) {
+        return res.status(404).json({ error: "Quiz not found" });
+      }
       let score = 0;
-      for (const submittedAnswer of answers) {
+      for (const submittedAnswer of submittedAnswers) {
         const question = quiz.quiz.find((q) => {
           return q._id.toString() === submittedAnswer.questionId;
         });
@@ -203,8 +278,7 @@ class lessonController {
           continue;
         }
         const selectedOption = question.options.find(
-          (opt) =>
-            opt._id.toString() === submittedAnswer.selectedOptionId.toString()
+          (opt) => opt._id.toString() === submittedAnswer.optionId
         );
         if (!selectedOption) {
           continue;
@@ -213,11 +287,18 @@ class lessonController {
           score += 1;
         }
       }
-      const learner = await learnerModel.findById(learnerId);
-      if (learner) {
-        learner.quiz.push({ quizId: quizId, score });
-        await learner.save();
+      const existingQuizIndex = learner.quiz.findIndex(
+        (item) => item.quizId.toString() === quizsubmission.quizId.toString()
+      );
+
+      if (existingQuizIndex !== -1) {
+        learner.quiz[existingQuizIndex].score = score;
+      } else {
+        learner.quiz.push({ quizId: quizsubmission.quizId, score });
       }
+
+      await learner.save();
+
       const totalQuestions = quiz.quiz.length;
       const feedback = {
         score,
@@ -229,7 +310,113 @@ class lessonController {
         .status(200)
         .json({ message: "Quiz completed successfully", feedback });
     } catch (error) {
-      console.error("Attempt quiz error", error);
+      console.error("Submit quiz error", error);
+      return res.status(500).json({ error: "Internal server error" });
+    }
+  }
+
+  async submitassignment(req, res) {
+    try {
+      const { lessonId } = req.query;
+      const { learnerId } = req.body;
+      const existingSubmission = await assignmentsubmissionModel.findOne({
+        learnerId,
+        lessonId,
+      });
+      if (existingSubmission && existingSubmission.submit) {
+        return res.status(400).json({ error: "Assignment already submitted" });
+      }
+
+      const lesson = await lessonModel.findById(lessonId);
+
+      if (!lesson) {
+        return res.status(404).json({ error: "Lesson not found" });
+      }
+
+      const courseId = lesson.courseId;
+      const learner = await learnerModel.findOne({
+        _id: learnerId,
+        "course.courseId": courseId,
+      });
+
+      if (!learner) {
+        return res.status(400).json({
+          error: "Learner is not enrolled in the course of the lesson",
+        });
+      }
+
+      AWS.config.update({
+        accessKeyId: "AKIARBUZNPTUDGAEUUQX",
+        secretAccessKey: "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",
+        region: "eu-west-3",
+      });
+      const s3 = new AWS.S3();
+      const params = {
+        Bucket: "nadia-bucket",
+        Key: req.file.originalname,
+        Body: req.file.buffer,
+      };
+      const uploadfile = async () => {
+        return new Promise((resolve, reject) => {
+          s3.upload(params, (err, data) => {
+            if (err) {
+              reject(err);
+            } else {
+              resolve(data.Location);
+            }
+          });
+        });
+      };
+      const submissionUrl = await uploadfile();
+      const newSubmission = new assignmentsubmissionModel({
+        learnerId,
+        lessonId,
+        submission: submissionUrl,
+        submit: true,
+      });
+      await newSubmission.save();
+      learner.assignmentsubmissionId = newSubmission._id;
+      await learner.save();
+      return res
+        .status(200)
+        .json({ message: "Assignment submitted successfully" });
+    } catch (error) {
+      console.error("Submit assignment error", error);
+      return res.status(500).json({ error: "Internal server error" });
+    }
+  }
+  async evaluateassignment(req, res) {
+    try {
+      const { learnerId, score } = req.body;
+      const learner = await learnerModel.findById(learnerId);
+      if (!learner) {
+        return res.status(404).json({ error: "Learner not found" });
+      }
+      const assignmentsubmissionId = learner.assignmentsubmissionId;
+      if (!assignmentsubmissionId) {
+        return res
+          .status(400)
+          .json({ error: "No assignment submission found for the learner" });
+      }
+      const submission = await assignmentsubmissionModel.findById(
+        assignmentsubmissionId
+      );
+      if (!submission) {
+        return res
+          .status(404)
+          .json({ error: "Assignment submission not found" });
+      }
+      if (submission.checked) {
+        return res.status(400).json({ error: "Assignment already checked" });
+      }
+      submission.score = score;
+      submission.checked = true;
+      await submission.save();
+      return res
+        .status(200)
+        .json({ message: "Assignment evaluated successfully" });
+    } catch (error) {
+      console.error("Evaluate assignment error", error);
       return res.status(500).json({ error: "Internal server error" });
     }
   }

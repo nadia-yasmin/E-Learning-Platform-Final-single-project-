@@ -52,6 +52,18 @@ const learnerSchema = new mongoose.Schema(
         },
       },
     ],
+    quizsubmissionId: {
+      type: mongoose.Types.ObjectId,
+      ref: "quizsubmissions",
+    },
+    wishlistId: {
+      type: mongoose.Types.ObjectId,
+      ref: "wishlists",
+    },
+    assignmentsubmissionId: {
+      type: mongoose.Types.ObjectId,
+      ref: "assignmentsubmissions",
+    },
   },
   { timestamps: true }
 );
