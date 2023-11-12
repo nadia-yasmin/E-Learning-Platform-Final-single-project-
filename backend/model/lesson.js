@@ -30,12 +30,12 @@ const lessonSchema = new mongoose.Schema(
         type: String,
       },
     },
-    discussion: [
+    discussion:
       {
         type: mongoose.Types.ObjectId,
         ref: "discussions",
       },
-    ],
+    
     quiz: {
       type: mongoose.Types.ObjectId,
       ref: "quizzes",

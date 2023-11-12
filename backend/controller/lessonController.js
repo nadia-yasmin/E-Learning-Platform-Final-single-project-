@@ -2,10 +2,13 @@ const path = require("path");
 const fs = require("fs").promises;
 const { success, failure } = require("../constants/common.js");
 const lessonModel = require("../model/lesson");
+const authModel=require("../model/auth.js")
 const quizModel = require("../model/quiz");
 const learnerModel = require("../model/learner");
 const quizsubmissionModel = require("../model/quizsubmissions");
 const assignmentsubmissionModel = require("../model/assignmentsubmission");
+const instructorModel = require("../model/instructor");
+const discussionModel = require("../model/discussion");
 const mongoose = require("mongoose");
 const express = require("express");
 const app = express();
@@ -420,5 +423,73 @@ class lessonController {
       return res.status(500).json({ error: "Internal server error" });
     }
   }
+  
+  async postdiscussion(req, res) {
+    try {
+      const { lessonId, reference } = req.query;
+      const { email, text } = req.body;
+      const user = await authModel.findOne({ email });
+      const lesson = await lessonModel.findOne({ _id: lessonId });
+      if (!user) {
+        return res.status(404).json({ error: "User not found" });
+      }
+  
+      let discussionData = {};
+      if(reference){
+    
+          const learner = await learnerModel.findById(reference) 
+          if (learner){
+            discussionData = {
+              learnerId: user._id,
+              text: `${learner.name} - ${text}`,
+              lessonId
+          } 
+          }
+          else{
+            const instructor = await instructorModel.findById(reference)
+            console.log("instructor, reference",instructor,reference)
+            discussionData = {
+              instructorId: user._id,
+              text: `${instructor.name} - ${text}`,
+              lessonId
+            };
+          }
+         
+      }
+      else if( user.role==="learner"){ 
+          discussionData = {
+            learnerId: user._id,
+            text: `${text}`,
+            lessonId
+      }
+      }
+      else if( user.role==="instructor"){ 
+        discussionData = {
+          instructorId: user._id,
+          text: `${text}`,
+          lessonId
+    }
+    }
+      
+        const existingDiscussion = await discussionModel.findOne({ _id: lesson.discussion });
+      
+      if (existingDiscussion) {
+        existingDiscussion.discussion.push(discussionData);
+        await existingDiscussion.save();
+      } else {
+        const discussion = await discussionModel.create({ discussion: [discussionData] });
+        lesson.discussion = discussion._id;
+        await lesson.save();
+      }
+  
+      return res.status(200).json({ message: "Discussion posted successfully" });
+    } catch (error) {
+      console.error("Post discussion error", error);
+      return res.status(500).json({ error: "Internal server error" });
+    }
+  }
+  
+  
+  
 }
 module.exports = new lessonController();

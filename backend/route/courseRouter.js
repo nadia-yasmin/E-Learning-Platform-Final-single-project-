@@ -56,6 +56,8 @@ routes.post(
 );
 //evaluateassignment
 routes.post("/evaluateassignment", lessonController.evaluateassignment);
+routes.post("/postdiscussion", lessonController.postdiscussion);
+
 //URL NOT FOUND
 routes.use(urlnotfound.notFound);
 module.exports = routes;
