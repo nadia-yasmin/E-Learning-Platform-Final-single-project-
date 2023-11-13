@@ -686,6 +686,36 @@ class courseController {
       return res.status(500).send(success("Internal server error"));
     }
   }
+
+  async updatereview(req, res) {
+    try {
+      const { courseId } = req.query;
+      const { reviewText, email } = req.body;
+      // const token = req.headers.authorization.split(" ")[1];
+      // const decodedToken = jsonwebtoken.decode(token, process.env.SECRET_KEY);
+      const learner = await learnerModel.findOne({ email: email });
+      if (!learner) {
+        return res.status(404).send(failure("Learner not found"));
+      }
+      const existingReview = await reviewModel.findOne({
+        courseId,
+        learnerId: learner._id,
+      });
+
+      if (!existingReview) {
+        return res.status(400).send(success("No review found to update"));
+      }
+      existingReview.reviewText = reviewText;
+      const updatedReview = await existingReview.save();
+      return res.status(200).json({
+        message: "Review updated successfully",
+        review: updatedReview,
+      });
+    } catch (error) {
+      console.error("Update review error", error);
+      return res.status(500).send(success("Internal server error"));
+    }
+  }
   async showcoursebyid(req, res) {
     try {
       const { courseId } = req.query;

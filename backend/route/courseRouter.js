@@ -103,10 +103,11 @@ routes.post(
   upload.single("file"),
   lessonController.submitassignment
 );
-//evaluateassignment
 routes.post("/evaluateassignment", lessonController.evaluateassignment);
 routes.post("/postdiscussion", lessonController.postdiscussion);
 routes.post("/addreview", courseController.addreview);
+routes.put("/updatereview", courseController.updatereview);
+//updatereview
 routes.get("/showlessonbyweek", lessonController.showlessonbyweek);
 routes.get("/showlessonbyid", lessonController.showlessonid);
 routes.get("/getcoursebyid", courseController.showcoursebyid);
