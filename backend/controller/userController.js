@@ -6,6 +6,7 @@ const cartModel = require("../model/cart");
 const learnerModel = require("../model/learner");
 const instructorModel = require("../model/instructor");
 const adminModel = require("../model/admin");
+const authModel = require("../model/auth");
 const transactionModel = require("../model/transaction");
 const categoryModel = require("../model/category");
 const typeModel = require("../model/types");
@@ -88,6 +89,134 @@ class userController {
     } catch (error) {
       console.error("Show all learners error", error);
       return res.status(500).json({ error: "Internal server error" });
+    }
+  }
+  async updateuser(req, res) {
+    try {
+      const validation = validationResult(req).array();
+      console.log("validation", validation);
+      if (validation.length > 0) {
+        return res
+          .status(HTTP_STATUS.BAD_REQUEST)
+          .send(failure("Failed to validate the data", validation));
+      }
+      const { email } = req.query;
+      const { newemail, password, name } = req.body;
+      const existingUser = await authModel.findOne({ email: email });
+      if (!existingUser) {
+        return res
+          .status(HTTP_STATUS.BAD_REQUEST)
+          .send(failure("User with this email does not exist"));
+      }
+      AWS.config.update({
+        accessKeyId: "AKIARBUZNPTUDGAEUUQX",
+        secretAccessKey: "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",
+        region: "eu-west-3",
+      });
+      const s3 = new AWS.S3();
+      let updatedFields = {};
+      if (req.file) {
+        const params = {
+          Bucket: "nadia-bucket",
+          Key: req.file.originalname,
+          Body: req.file.buffer,
+        };
+        const uploadImage = async () => {
+          return new Promise((resolve, reject) => {
+            s3.upload(params, (err, data) => {
+              if (err) {
+                reject(err);
+              } else {
+                resolve(data.Location);
+              }
+            });
+          });
+        };
+        const image1 = await uploadImage();
+        console.log("image url", image1);
+        updatedFields.image = image1;
+      }
+      if (name) {
+        updatedFields.name = name;
+      }
+      if (password) {
+        const hashedPassword = await bcrypt.hash(password, 10);
+        updatedFields.password = hashedPassword;
+      }
+      if (newemail) {
+        updatedFields.email = newemail;
+      }
+      let result = null;
+      if (existingUser.role === "admin") {
+        result = await adminModel.findOneAndUpdate(
+          { email: email },
+          { $set: updatedFields },
+          { new: true }
+        );
+      } else if (existingUser.role === "instructor") {
+        result = await instructorModel.findOneAndUpdate(
+          { email: email },
+          { $set: updatedFields },
+          { new: true }
+        );
+      } else if (existingUser.role === "learner") {
+        result = await learnerModel.findOneAndUpdate(
+          { email: email },
+          { $set: updatedFields },
+          { new: true }
+        );
+      }
+      if (result) {
+        return res
+          .status(HTTP_STATUS.OK)
+          .send(success("User information has been updated", result));
+      } else {
+        return res
+          .status(HTTP_STATUS.BAD_REQUEST)
+          .send(success("User information update failed"));
+      }
+    } catch (error) {
+      console.log("The error is", error);
+      return res
+        .status(HTTP_STATUS.INTERNAL_SERVER_ERROR)
+        .send(success("Internal server error"));
+    }
+  }
+  async deleteuser(req, res) {
+    try {
+      const { userId } = req.query;
+      const learnerUser = await learnerModel.findById(userId);
+      if (learnerUser) {
+        await authModel.findOneAndDelete({ email: learnerUser.email });
+        await learnerModel.findByIdAndDelete(userId);
+        return res
+          .status(HTTP_STATUS.OK)
+          .send(success("Learner deleted successfully"));
+      }
+      const instructorUser = await instructorModel.findById(userId);
+      if (instructorUser) {
+        await authModel.findOneAndDelete({ email: instructorUser.email });
+        await instructorModel.findByIdAndDelete(userId);
+        return res
+          .status(HTTP_STATUS.OK)
+          .send(success("Instructor deleted successfully"));
+      }
+      const adminUser = await adminModel.findById(userId);
+      if (adminUser) {
+        await authModel.findOneAndDelete({ email: adminUser.email });
+        await adminModel.findByIdAndDelete(userId);
+        return res
+          .status(HTTP_STATUS.OK)
+          .send(success("Admin deleted successfully"));
+      }
+      return res
+        .status(HTTP_STATUS.BAD_REQUEST)
+        .send(failure("User with this ID does not exist"));
+    } catch (error) {
+      console.log("The error is", error);
+      return res
+        .status(HTTP_STATUS.INTERNAL_SERVER_ERROR)
+        .send(success("Internal server error"));
     }
   }
 }

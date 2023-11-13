@@ -51,11 +51,10 @@ const courseSchema = new mongoose.Schema({
   intro: {
     type: String,
   },
-  //   companies: [
-  //     {
-  //       type: String,
-  //     },
-  //   ],
+  approved: {
+    type: Boolean,
+    default: false,
+  },
   content: {
     assignment: {
       type: Number,
@@ -70,6 +69,10 @@ const courseSchema = new mongoose.Schema({
       default: 0,
     },
     slides: {
+      type: Number,
+      default: 0,
+    },
+    week: {
       type: Number,
       default: 0,
     },

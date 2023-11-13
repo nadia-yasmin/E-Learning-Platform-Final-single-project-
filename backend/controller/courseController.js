@@ -83,7 +83,6 @@ class courseController {
       if (existingCourse) {
         return res.status(400).send(failure("This course already exists"));
       }
-      //new mongoose.Types.ObjectId(bookId);
       const categoryObjectId = new mongoose.Types.ObjectId(categoryId);
       const typeObjectId = new mongoose.Types.ObjectId(typeId);
       const category = await categoryModel.findById(categoryObjectId);
@@ -95,8 +94,6 @@ class courseController {
       if (!type) {
         return res.status(400).send(failure("Type not found"));
       }
-
-      // Validate if the type ID exists in the category's type array
       if (!category.type.includes(type._id)) {
         return res
           .status(400)
@@ -473,6 +470,108 @@ class courseController {
       return res.status(500).json({ error: "Internal server error" });
     }
   }
+  async updateRate(req, res) {
+    try {
+      const { courseId } = req.query;
+      const { rate, email } = req.body;
+      // const token = req.headers.authorization.split(" ")[1];
+      // const decodedToken = jsonwebtoken.decode(token, process.env.SECRET_KEY);
+      const learner = await learnerModel.findOne({ email: email });
+      if (!learner) {
+        return res.status(404).json({ error: "Learner is not found" });
+      }
+      const existingRate = await rateModel.findOne({
+        courseId,
+        learnerId: learner._id,
+      });
+
+      if (!existingRate) {
+        return res.status(404).json({ error: "No data found to update" });
+      }
+      existingRate.rate = rate;
+      const savedRate = await existingRate.save();
+      const averageRate = await rateModel.aggregate([
+        {
+          $match: { courseId: new mongoose.Types.ObjectId(courseId) },
+        },
+        {
+          $group: {
+            _id: null,
+            averageRate: { $avg: "$rate" },
+          },
+        },
+      ]);
+      if (averageRate.length > 0) {
+        const average = averageRate[0].averageRate;
+        await courseModel.updateOne(
+          { _id: new mongoose.Types.ObjectId(courseId) },
+          { $set: { "ratings.rate": average } }
+        );
+      }
+      return res
+        .status(200)
+        .json({ message: "Rate updated successfully", rate: savedRate });
+    } catch (error) {
+      console.error("Update rate error", error);
+      return res.status(500).json({ error: "Internal server error" });
+    }
+  }
+
+  async deleteRate(req, res) {
+    try {
+      const { courseId } = req.query;
+      const { email } = req.body;
+      // const token = req.headers.authorization.split(" ")[1];
+      // const decodedToken = jsonwebtoken.decode(token, process.env.SECRET_KEY);
+      const learner = await learnerModel.findOne({ email: email });
+      if (!learner) {
+        return res.status(404).json({ error: "Learner is not found" });
+      }
+      const userIdAsString = learner._id.toString();
+      const result = await rateModel.findOne({
+        courseId,
+        learnerId: userIdAsString,
+      });
+      const result2 = await rateModel.findOneAndDelete({
+        courseId,
+        learnerId: userIdAsString,
+      });
+      if (!result) {
+        return res.status(404).json({ error: "No data found to delete" });
+      } else {
+        await courseModel.updateOne(
+          { _id: new mongoose.Types.ObjectId(courseId) },
+          {
+            $pull: {
+              "ratings.userRate": result._id,
+            },
+          }
+        );
+        const averageRate = await rateModel.aggregate([
+          {
+            $match: { courseId: new mongoose.Types.ObjectId(courseId) },
+          },
+          {
+            $group: {
+              _id: null,
+              averageRate: { $avg: "$rate" },
+            },
+          },
+        ]);
+        if (averageRate.length > 0) {
+          const average = averageRate[0].averageRate;
+          await courseModel.updateOne(
+            { _id: new mongoose.Types.ObjectId(courseId) },
+            { $set: { "ratings.rate": average } }
+          );
+        }
+        return res.status(200).send(success(`rate is deleted successfully`));
+      }
+    } catch (error) {
+      console.error("Update rate error", error);
+      return res.status(500).json({ error: "Internal server error" });
+    }
+  }
   async addtoWishlist(req, res) {
     try {
       const { learnerId, courseId } = req.body;
@@ -551,34 +650,162 @@ class courseController {
 
   async addreview(req, res) {
     try {
-        const { email,text } = req.body;
-        let {courseId}= req.query;
-       
-        const learner = await learnerModel.findOne({email:email});
-        if (!learner) {
-            return res.status(404).json({ error: 'learner is not found' });
-        }
-        const existingReview = await reviewModel.findOne({ courseId, learnerId: learner._id });
-        if (existingReview) {
-            return res.status(400).send(failure({ error: 'You have already provided a review for this book.' }));
-        }
-        const newReview = new reviewModel({
-          text,
-            courseId,
-            learnerId: learner._id,
-        });
- const savedReview = await newReview.save();
- await courseModel.updateOne(
-  { _id: courseId },
-  { $push: { reviews: savedReview._id } }
-);
-        return res.status(200).send(success('Review added successfully', { review: savedReview }));
-    } catch (error) {
-        console.error('Add review error', error);
-        return res.status(500).send(success('Internal server error'));
-    }
-}
+      const { email, text } = req.body;
+      let { courseId } = req.query;
 
-  
+      const learner = await learnerModel.findOne({ email: email });
+      if (!learner) {
+        return res.status(404).json({ error: "learner is not found" });
+      }
+      const existingReview = await reviewModel.findOne({
+        courseId,
+        learnerId: learner._id,
+      });
+      if (existingReview) {
+        return res.status(400).send(
+          failure({
+            error: "You have already provided a review for this book.",
+          })
+        );
+      }
+      const newReview = new reviewModel({
+        text,
+        courseId,
+        learnerId: learner._id,
+      });
+      const savedReview = await newReview.save();
+      await courseModel.updateOne(
+        { _id: courseId },
+        { $push: { reviews: savedReview._id } }
+      );
+      return res
+        .status(200)
+        .send(success("Review added successfully", { review: savedReview }));
+    } catch (error) {
+      console.error("Add review error", error);
+      return res.status(500).send(success("Internal server error"));
+    }
+  }
+  async showcoursebyid(req, res) {
+    try {
+      const { courseId } = req.query;
+      if (!courseId) {
+        return res.status(400).json({ error: "Invalid parameters" });
+      }
+      const course = await courseModel.findById(courseId);
+      if (!course) {
+        return res.status(404).json({ error: "Course not found" });
+      }
+      return res.status(200).json({ course });
+    } catch (error) {
+      console.error("Show course by id error", error);
+      return res.status(500).send(success("Internal server error"));
+    }
+  }
+
+  async updateCourse(req, res) {
+    try {
+      const { courseId } = req.query;
+      const { title, category, description, type } = req.body;
+      if (!courseId) {
+        return res.status(400).json({ error: "Invalid parameters" });
+      }
+      const course = await courseModel.findById(courseId);
+      if (!course) {
+        return res.status(404).json({ error: "Course not found" });
+      }
+      if (title) {
+        course.title = title;
+      }
+      if (category) {
+        course.category = category;
+      }
+      if (description) {
+        course.description = description;
+      }
+      if (type) {
+        course.type = type;
+      }
+      AWS.config.update({
+        accessKeyId: "AKIARBUZNPTUDGAEUUQX",
+        secretAccessKey: "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",
+        region: "eu-west-3",
+      });
+      const s3 = new AWS.S3();
+      if (req.files && req.files["image"] && req.files["image"].length > 0) {
+        if (req.files["image"][0]) {
+          let image = req.files["image"][0];
+          const params = {
+            Bucket: "nadia-bucket",
+            Key: image.originalname,
+            Body: image.buffer,
+          };
+          console.log("Params", params);
+          const uploadImage = async () => {
+            return new Promise((resolve, reject) => {
+              s3.upload(params, (err, data) => {
+                if (err) {
+                  reject(err);
+                } else {
+                  resolve(data.Location);
+                }
+              });
+            });
+          };
+          const image1 = await uploadImage();
+          console.log("image url", image1);
+          course.image = image1;
+        }
+      }
+      if (req.files) {
+        if (req.files && req.files["intro"] && req.files["intro"].length > 0) {
+          let intro = req.files["intro"][0];
+          const paramstwo = {
+            Bucket: "nadia-bucket",
+            Key: intro.originalname,
+            Body: intro.buffer,
+          };
+          const uploadIntro = async () => {
+            return new Promise((resolve, reject) => {
+              s3.upload(paramstwo, (err, data) => {
+                if (err) {
+                  reject(err);
+                } else {
+                  resolve(data.Location);
+                }
+              });
+            });
+          };
+          const intro1 = await uploadIntro();
+          console.log("intro url", intro1);
+          course.intro = intro1;
+        }
+      }
+
+      const updatedCourse = await course.save();
+      return res.status(200).json({ updatedCourse });
+    } catch (error) {
+      console.error("Update course error", error);
+      return res.status(500).send(success("Internal server error"));
+    }
+  }
+
+  async deleteCourse(req, res) {
+    try {
+      const { courseId } = req.query;
+      if (!courseId) {
+        return res.status(400).json({ error: "Invalid parameters" });
+      }
+      const course = await courseModel.findById(courseId);
+      if (!course) {
+        return res.status(404).json({ error: "Course not found" });
+      }
+      await courseModel.findByIdAndDelete(courseId);
+      return res.status(200).send(success("Course deleted successfully"));
+    } catch (error) {
+      console.error("Delete course error", error);
+      return res.status(500).send(success("Internal server error"));
+    }
+  }
 }
 module.exports = new courseController();

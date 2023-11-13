@@ -23,6 +23,15 @@ const AWS = require("aws-sdk");
 class authController {
   async signUp(req, res) {
     try {
+      console.log("req.file", req.file);
+
+      const validation = validationResult(req).array();
+      console.log("validation", validation);
+      if (validation.length > 0) {
+        return res
+          .status(HTTP_STATUS.BAD_REQUEST)
+          .send(failure("Failed to validate the data", validation));
+      }
       const { role } = req.query;
       const { email, password, name } = req.body;
       const existingUser = await authModel.findOne({ email: email });
@@ -117,7 +126,7 @@ class authController {
           .send(success("Authentication succeeded", result));
       } else {
         return res
-          .status(HTTP_STATUS.OK)
+          .status(HTTP_STATUS.BAD_REQUEST)
           .send(success("Authentication has not been succeeded"));
       }
     } catch (error) {
@@ -222,45 +231,51 @@ class authController {
 
   async sendForgotPasswordEmail(req, res) {
     try {
-        const { recipient } = req.body
-        console.log("recipient mail", recipient)
-        if (!recipient || recipient === "") {
-            return res.status(400).send(failure("invalid request"))
+      const { recipient } = req.body;
+      console.log("recipient mail", recipient);
+      if (!recipient || recipient === "") {
+        return res.status(400).send(failure("invalid request"));
+      }
+
+      const auth = await authModel.findOne({ email: recipient });
+      if (!auth) {
+        return res.status(400).send(failure("invalid request"));
+      }
+
+      const resetToken = crypto.randomBytes(32).toString("hex");
+      auth.resetPasswordToken = resetToken;
+      auth.resetPasswordExpired = new Date(Date.now() + 60 * 60 * 1000);
+
+      await auth.save();
+
+      const resetPasswordURL = path.join(
+        process.env.BACKEND_AUTH_URL,
+        "reset-password",
+        auth._id.toString(),
+        resetToken
+      );
+
+      const htmlBody = await ejsRenderFile(
+        path.join(__dirname, "../../views/forgotPassword.ejs"),
+        {
+          name: auth.username,
+          resetPasswordURL: resetPasswordURL,
         }
+      );
+      console.log("htmlBody", htmlBody);
 
-        const auth = await authModel.findOne({ email: recipient })
-        if (!auth) {
-            return res.status(400).send(failure("invalid request"))
-        }
+      const emailResult = await sendMail(recipient, "Reset Password", htmlBody);
 
-        const resetToken = crypto.randomBytes(32).toString('hex')
-        auth.resetPasswordToken = resetToken
-        auth.resetPasswordExpired = new Date(Date.now() + 60 * 60 * 1000);
-
-
-        await auth.save()
-
-        const resetPasswordURL = path.join(process.env.BACKEND_AUTH_URL, "reset-password", auth._id.toString(), resetToken);
-
-        const htmlBody = await ejsRenderFile(path.join(__dirname, '../../views/forgotPassword.ejs'), {
-            name: auth.username,
-            resetPasswordURL: resetPasswordURL
-        })
-        console.log("htmlBody", htmlBody)
-
-        const emailResult = await sendMail(recipient, "Reset Password", htmlBody);
-
-        if (emailResult) {
-            return res.status(200).send(success("Reset password link sent to your email"))
-        }
-        return res.status(400).send(failure("Something went wrong"))
-
-
+      if (emailResult) {
+        return res
+          .status(200)
+          .send(success("Reset password link sent to your email"));
+      }
+      return res.status(400).send(failure("Something went wrong"));
     } catch (error) {
-        console.log("error found", error)
-        return res.status(500).send(failure("Internal server error", error))
+      console.log("error found", error);
+      return res.status(500).send(failure("Internal server error", error));
     }
-}
-
+  }
 }
 module.exports = new authController();

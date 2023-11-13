@@ -2,7 +2,7 @@ const path = require("path");
 const fs = require("fs").promises;
 const { success, failure } = require("../constants/common.js");
 const lessonModel = require("../model/lesson");
-const authModel=require("../model/auth.js")
+const authModel = require("../model/auth.js");
 const quizModel = require("../model/quiz");
 const learnerModel = require("../model/learner");
 const quizsubmissionModel = require("../model/quizsubmissions");
@@ -24,10 +24,41 @@ const multer = require("multer");
 const upload = require("../config/file");
 const courseModel = require("../model/course.js");
 class lessonController {
+  async createBucket(req, res) {
+    try {
+      AWS.config.update({
+        accessKeyId: "AKIARBUZNPTUDGAEUUQX",
+        secretAccessKey: "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",
+        region: "eu-west-3",
+      });
+      const s3 = new AWS.S3();
+      const params = {
+        Bucket: "nadia-bucket",
+        Key: req.file.originalname,
+        Body: req.file.buffer,
+      };
+      console.log("Params", params);
+      s3.upload(params, (err, data) => {
+        if (err) {
+          console.error(err);
+          return res.status(500).send("Error uploading file");
+        }
+        res.send(data.Location);
+      });
+    } catch (error) {
+      console.log("Book add error", error);
+      return res.status(500).send(failure("Internal server error"));
+    }
+  }
   async addLesson(req, res) {
     try {
       const { courseId } = req.query;
-      const { title, description, assignmenttext } = req.body;
+      const { title, description, assignmenttext, week } = req.body;
+      const existingLesson = await lessonModel.findOne({ title: title });
+      const course = await courseModel.findById(courseId);
+      if (!course) {
+        return res.status(400).send(failure("This course does not exist"));
+      }
       let video1 = req.files["video"][0];
       let slides1 = req.files["slides"][0];
       let assignment1 = req.files["assignment"][0];
@@ -100,11 +131,7 @@ class lessonController {
         diagram: assignmentUrl,
         text: assignmenttext,
       };
-      const existingLesson = await lessonModel.findOne({ title: title });
-      const course = await courseModel.findById(courseId);
-      if (!course) {
-        return res.status(400).send(failure("This course does not exist"));
-      }
+
       console.log("course", course);
       const lessonNumber =
         course.lesson.length === 0 ? 1 : course.lesson.length + 1;
@@ -118,15 +145,23 @@ class lessonController {
         courseId: courseId,
         description: description,
         video: videoUrl,
-        slides: slidesUrl,
+        slide: slidesUrl,
         number: lessonNumber,
         assignment: assignment,
+        week: week,
       });
       if (result) {
         course.lesson.push(result._id);
         course.content.assignment++;
-        course.content.videos++;
-        course.content.slides++;
+        if (assignment) {
+          course.content.assignment++;
+        }
+        if (slidesUrl) {
+          course.content.slides++;
+        }
+        if (week > course.content.week) {
+          course.content.week = week;
+        }
         await course.save();
         return res.status(200).send(success("New lesson added", result));
       } else {
@@ -423,7 +458,7 @@ class lessonController {
       return res.status(500).json({ error: "Internal server error" });
     }
   }
-  
+
   async postdiscussion(req, res) {
     try {
       const { lessonId, reference } = req.query;
@@ -433,63 +468,266 @@ class lessonController {
       if (!user) {
         return res.status(404).json({ error: "User not found" });
       }
-  
+
       let discussionData = {};
-      if(reference){
-    
-          const learner = await learnerModel.findById(reference) 
-          if (learner){
-            discussionData = {
-              learnerId: user._id,
-              text: `${learner.name} - ${text}`,
-              lessonId
-          } 
-          }
-          else{
-            const instructor = await instructorModel.findById(reference)
-            console.log("instructor, reference",instructor,reference)
-            discussionData = {
-              instructorId: user._id,
-              text: `${instructor.name} - ${text}`,
-              lessonId
-            };
-          }
-         
-      }
-      else if( user.role==="learner"){ 
+      if (reference) {
+        const learner = await learnerModel.findById(reference);
+        if (learner) {
           discussionData = {
             learnerId: user._id,
-            text: `${text}`,
-            lessonId
-      }
-      }
-      else if( user.role==="instructor"){ 
+            text: `${learner.name} - ${text}`,
+            lessonId,
+          };
+        } else {
+          const instructor = await instructorModel.findById(reference);
+          console.log("instructor, reference", instructor, reference);
+          discussionData = {
+            instructorId: user._id,
+            text: `${instructor.name} - ${text}`,
+            lessonId,
+          };
+        }
+      } else if (user.role === "learner") {
+        discussionData = {
+          learnerId: user._id,
+          text: `${text}`,
+          lessonId,
+        };
+      } else if (user.role === "instructor") {
         discussionData = {
           instructorId: user._id,
           text: `${text}`,
-          lessonId
-    }
-    }
-      
-        const existingDiscussion = await discussionModel.findOne({ _id: lesson.discussion });
-      
+          lessonId,
+        };
+      }
+
+      const existingDiscussion = await discussionModel.findOne({
+        _id: lesson.discussion,
+      });
+
       if (existingDiscussion) {
         existingDiscussion.discussion.push(discussionData);
         await existingDiscussion.save();
       } else {
-        const discussion = await discussionModel.create({ discussion: [discussionData] });
+        const discussion = await discussionModel.create({
+          discussion: [discussionData],
+        });
         lesson.discussion = discussion._id;
         await lesson.save();
       }
-  
-      return res.status(200).json({ message: "Discussion posted successfully" });
+
+      return res
+        .status(200)
+        .json({ message: "Discussion posted successfully" });
     } catch (error) {
       console.error("Post discussion error", error);
       return res.status(500).json({ error: "Internal server error" });
     }
   }
-  
-  
-  
+
+  async showlessonbyweek(req, res) {
+    try {
+      const { courseId, week } = req.query;
+      if (!courseId || !week) {
+        return res.status(400).json({ error: "Invalid parameters" });
+      }
+      const course = await courseModel.findById(courseId);
+      if (!course) {
+        return res.status(404).json({ error: "Course not found" });
+      }
+      const lessonPromises = course.lesson.map(async (lessonId) => {
+        const lesson = await lessonModel.findById(lessonId);
+        return lesson;
+      });
+      const allLessons = await Promise.all(lessonPromises);
+      console.log("all lessons", allLessons);
+      const filteredLessons = allLessons.filter(
+        (lesson) => lesson && lesson.week == week
+      );
+      const sortedLessons = filteredLessons.sort((a, b) => a.number - b.number);
+      const lessonTitles = sortedLessons.map((lesson) => lesson.title);
+      return res.status(200).json({ lessonTitles });
+    } catch (error) {
+      console.error("Show lesson by weekly error", error);
+      return res.status(500).json({ error: "Internal server error" });
+    }
+  }
+
+  async showlessonid(req, res) {
+    try {
+      const { lessonId } = req.query;
+      if (!lessonId) {
+        return res.status(400).json({ error: "Invalid parameters" });
+      }
+      const lesson = await lessonModel.findById(lessonId);
+      if (!lesson) {
+        return res.status(404).json({ error: "Lesson not found" });
+      }
+      const lessonDetails = {
+        title: lesson.title,
+        description: lesson.description,
+      };
+
+      return res.status(200).json({ lesson });
+    } catch (error) {
+      console.error("Show lesson by id error", error);
+      return res.status(500).json({ error: "Internal server error" });
+    }
+  }
+
+  async updateLesson(req, res) {
+    try {
+      const { lessonId } = req.query;
+      const { title, description, assignmenttext, week } = req.body;
+      console.log(
+        "title, description, assignmenttext, week",
+        title,
+        description,
+        assignmenttext,
+        week
+      );
+      if (!lessonId) {
+        return res.status(400).json({ error: "Invalid parameters" });
+      }
+      const existingLesson = await lessonModel.findById(lessonId);
+      if (!existingLesson) {
+        return res.status(404).json({ error: "Lesson not found" });
+      }
+      if (title) {
+        existingLesson.title = title;
+      }
+      if (description) {
+        existingLesson.description = description;
+      }
+      if (assignmenttext) {
+        existingLesson.assignment.text = assignmenttext;
+      }
+      if (week) {
+        existingLesson.week = week;
+        const course = await courseModel.findById(existingLesson.courseId);
+        if (course) {
+          if (week > course.content.week) {
+            course.content.week = week;
+            await course.save();
+          }
+        }
+      }
+
+      AWS.config.update({
+        accessKeyId: "AKIARBUZNPTUDGAEUUQX",
+        secretAccessKey: "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",
+        region: "eu-west-3",
+      });
+      const s3 = new AWS.S3();
+      if (req.files && req.files["video"] && req.files["video"].length > 0) {
+        if (req.files["video"][0]) {
+          let video1 = req.files["video"][0];
+          const params = {
+            Bucket: "nadia-bucket",
+            Key: video1.originalname,
+            Body: video1.buffer,
+          };
+          console.log("Params", params);
+          const uploadImage = async () => {
+            return new Promise((resolve, reject) => {
+              s3.upload(params, (err, data) => {
+                if (err) {
+                  reject(err);
+                } else {
+                  resolve(data.Location);
+                }
+              });
+            });
+          };
+          const video = await uploadImage();
+          console.log("image url", video);
+          existingLesson.video = video;
+        }
+      }
+      if (req.files) {
+        if (req.files && req.files["slide"] && req.files["slide"].length > 0) {
+          let slide = req.files["slide"][0];
+          const paramstwo = {
+            Bucket: "nadia-bucket",
+            Key: slide.originalname,
+            Body: slide.buffer,
+          };
+          const uploadIntro = async () => {
+            return new Promise((resolve, reject) => {
+              s3.upload(paramstwo, (err, data) => {
+                if (err) {
+                  reject(err);
+                } else {
+                  resolve(data.Location);
+                }
+              });
+            });
+          };
+          const slide1 = await uploadIntro();
+          console.log("intro url", slide1);
+          existingLesson.slide = slide1;
+        }
+      }
+
+      if (req.files) {
+        if (
+          req.files &&
+          req.files["assignment"] &&
+          req.files["assignment"].length > 0
+        ) {
+          let assignment = req.files["assignment"][0];
+          const paramsthree = {
+            Bucket: "nadia-bucket",
+            Key: assignment.originalname,
+            Body: assignment.buffer,
+          };
+          const uploadassignment = async () => {
+            return new Promise((resolve, reject) => {
+              s3.upload(paramsthree, (err, data) => {
+                if (err) {
+                  reject(err);
+                } else {
+                  resolve(data.Location);
+                }
+              });
+            });
+          };
+          const assignment1 = await uploadassignment();
+          console.log("intro url", assignment1);
+          existingLesson.assignment = assignment1;
+        }
+      }
+      const updatedLesson = await existingLesson.save();
+
+      console.log(
+        "existingLesson updatedLesson",
+        existingLesson,
+        updatedLesson
+      );
+      return res
+        .status(200)
+        .send(success("Lesson updated successfully", updatedLesson));
+    } catch (error) {
+      console.log("Update lesson error", error);
+      return res.status(500).send(failure("Internal server error"));
+    }
+  }
+  async deletelesson(req, res) {
+    try {
+      const { lessonId } = req.query;
+      if (!lessonId) {
+        return res.status(400).json({ error: "Invalid parameters" });
+      }
+      const lesson = await lessonModel.findById(lessonId);
+      if (!lesson) {
+        return res.status(404).json({ error: "Lesson not found" });
+      }
+      await lessonModel.findByIdAndDelete(lessonId);
+      return res.status(200).send(success("Lesson deleted successfully"));
+    } catch (error) {
+      console.error("Delete lesson error", error);
+      return res.status(500).send(success("Internal server error"));
+    }
+  }
 }
 module.exports = new lessonController();

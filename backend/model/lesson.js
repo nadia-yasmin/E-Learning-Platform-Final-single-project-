@@ -30,23 +30,22 @@ const lessonSchema = new mongoose.Schema(
         type: String,
       },
     },
-    discussion:
-      {
-        type: mongoose.Types.ObjectId,
-        ref: "discussions",
-      },
-    
+    discussion: {
+      type: mongoose.Types.ObjectId,
+      ref: "discussions",
+    },
+
     quiz: {
       type: mongoose.Types.ObjectId,
       ref: "quizzes",
     },
     video: {
       type: String,
+      required: true,
     },
-    week:
-      {
-        type: Number,
-      },
+    week: {
+      type: Number,
+    },
   },
   { timestamps: true }
 );

@@ -5,11 +5,12 @@ const path = require("path");
 const upload = multer({
   storage: multer.memoryStorage(),
   limits: {
-    fileSize: 50 * 1024 * 1024,
+    fileSize: 100 * 1024 * 1024,
   },
   fileFilter: (req, file, callback) => {
     if (file) {
       const extension = path.extname(file.originalname);
+
       if (fileTypes.includes(extension)) {
         console.log("It worked");
         callback(null, true);
