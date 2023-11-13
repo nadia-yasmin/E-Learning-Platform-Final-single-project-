@@ -43,6 +43,10 @@ const lessonSchema = new mongoose.Schema(
     video: {
       type: String,
     },
+    week:
+      {
+        type: Number,
+      },
   },
   { timestamps: true }
 );

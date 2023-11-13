@@ -9,6 +9,7 @@ const categoryModel = require("../model/category");
 const typeModel = require("../model/types");
 const rateModel = require("../model/rate");
 const wishlistModel = require("../model/wishlist");
+const reviewModel = require("../model/review");
 const mongoose = require("mongoose");
 const express = require("express");
 const app = express();
@@ -547,5 +548,37 @@ class courseController {
       return res.status(500).json({ error: "Internal server error" });
     }
   }
+
+  async addreview(req, res) {
+    try {
+        const { email,text } = req.body;
+        let {courseId}= req.query;
+       
+        const learner = await learnerModel.findOne({email:email});
+        if (!learner) {
+            return res.status(404).json({ error: 'learner is not found' });
+        }
+        const existingReview = await reviewModel.findOne({ courseId, learnerId: learner._id });
+        if (existingReview) {
+            return res.status(400).send(failure({ error: 'You have already provided a review for this book.' }));
+        }
+        const newReview = new reviewModel({
+          text,
+            courseId,
+            learnerId: learner._id,
+        });
+ const savedReview = await newReview.save();
+ await courseModel.updateOne(
+  { _id: courseId },
+  { $push: { reviews: savedReview._id } }
+);
+        return res.status(200).send(success('Review added successfully', { review: savedReview }));
+    } catch (error) {
+        console.error('Add review error', error);
+        return res.status(500).send(success('Internal server error'));
+    }
+}
+
+  
 }
 module.exports = new courseController();

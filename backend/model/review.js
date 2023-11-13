@@ -11,7 +11,7 @@ const reviewSchema = new mongoose.Schema(
       ref: "learners",
       required: true,
     },
-    reviewText: {
+    text: {
       type: String,
       required: true,
     },
