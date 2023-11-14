@@ -140,11 +140,16 @@ class authController {
   async login(req, res) {
     try {
       const { email, password, role } = req.body;
+      if (!password) {
+        return res
+          .status(HTTP_STATUS.BAD_REQUEST)
+          .send(success("Password is required"));
+      }
       const auth = await authModel.findOne({ email: email });
       if (!auth) {
         return res
           .status(HTTP_STATUS.NOT_FOUND)
-          .send(success("User is not registered"));
+          .send(failure("User is not registered"));
       }
       if (auth.blocked) {
         const now = moment();
