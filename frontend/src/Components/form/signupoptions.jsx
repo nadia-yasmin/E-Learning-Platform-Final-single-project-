@@ -30,7 +30,7 @@ function FormRow() {
         </Link>
       </Grid>
       <Grid item xs={4}>
-        <Link to="/instructor-signup">
+        <Link to="/instructor-signup/:role(instructor)">
           <StyledItem>
             <CastForEducationIcon fontSize="large" />{" "}
             <span style={{ marginTop: "8px" }}>Sign up instructor</span>
@@ -38,7 +38,7 @@ function FormRow() {
         </Link>
       </Grid>
       <Grid item xs={4}>
-        <Link to="/learner-signup">
+        <Link to="/learner-signup/:role(learner)">
           <StyledItem>
             <SchoolIcon fontSize="large" /> {/* Adjust the size as needed */}
             <span style={{ marginTop: "8px" }}>Sign up as Learner</span>

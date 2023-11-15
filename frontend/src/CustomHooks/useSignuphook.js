@@ -24,9 +24,13 @@ const usesignuphook = (role) => {
     formData.append("password", data.password);
     formData.append("confirmPassword", data.confirmPassword);
     formData.append("name", data.name);
-    formData.append("file", data.file);
+    formData.append("file", data.file[0]);
     axiosInstance
-      .post(`/adduser?role=${role}`, formData)
+      .post(`/adduser?role=${role}`, formData, {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      })
       .then((response) => response.data)
       .then((data) => {
         console.log("Successfully added user:", data);

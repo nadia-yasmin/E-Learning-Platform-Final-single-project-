@@ -328,7 +328,9 @@ class courseController {
       }
 
       // Find documents that match the query
-      const courses = await courseModel.find(query, null, options);
+      const courses = await courseModel
+        .find(query, null, options)
+        .populate("instructor");
 
       if (courses.length > 0) {
         console.log(courses);
@@ -718,10 +720,14 @@ class courseController {
   }
   async showcoursebyid(req, res) {
     try {
-      const { courseId } = req.query;
+      let { courseId } = req.query;
       if (!courseId) {
         return res.status(400).json({ error: "Invalid parameters" });
       }
+      if (courseId && mongoose.Types.ObjectId.isValid(courseId)) {
+        courseId = new mongoose.Types.ObjectId(courseId);
+      }
+
       const course = await courseModel.findById(courseId);
       if (!course) {
         return res.status(404).json({ error: "Course not found" });

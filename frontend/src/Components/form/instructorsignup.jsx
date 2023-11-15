@@ -44,7 +44,7 @@ const Adminsignup = () => {
     formState: { errors },
   } = useForm({ mode: "onChange" });
   const { role } = useParams();
-  const { createPost } = usesignuphook("admin");
+  const { createPost } = usesignuphook("instructor");
   const onSubmit = (data) => {
     console.log("data is ", data);
     createPost(data);
