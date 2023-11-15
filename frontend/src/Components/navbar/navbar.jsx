@@ -79,6 +79,9 @@ export default function PrimarySearchAppBar() {
   const handleLoginForm = () => {
     navigate("/login/learner");
   };
+  const handleSignupForm = () => {
+    navigate("/signup");
+  };
   const handleMobileMenuOpen = (event) => {
     setMobileMoreAnchorEl(event.currentTarget);
   };
@@ -100,7 +103,7 @@ export default function PrimarySearchAppBar() {
       open={isMenuOpen}
       onClose={handleMenuClose}
     >
-      <MenuItem onClick={handleMenuClose}>Sign up</MenuItem>
+      <MenuItem onClick={handleSignupForm}>Sign up</MenuItem>
       <MenuItem onClick={handleLoginForm}>Login</MenuItem>
     </Menu>
   );

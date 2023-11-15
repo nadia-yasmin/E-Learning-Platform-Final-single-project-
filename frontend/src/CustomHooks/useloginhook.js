@@ -3,7 +3,7 @@ import axiosInstance from "../Utils/axiosInstance";
 import { useSelector, useDispatch } from "react-redux";
 import Swal from "sweetalert2";
 import "sweetalert2/dist/sweetalert2.css";
-const useLoginHook = (token, userId, newPassword, oldPassword) => {
+const useLoginHook = (token, userId, newPassword, oldPassword, role) => {
   const showSuccessAlert = (message) => {
     Swal.fire({
       title: "Success",

@@ -23,6 +23,11 @@ const AWS = require("aws-sdk");
 class authController {
   async signUp(req, res) {
     try {
+      if (!req.file) {
+        return res
+          .status(HTTP_STATUS.BAD_REQUEST)
+          .send(failure("file not found"));
+      }
       console.log("req.file", req.file);
 
       const validation = validationResult(req).array();
@@ -34,6 +39,8 @@ class authController {
       }
       const { role } = req.query;
       const { email, password, name } = req.body;
+
+      console.log("role, email, password, name ", role, email, password, name);
       const existingUser = await authModel.findOne({ email: email });
       if (existingUser) {
         return res
