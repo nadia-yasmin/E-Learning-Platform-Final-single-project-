@@ -546,7 +546,7 @@ class lessonController {
       );
       const sortedLessons = filteredLessons.sort((a, b) => a.number - b.number);
       const lessonTitles = sortedLessons.map((lesson) => lesson.title);
-      return res.status(200).json({ lessonTitles });
+      return res.status(200).json({ sortedLessons });
     } catch (error) {
       console.error("Show lesson by weekly error", error);
       return res.status(500).json({ error: "Internal server error" });

@@ -1,6 +1,7 @@
 import React, { createContext, useEffect, useState } from "react";
 import { BrowserRouter, Route, Routes } from "react-router-dom";
 import DenseAppBar from "./Components/navbar/navbar";
+import Footer from "./Components/footer/footer";
 import Login from "./Components/form/loginform";
 import Signupoptions from "./Components/form/signupoptions";
 import Adminsignup from "./Components/form/adminsignup";
@@ -29,6 +30,7 @@ function App() {
           />
           <Route path="/viewcourse/:courseId" element={<Viewcourse />} />
         </Routes>
+        <Footer />
       </BrowserRouter>
     </div>
   );

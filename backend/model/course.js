@@ -77,7 +77,7 @@ const courseSchema = new mongoose.Schema({
       default: 0,
     },
   },
-});
+}, { timestamps: true });
 
 const courseModel = mongoose.model("courses", courseSchema);
 

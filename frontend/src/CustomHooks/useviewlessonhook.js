@@ -1,16 +1,17 @@
 import { useState, useEffect } from "react";
 import axiosInstance from "../Utils/axiosInstance";
-const useviewcoursehook = (courseId) => {
-  const [courseData, setCourseData] = useState([]);
+const useviewlessonhook = (courseId, week) => {
+  const [lessonData, setLessonData] = useState([]);
   const [loading, setLoading] = useState(false);
-  console.log("courseId from hook", courseId);
-  const fetchData = async () => {
+  console.log("courseId,week from view lesson hook", courseId);
+  const fetchData = async (week) => {
     try {
       setLoading(true);
       const response = await axiosInstance.get(
-        `/getcoursebyid?courseId=${courseId}`
+        `/showlessonbyweek?courseId=${courseId}&week=${week}`
       );
-      setCourseData(response.data.course);
+      console.log("Response  dekhay naaaaa", response);
+      setLessonData(response.data.course);
       return response;
     } catch (error) {
       console.error("Error fetching data:", error);
@@ -25,10 +26,10 @@ const useviewcoursehook = (courseId) => {
   }, []); // Empty dependency array means this effect runs once when the component mounts.
 
   useEffect(() => {
-    console.log("From hook in useeffect ", courseData);
-  }, [courseData]);
+    console.log("From hook in useeffect ", setLessonData);
+  }, [setLessonData]);
 
-  return { courseData, loading, fetchData };
+  return { setLessonData, loading, fetchData };
 };
 
-export default useviewcoursehook;
+export default useviewlessonhook;

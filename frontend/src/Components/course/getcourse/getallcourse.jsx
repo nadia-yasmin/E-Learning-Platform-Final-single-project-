@@ -48,50 +48,58 @@ const Getallcourse = () => {
           style={{ color: "#00695f", textAlign: "center", fontSize: "1.5rem" }}
         />
         <Container sx={{ py: 8 }} maxWidth="md">
-          <Grid container spacing={4}>
-            {courseData.map((course) => (
-              <Grid key={course.id} item xs={12} sm={6} md={4}>
-                <Card
-                  sx={{
-                    height: "100%",
-                    display: "flex",
-                    flexDirection: "column",
-                  }}
-                >
-                  <CardMedia
-                    component="div"
+          {courseData && courseData.length > 0 ? (
+            <Grid container spacing={4}>
+              {courseData.map((course) => (
+                <Grid key={course.id} item xs={12} sm={6} md={4}>
+                  <Card
                     sx={{
-                      // 16:9
-                      pt: "56.25%",
+                      height: "100%",
+                      display: "flex",
+                      flexDirection: "column",
                     }}
-                    image={course.image}
-                  />
-                  <CardContent sx={{ flexGrow: 1 }}>
-                    <Typography gutterBottom variant="h5" component="h2">
-                      {course.title}
-                    </Typography>
-                    <Typography>{course.instructor.name}</Typography>
-                    <Rating
-                      name="read-only"
-                      value={course.ratings.rate}
-                      readOnly
+                  >
+                    <CardMedia
+                      component="div"
+                      sx={{
+                        // 16:9
+                        pt: "56.25%",
+                      }}
+                      image={course.image}
                     />
-                  </CardContent>
-                  <CardActions>
-                    <Button
-                      size="small"
-                      onClick={() => navigate(`/viewcourse/${course._id}`)}
-                    >
-                      View course
-                    </Button>
-                    <Button size="small">
-                      <ShoppingCartIcon />
-                    </Button>
-                  </CardActions>
-                </Card>
-              </Grid>
-            ))}
-          </Grid>
+                    <CardContent sx={{ flexGrow: 1 }}>
+                      <Typography gutterBottom variant="h5" component="h2">
+                        {course.title}
+                      </Typography>
+
+                      <Typography>
+                        {course?.instructor && course.instructor.name}
+                      </Typography>
+
+                      <Rating
+                        name="read-only"
+                        value={course.ratings.rate}
+                        readOnly
+                      />
+                    </CardContent>
+                    <CardActions>
+                      <Button
+                        size="small"
+                        onClick={() => navigate(`/viewcourse/${course._id}`)}
+                      >
+                        View course
+                      </Button>
+                      <Button size="small">
+                        <ShoppingCartIcon />
+                      </Button>
+                    </CardActions>
+                  </Card>
+                </Grid>
+              ))}
+            </Grid>
+          ) : (
+            <div>No course data available</div>
+          )}
         </Container>
       </main>
     </ThemeProvider>

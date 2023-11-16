@@ -269,7 +269,7 @@ class courseController {
         page = 1;
       }
       if (!limit) {
-        limit = 3;
+        limit = 4;
       }
 
       if (searchParam) {
@@ -728,7 +728,9 @@ class courseController {
         courseId = new mongoose.Types.ObjectId(courseId);
       }
 
-      const course = await courseModel.findById(courseId);
+      const course = await courseModel
+        .findById(courseId)
+        .populate("instructor");
       if (!course) {
         return res.status(404).json({ error: "Course not found" });
       }
