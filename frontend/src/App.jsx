@@ -9,6 +9,7 @@ import Instructorsignup from "./Components/form/instructorsignup";
 import Learnersignup from "./Components/form/learnersignup";
 import Getallcourse from "./Components/course/getcourse/getallcourse";
 import Viewcourse from "./Components/course/getcourse/getsinglecourse";
+import Viewlesson from "./Components/lesson/getlesson/getlessonbyid"
 import "./App.css";
 function App() {
   return (
@@ -29,6 +30,8 @@ function App() {
             element={<Learnersignup />}
           />
           <Route path="/viewcourse/:courseId" element={<Viewcourse />} />
+          <Route path="/lessons/:lessonId" element={<Viewlesson />} />
+          {/* /lessons/${lesson._id}` */}
         </Routes>
         <Footer />
       </BrowserRouter>

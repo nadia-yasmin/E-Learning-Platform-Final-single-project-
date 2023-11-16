@@ -21,18 +21,12 @@ import { styled } from "@mui/system";
 
 import "../../../App.css";
 
-const ViewCourse = () => {
+const Viewlesson = () => {
   const { lessonId } = useParams();
-  const { courseData, loading } = useviewcoursehook(courseId);
-  const [week, setCurrentWeek] = useState(1);
   const Demo = styled("div")(({ theme }) => ({
     backgroundColor: "white",
   }));
   const [lessonData, setLessonData] = useState([]);
-  const [expanded, setExpanded] = React.useState(false);
-  const handleChange = (panel) => (event, isExpanded) => {
-    setExpanded(isExpanded ? panel : false);
-  };
   const StyledList = styled(List)({
     backgroundColor: "#f5f5f5",
     borderRadius: "8px",
@@ -46,31 +40,33 @@ const ViewCourse = () => {
     border: "1px solid #ddd",
     marginBottom: "8px",
   });
-  const fetchData = async (week, courseId) => {
-    try {
-      const response = await axiosInstance.get(
-        `/showlessonbyweek?courseId=${courseId}&week=${week}`
-      );
-      console.log("Response  dekhay naaaaa,RESPONSE, WEEK", response, week);
-      setLessonData(response.data.sortedLessons);
-      return response;
-    } catch (error) {
-      console.error("Error fetching data:", error);
-      throw error;
-    }
-  };
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const response = await axiosInstance.get(
+          `/showlessonbyid?lessonId=${lessonId}`
+        );
+        console.log("SINGLE LESSON RESPONSE", response);
+        setLessonData(response.data.lesson);
+      } catch (error) {
+        console.error("Error fetching data:", error);
+      }
+    };
+
+    fetchData();
+  }, [lessonId]);
   console.log("lessonData", lessonData);
 
-  if (loading) {
-    return (
-      <Container>
-        <Skeleton variant="rectangular" height={200} />
-        <Skeleton height={20} width="80%" />
-        <Skeleton height={20} width="50%" />
-      </Container>
-    );
-  }
+  // if (loading) {
+  //   return (
+  //     <Container>
+  //       <Skeleton variant="rectangular" height={200} />
+  //       <Skeleton height={20} width="80%" />
+  //       <Skeleton height={20} width="50%" />
+  //     </Container>
+  //   );
+  // }
 
   return <div>hello</div>;
 };
-export default ViewCourse;
+export default Viewlesson;
