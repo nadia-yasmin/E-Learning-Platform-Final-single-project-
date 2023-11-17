@@ -8,12 +8,12 @@ const StyledCardMedia = styled(CardMedia)({
   display: { xs: "none", sm: "block" }
 });
 
-const Imagecomponent = ({ courseData}) => {
+const Imagecomponent = ({ courseData, lessonData }) => {
   return (
     <StyledCardMedia
       component="img"
-      alt={courseData.title}
-      image={courseData.image}
+      alt={courseData ? courseData.title : lessonData ? "Lesson Image" : ""}
+      image={courseData ? courseData.image : lessonData ? lessonData.assignment.diagram : ""}
     />
   );
 };

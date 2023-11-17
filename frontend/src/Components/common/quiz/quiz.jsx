@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState ,useEffect} from 'react';
 import {
   Paper,
   Typography,
@@ -8,7 +8,7 @@ import {
   styled,
 } from '@mui/material';
 import Button from '@mui/material/Button';
-
+import axiosInstance from '../../../Utils/axiosInstance';
 const StyledPaper = styled(Paper)(({ theme }) => ({
   padding: theme.spacing(3),
   marginBottom: theme.spacing(2),
@@ -33,25 +33,37 @@ const StyledButton = styled(Button)(({ theme }) => ({
 const QuizForm = ({ quizData }) => {
   const [selectedOptions, setSelectedOptions] = useState({});
   const [openSnackbar, setOpenSnackbar] = useState(false);
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const response = await axiosInstance.get(
+          `/showlessonbyid?lessonId=${lessonId}`
+        );
+        console.log("SINGLE LESSON RESPONSE", response);
+        setLessonData(response.data.lesson);
+      } catch (error) {
+        console.error("Error fetching data:", error);
+      }
+    };
+
+    fetchData();
+  }, [selectedOptions]);
 
   const handleOptionChange = (questionId, optionId) => {
     setSelectedOptions((prevSelectedOptions) => {
       const updatedOptions = { ...prevSelectedOptions };
-  
-      // If the same question is clicked again, unselect the option
       if (updatedOptions[questionId] === optionId) {
         delete updatedOptions[questionId];
       } else {
-        // Clear the previously selected option for this question
         Object.keys(updatedOptions).forEach((key) => {
           if (key === questionId) {
             delete updatedOptions[key];
           }
         });
-  
-        // Set the new option
         updatedOptions[questionId] = optionId;
+
       }
+
   
       return updatedOptions;
     });

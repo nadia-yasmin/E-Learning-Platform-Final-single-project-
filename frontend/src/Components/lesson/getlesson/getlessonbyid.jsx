@@ -7,6 +7,7 @@ import VideoContainer from "../../common/video/videocontainer";
 import "../../../App.css";
 import LinearColor from "../../common/loader/loader";
 import QuizForm from "../../common/quiz/quiz";
+import Assignment from "../../common/assignment/assignment"
 const Viewlesson = () => {
   const { lessonId } = useParams();
   const [lessonData, setLessonData] = useState([]);
@@ -57,7 +58,7 @@ const Viewlesson = () => {
       case 'three':
         return (
           <>
-            {Array.isArray(lessonData.quiz.quiz) ? (
+            {lessonData.quiz && Array.isArray(lessonData.quiz.quiz) ? (
               <QuizForm quizData={lessonData.quiz.quiz} />
             ) : (
               <p>No quiz data available.</p>
@@ -67,7 +68,8 @@ const Viewlesson = () => {
         
 
       case 'four':
-        return <Typography>Assignment Content</Typography>;
+        return <Assignment lessonData={lessonData} />
+        // return <div>hi</div>
       case 'five':
         return <Typography>Discussion Content</Typography>;
       default:
