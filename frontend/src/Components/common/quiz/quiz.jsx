@@ -35,12 +35,34 @@ const QuizForm = ({ quizData }) => {
   const [openSnackbar, setOpenSnackbar] = useState(false);
 
   const handleOptionChange = (questionId, optionId) => {
-    setSelectedOptions((prevSelectedOptions) => ({
-      ...prevSelectedOptions,
-      [questionId]: optionId,
-    }));
+    setSelectedOptions((prevSelectedOptions) => {
+      const updatedOptions = { ...prevSelectedOptions };
+  
+      // If the same question is clicked again, unselect the option
+      if (updatedOptions[questionId] === optionId) {
+        delete updatedOptions[questionId];
+      } else {
+        // Clear the previously selected option for this question
+        Object.keys(updatedOptions).forEach((key) => {
+          if (key === questionId) {
+            delete updatedOptions[key];
+          }
+        });
+  
+        // Set the new option
+        updatedOptions[questionId] = optionId;
+      }
+  
+      return updatedOptions;
+    });
   };
+  
+  console.log("selectedOptions",selectedOptions)
 
+  const resetSelection = () => {
+    // Reset the selected options to an empty object or initial/default value
+    setSelectedOptions({});
+  };
   const handleSubmit = async () => {
     // Trigger API call to submit quiz with selectedOptions
     // You can replace this with your actual API call logic
@@ -62,18 +84,18 @@ const QuizForm = ({ quizData }) => {
   return (
     <div>
       {quizData.map((question) => (
-        <StyledPaper key={question.id}>
+        <StyledPaper key={question._id}>
           <StyledTypography variant="h6">
             {question.question}
           </StyledTypography>
           <StyledOptionsContainer>
             {question.options.map((option) => (
               <StyledOptionLabel
-                key={option.id}
-                value={option.id}
+                key={option._id}
+                value={option._id}
                 control={<Radio />}
                 label={option.text}
-                onChange={() => handleOptionChange(question.id, option.id)}
+                onChange={() => handleOptionChange(question._id, option._id)}
               />
             ))}
           </StyledOptionsContainer>
