@@ -2,6 +2,7 @@ import axiosInstance from "../Utils/axiosInstance";
 import Swal from "sweetalert2";
 import "sweetalert2/dist/sweetalert2.css";
 const usesignuphook = (role) => {
+  console.log("from signup hook role is",role)
   const showSuccessAlert = (message) => {
     Swal.fire({
       title: "Success",

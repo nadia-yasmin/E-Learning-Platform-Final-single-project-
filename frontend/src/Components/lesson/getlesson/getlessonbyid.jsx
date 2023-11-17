@@ -1,45 +1,16 @@
 import React, { useEffect, useState } from "react";
-import Typography from "@mui/material/Typography";
-import Grid from "@mui/material/Grid";
-import Card from "@mui/material/Card";
-import CardActionArea from "@mui/material/CardActionArea";
-import CardContent from "@mui/material/CardContent";
-import CardMedia from "@mui/material/CardMedia";
-import Container from "@mui/material/Container";
-import Skeleton from "@mui/material/Skeleton";
-import ReactPlayer from "react-player";
-import useviewcoursehook from "../../../CustomHooks/useviewcoursehook";
-import useviewlessonhook from "../../../CustomHooks/useviewlessonhook";
 import { useParams, useNavigate, Link } from "react-router-dom";
-import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
-import Accordion from "@mui/material/Accordion";
-import AccordionDetails from "@mui/material/AccordionDetails";
-import AccordionSummary from "@mui/material/AccordionSummary";
 import axiosInstance from "../../../Utils/axiosInstance";
-import { List, ListItem, ListItemButton, ListItemText } from "@mui/material";
-import { styled } from "@mui/system";
-
+import { Card, CardContent, AppBar, Box, CardActionArea, CardMedia, Typography, CardActions, Button, Grid, Tabs, Tab, } from '@mui/material';
+import CourseDetails from "../../common/content/coursedetails/coursedetails/coursedetails";
+import VideoContainer from "../../common/video/videocontainer";
 import "../../../App.css";
-
+import LinearColor from "../../common/loader/loader";
+import QuizForm from "../../common/quiz/quiz";
 const Viewlesson = () => {
   const { lessonId } = useParams();
-  const Demo = styled("div")(({ theme }) => ({
-    backgroundColor: "white",
-  }));
   const [lessonData, setLessonData] = useState([]);
-  const StyledList = styled(List)({
-    backgroundColor: "#f5f5f5",
-    borderRadius: "8px",
-    padding: "16px",
-  });
-  const StyledListItemButton = styled(ListItemButton)({
-    "&:hover": {
-      backgroundColor: "#e0e0e0",
-      boxShadow: "0px 0px 5px rgba(0, 0, 0, 0.2)",
-    },
-    border: "1px solid #ddd",
-    marginBottom: "8px",
-  });
+  console.log("lessonData.quiz",lessonData.quiz)
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -56,17 +27,113 @@ const Viewlesson = () => {
     fetchData();
   }, [lessonId]);
   console.log("lessonData", lessonData);
+  const [value, setValue] = React.useState('one');
+  const handleChange = (event, newValue) => {
+    setValue(newValue);
+  };
+  const [loading, setLoading] = useState(true);
+ const handleLoad = () => {
+    setLoading(false);
+  };
+  const renderTabContent = () => {
+    switch (value) {
+      case 'one':
+        return <Typography>{lessonData.description}</Typography>;
+      case 'two':
+        return <Grid container justifyContent="center">
+        <Grid item xs={12} md={8}>
+          <Typography variant="h5" gutterBottom>
+            Reading Materials
+          </Typography>
+          {loading && <LinearColor />}
+          <iframe
+            src={`https://docs.google.com/gview?url=${encodeURIComponent(lessonData.slide)}&embedded=true`}
+            style={{ width: '100%', height: '500px', border: 'none' }}
+            title="PowerPoint Presentation"
+            onLoad={handleLoad}
+          />
+        </Grid>
+      </Grid>;
+      case 'three':
+        return (
+          <>
+            {Array.isArray(lessonData.quiz.quiz) ? (
+              <QuizForm quizData={lessonData.quiz.quiz} />
+            ) : (
+              <p>No quiz data available.</p>
+            )}
+          </>
+        );
+        
 
-  // if (loading) {
-  //   return (
-  //     <Container>
-  //       <Skeleton variant="rectangular" height={200} />
-  //       <Skeleton height={20} width="80%" />
-  //       <Skeleton height={20} width="50%" />
-  //     </Container>
-  //   );
-  // }
+      case 'four':
+        return <Typography>Assignment Content</Typography>;
+      case 'five':
+        return <Typography>Discussion Content</Typography>;
+      default:
+        return null;
+    }
+  };
+  return (<Grid container spacing={2} alignItems={"center"} justifyContent="center">
+    {/* First Grid Item */}
+    <Grid item xs={12} md={12}>
+      <Card>
+        <CardActionArea component="a" href="#">
+          <Card sx={{ display: "flex" }}>
+            <CardContent sx={{ flex: 1 }}>
+              <CourseDetails
+                number={lessonData.number}
+                title={lessonData.title}
+                // description={lessonData.description}
+              />
 
-  return <div>hello</div>;
+            </CardContent>
+          </Card>
+        </CardActionArea>
+      </Card>
+    </Grid>
+    <Grid item xs={12} md={12}>
+      <Card>
+        <CardActionArea component="a" href="#">
+          <CardContent>
+            <Typography variant="subtitle1" color="text.secondary">
+              Published at: {lessonData?.createdAt}
+            </Typography>
+          </CardContent>
+          <VideoContainer width="80%"
+            height={"80%"}
+            url={lessonData.video}
+            playing={false}
+            muted={true}
+            controls={true} />
+          {/* <CardContent>
+                <ContentGrid courseData={courseData} />
+              </CardContent> */}
+        </CardActionArea>
+      </Card>
+    </Grid>
+    <Grid item xs={12} md={12} justifyContent="center">
+      {/* Tabs for navigation */}
+      <Box sx={{ width: '100%', display: 'flex', justifyContent: 'center' }}>
+        <Tabs
+          value={value}
+          onChange={handleChange}
+          textColor="secondary"
+          indicatorColor="secondary"
+          aria-label="secondary tabs example"
+        >
+          <Tab value="one" label="Overview" />
+          <Tab value="two" label="Slides" />
+          <Tab value="three" label="Quiz" />
+          <Tab value="four" label="Assignment" />
+          <Tab value="five" label="Discussion" />
+        </Tabs>
+      </Box>
+      {renderTabContent()}
+
+    </Grid>
+  </Grid>
+
+  )
 };
 export default Viewlesson;

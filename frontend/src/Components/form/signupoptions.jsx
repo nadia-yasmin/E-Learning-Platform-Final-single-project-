@@ -22,7 +22,7 @@ function FormRow() {
   return (
     <React.Fragment>
       <Grid item xs={4}>
-        <Link to="/admin-signup/:role(admin)">
+        <Link to="/signup/admin">
           <StyledItem>
             <AdminPanelSettingsIcon fontSize="large" />{" "}
             <span style={{ marginTop: "8px" }}>Sign up as Admin</span>
@@ -30,7 +30,7 @@ function FormRow() {
         </Link>
       </Grid>
       <Grid item xs={4}>
-        <Link to="/instructor-signup/:role(instructor)">
+        <Link to="/signup/instructor">
           <StyledItem>
             <CastForEducationIcon fontSize="large" />{" "}
             <span style={{ marginTop: "8px" }}>Sign up instructor</span>
@@ -38,7 +38,7 @@ function FormRow() {
         </Link>
       </Grid>
       <Grid item xs={4}>
-        <Link to="/learner-signup/:role(learner)">
+        <Link to="/signup/learner">
           <StyledItem>
             <SchoolIcon fontSize="large" /> {/* Adjust the size as needed */}
             <span style={{ marginTop: "8px" }}>Sign up as Learner</span>

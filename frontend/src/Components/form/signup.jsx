@@ -36,7 +36,7 @@ const CenteredContainer = styled("div")({
   textAlign: "center",
   height: "90vh",
 });
-const Adminsignup = () => {
+const Signup = () => {
   const {
     watch,
     control,
@@ -44,7 +44,7 @@ const Adminsignup = () => {
     formState: { errors },
   } = useForm({ mode: "onChange" });
   const { role } = useParams();
-  const { createPost } = usesignuphook("learner");
+  const { createPost } = usesignuphook(role);
   const onSubmit = (data) => {
     console.log("data is ", data);
     createPost(data);
@@ -206,4 +206,4 @@ const Adminsignup = () => {
   );
 };
 
-export default Adminsignup;
+export default Signup;

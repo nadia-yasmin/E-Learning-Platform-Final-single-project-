@@ -553,27 +553,43 @@ class lessonController {
     }
   }
 
-  async showlessonid(req, res) {
+  async showlessonid(req, res){
     try {
       const { lessonId } = req.query;
+  
       if (!lessonId) {
         return res.status(400).json({ error: "Invalid parameters" });
       }
-      const lesson = await lessonModel.findById(lessonId);
+  
+      const lesson = await lessonModel.findById(lessonId).populate('quizId');
+  
       if (!lesson) {
         return res.status(404).json({ error: "Lesson not found" });
       }
+  
       const lessonDetails = {
+        _id: lesson._id,
         title: lesson.title,
+        number: lesson.number,
         description: lesson.description,
+        courseId: lesson.courseId,
+        slide: lesson.slide,
+        assignment: lesson.assignment,
+        discussion: lesson.discussion,
+        quiz: lesson.quizId,
+        video: lesson.video,
+        week: lesson.week,
+        createdAt: lesson.createdAt,
+        updatedAt: lesson.updatedAt,
       };
-
-      return res.status(200).json({ lesson });
+  console.log("lessonDetails",lessonDetails)
+      return res.status(200).json({ lesson: lessonDetails });
     } catch (error) {
       console.error("Show lesson by id error", error);
       return res.status(500).json({ error: "Internal server error" });
     }
-  }
+  };
+  
 
   async updateLesson(req, res) {
     try {

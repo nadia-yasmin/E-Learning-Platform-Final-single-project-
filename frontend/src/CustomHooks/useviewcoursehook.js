@@ -14,7 +14,7 @@ const useviewcoursehook = (courseId) => {
       return response;
     } catch (error) {
       console.error("Error fetching data:", error);
-      throw error; // Re-throw the error to let the component handle it if needed.
+      throw error; 
     } finally {
       setLoading(false);
     }
@@ -22,7 +22,7 @@ const useviewcoursehook = (courseId) => {
 
   useEffect(() => {
     fetchData();
-  }, []); // Empty dependency array means this effect runs once when the component mounts.
+  }, []); 
 
   useEffect(() => {
     console.log("From hook in useeffect ", courseData);

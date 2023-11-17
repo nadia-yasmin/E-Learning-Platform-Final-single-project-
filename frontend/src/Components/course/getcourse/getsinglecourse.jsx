@@ -4,19 +4,17 @@ import Grid from "@mui/material/Grid";
 import Card from "@mui/material/Card";
 import CardActionArea from "@mui/material/CardActionArea";
 import CardContent from "@mui/material/CardContent";
-import CardMedia from "@mui/material/CardMedia";
 import Container from "@mui/material/Container";
 import Skeleton from "@mui/material/Skeleton";
-import ReactPlayer from "react-player";
 import useviewcoursehook from "../../../CustomHooks/useviewcoursehook";
-import useviewlessonhook from "../../../CustomHooks/useviewlessonhook";
-import { useParams, useNavigate, Link } from "react-router-dom";
-import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
-import Accordion from "@mui/material/Accordion";
-import AccordionDetails from "@mui/material/AccordionDetails";
-import AccordionSummary from "@mui/material/AccordionSummary";
+import { useParams } from "react-router-dom";
 import axiosInstance from "../../../Utils/axiosInstance";
-import { List, ListItem, ListItemButton, ListItemText } from "@mui/material";
+import VideoContainer from "../../common/video/videocontainer";
+import Imagecomponent from "../../common/image/image"
+import ContentGrid from "../../common/content/contentgrid/contentgrid"
+import AccordionItem from "../../common/content/accordionitem/accordionitem"
+import CourseDetails from "../../common/content/coursedetails/coursedetails/coursedetails";
+import { List, ListItemButton } from "@mui/material";
 import { styled } from "@mui/system";
 
 import "../../../App.css";
@@ -72,13 +70,13 @@ const ViewCourse = () => {
   }
 
   return (
-    <div
-      style={{
-        display: "flex",
-        justifyContent: "center",
-        alignContent: "center",
-      }}
-    >
+    // <div
+    //   style={{
+    //     display: "flex",
+    //     justifyContent: "center",
+    //     alignContent: "center",
+    //   }}
+    // >
       <Grid container spacing={2}>
         {/* First Grid Item */}
         <Grid item xs={12} md={12}>
@@ -86,27 +84,15 @@ const ViewCourse = () => {
             <CardActionArea component="a" href="#">
               <Card sx={{ display: "flex" }}>
                 <CardContent sx={{ flex: 1 }}>
-                  <Typography component="h2" variant="h5">
-                    {courseData.title}
-                  </Typography>
-                  <Typography variant="subtitle1" color="text.secondary">
-                    Category: {courseData.category}
-                  </Typography>
-                  <Typography variant="subtitle1" color="text.secondary">
-                    Type: {courseData.type}
-                  </Typography>
-                  <Typography variant="subtitle1" paragraph>
-                    Course description: {courseData.description}
-                  </Typography>
-                  <Typography variant="subtitle1" color="primary">
-                    Continue reading...
-                  </Typography>
+                  <CourseDetails
+                    title={courseData.title}
+                    category={courseData.category}
+                    type={courseData.type}
+                    description={courseData.description}
+                  />
+
                 </CardContent>
-                <CardMedia
-                  component="img"
-                  sx={{ width: 160, display: { xs: "none", sm: "block" } }}
-                  image={courseData.image}
-                />
+                <Imagecomponent courseData={courseData} />
               </Card>
             </CardActionArea>
           </Card>
@@ -118,7 +104,7 @@ const ViewCourse = () => {
             <CardActionArea component="a" href="#">
               <CardContent>
                 <Typography variant="h5" component="div">
-                  Introduction to: {courseData.title}
+                  Preview this course: {courseData.title}
                 </Typography>
                 <Typography variant="subtitle1" color="text.secondary">
                   Published at: {courseData?.createdAt}
@@ -130,98 +116,42 @@ const ViewCourse = () => {
                   )}
                 </Typography>
               </CardContent>
-              <Container maxWidth="md" className="playerDiv">
-                <ReactPlayer
-                  width="80%"
-                  height="80%"
-                  url={courseData.intro}
-                  playing={false}
-                  muted={true}
-                  controls={true}
-                />
-              </Container>
+              <VideoContainer width="80%"
+                height={"80%"}
+                url={courseData.intro}
+                playing={false}
+                muted={true}
+                controls={true} />
               <CardContent>
-                <Grid container spacing={2}>
-                  <Grid item xs={12} md={6}>
-                    <Typography
-                      sx={{ mt: 4, mb: 2 }}
-                      variant="h6"
-                      component="div"
-                    >
-                      Number of contents:
-                    </Typography>
-                    {courseData && courseData.content && (
-                      <>
-                        <Typography variant="subtitle1" color="text.secondary">
-                          Total videos:{" "}
-                          {courseData ? courseData.content.videos : 0}
-                        </Typography>
-                        <Typography variant="subtitle1" color="text.secondary">
-                          Total slides: {courseData.content.slides}
-                        </Typography>
-                        <Typography variant="subtitle1" color="text.secondary">
-                          Total quizzes: {courseData.content.quiz}
-                        </Typography>
-                        <Typography variant="subtitle1" color="text.secondary">
-                          Total assignments: {courseData.content.assignment}
-                        </Typography>
-                      </>
-                    )}
-                  </Grid>
-                </Grid>
+                <ContentGrid courseData={courseData} />
               </CardContent>
             </CardActionArea>
           </Card>
         </Grid>
 
-        <Grid item xs={12} md={6} sx={{ justifyContent: "center" }}>
-          <Container maxWidth="sm">
-            <div>
-              <Typography sx={{ mt: 4, mb: 2 }} variant="h6" component="div">
-                Contents
-              </Typography>
-              {Array.from(
-                { length: courseData.content?.week || 0 },
-                (_, index) => (
-                  <Accordion
-                    key={index}
-                    expanded={expanded === `panel${index}`}
-                    onChange={handleChange(`panel${index}`)}
-                  >
-                    <AccordionSummary
-                      onClick={() => fetchData(index + 1, courseId)}
-                      expandIcon={<ExpandMoreIcon />}
-                      aria-controls={`panel${index}bh-content`}
-                      id={`panel${index}bh-header`}
-                    >
-                      <Typography sx={{ width: "33%", flexShrink: 0 }}>
-                        Week {index + 1}
-                      </Typography>
-                    </AccordionSummary>
-                    <AccordionDetails>
-                      <nav aria-label="secondary mailbox folders">
-                        <StyledList>
-                          {lessonData.map((lesson, lessonIndex) => (
-                            <ListItem key={lessonIndex} disablePadding>
-                              <StyledListItemButton
-                                component={Link}
-                                to={`/lessons/${lesson._id}`}
-                              >
-                                <ListItemText primary={lesson.title} />
-                              </StyledListItemButton>
-                            </ListItem>
-                          ))}
-                        </StyledList>
-                      </nav>
-                    </AccordionDetails>
-                  </Accordion>
-                )
-              )}
-            </div>
-          </Container>
-        </Grid>
+        <Grid item xs={12} md={12} sx={{ justifyContent: 'center' }}>
+  {/* <Container maxWidth="sm" textAlign="center">
+    <div sx={{ width: '100%' }}> */}
+      <Typography sx={{ mt: 4, mb: 2 }} variant="h6" component="div">
+        Contents
+      </Typography>
+      {Array.from({ length: courseData.content?.week || 0 }, (_, index) => (
+        <AccordionItem
+          key={index}
+          index={index}
+          expanded={expanded}
+          onChange={handleChange}
+          fetchData={fetchData}
+          lessonData={lessonData}
+          courseId={courseId}
+        />
+      ))}
+    {/* </div>
+  </Container> */}
+</Grid>
+
       </Grid>
-    </div>
+    // </div>
   );
 };
 export default ViewCourse;
