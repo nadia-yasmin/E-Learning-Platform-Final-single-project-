@@ -9,7 +9,7 @@ const authController = require("../controller/authController");
 const userController = require("../controller/userController");
 const adminController = require("../controller/adminController");
 const learnerController = require("../controller/learnerController");
-
+const {isAuthorised,isAdmin,isLearner,isInstructor} = require("../middleware/authentictevalidation")
 const { MulterError } = require("multer");
 const {
   validator,
@@ -85,7 +85,9 @@ routes.post("/addtocart", courseController.enrollCourse);
 routes.post("/login", authController.login);
 routes.post("/transaction", courseController.createTransaction);
 routes.post("/createcategory", courseController.createCategory);
-routes.post("/createtype", courseController.createType);
+routes.get("/getallcategories", courseController.getallcategories);
+routes.post("/createtype", courseController.createType)
+routes.get("/getalltypes", courseController.getalltypes)
 routes.post("/addrate", courseController.addRate);
 routes.put("/updateRate", courseController.updateRate);
 routes.delete("/deleterate", courseController.deleteRate);
@@ -107,6 +109,10 @@ routes.post("/evaluateassignment", lessonController.evaluateassignment);
 routes.post("/postdiscussion", lessonController.postdiscussion);
 routes.post("/addreview", courseController.addreview);
 routes.put("/updatereview", courseController.updatereview);
+//view profile
+routes.get("/getprofile", isAuthorised,userController.viewOwnProfile);
+routes.post("/getinstructorscourse", isAuthorised,isInstructor, courseController.getinstructorscourse);
+
 //updatereview
 routes.get("/showlessonbyweek", lessonController.showlessonbyweek);
 routes.get("/showlessonbyid", lessonController.showlessonid);
@@ -116,6 +122,7 @@ routes.put("/approverejectcourse", adminController.approverejectcourse);
 routes.put("/approvecoursecreation", adminController.approvecoursecreation);
 routes.delete("/removecart", learnerController.removecart);
 routes.delete("/removefromcart", learnerController.removefromcart);
+// viewownprofile
 
 //URL NOT FOUND
 routes.use(urlnotfound.notFound);

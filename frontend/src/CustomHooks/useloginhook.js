@@ -1,22 +1,23 @@
 import { useState, useEffect, useContext } from "react";
 import axiosInstance from "../Utils/axiosInstance";
 import { useSelector, useDispatch } from "react-redux";
-import Swal from "sweetalert2";
-import "sweetalert2/dist/sweetalert2.css";
+import Alert from '@mui/material/Alert';
+import AlertTitle from '@mui/material/AlertTitle';
+import {useNavigate} from "react-router-dom"
 const useLoginHook = (token, userId, newPassword, oldPassword, role) => {
+ 
+  const [successAlert, setSuccessAlert] = useState(false);
+  const [errorAlert, setErrorAlert] = useState(false);
+  const [alertMessage, setAlertMessage] = useState("");
+  const navigate=useNavigate()
   const showSuccessAlert = (message) => {
-    Swal.fire({
-      title: "Success",
-      text: message,
-      icon: "success",
-    });
+    setAlertMessage(message);
+    setSuccessAlert(true);
   };
+
   const showErrorAlert = (errorMessage) => {
-    Swal.fire({
-      title: "Error",
-      html: errorMessage,
-      icon: "error",
-    });
+    setAlertMessage(errorMessage);
+    setErrorAlert(true);
   };
   const dispatch = useDispatch();
   const createLogin = (formData) => {
@@ -27,10 +28,11 @@ const useLoginHook = (token, userId, newPassword, oldPassword, role) => {
       .then((data) => {
         if (data.success) {
           const token = data.data.token;
-          showSuccessAlert(data.message);
-          localStorage.setItem("logindata", data.data.role);
+          // showSuccessAlert(data.message);
+          navigate("/dashboard")
+          localStorage.setItem("userdata", JSON.stringify(data.data));
           localStorage.setItem("token", token);
-          dispatch(login(data.data.role));
+          console.log("userdata token",data.data,token)
         }
         console.log("Successfully logged in:", data);
         localStorage.setItem("responseData", data.message);
@@ -41,7 +43,7 @@ const useLoginHook = (token, userId, newPassword, oldPassword, role) => {
       });
   };
 
-  return { createLogin };
+  return { createLogin ,successAlert, errorAlert, alertMessage };
 };
 
 export default useLoginHook;

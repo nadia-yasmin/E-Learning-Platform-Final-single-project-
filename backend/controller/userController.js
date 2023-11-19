@@ -219,5 +219,39 @@ class userController {
         .send(success("Internal server error"));
     }
   }
+
+  async viewOwnProfile(req, res) {
+    try {
+      const token = req.headers.authorization.split(' ')[1];
+      const decodedToken = jsonwebtoken.decode(token, process.env.SECRET_KEY);
+  
+      let userModel;
+      switch (decodedToken.role) {
+        case 'learner':
+          userModel = learnerModel;
+          break;
+        case 'instructor':
+          userModel = instructorModel;
+          break;
+        case 'admin':
+          userModel = adminModel;
+          break;
+        default:
+          return res.status(400).json({ error: 'Invalid role' });
+      }
+  
+      const user = await userModel.findOne({ email: decodedToken.email });
+  
+      if (!user) {
+        return res.status(404).json({ error: 'User not found' });
+      }
+  
+      return res.status(200).json({ user });
+    } catch (error) {
+      console.error('View own profile error', error);
+      return res.status(500).json({ error: 'Internal server error' });
+    }
+  }
+  
 }
 module.exports = new userController();

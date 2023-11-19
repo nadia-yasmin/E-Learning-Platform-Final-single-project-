@@ -7,7 +7,7 @@ import {
   Snackbar,
   styled,
 } from '@mui/material';
-import Button from '@mui/material/Button';
+import Buttoncomponent from "../../form/common/button/button"
 import axiosInstance from '../../../Utils/axiosInstance';
 const StyledPaper = styled(Paper)(({ theme }) => ({
   padding: theme.spacing(3),
@@ -26,9 +26,6 @@ const StyledOptionLabel = styled(FormControlLabel)(({ theme }) => ({
   marginBottom: theme.spacing(1),
 }));
 
-const StyledButton = styled(Button)(({ theme }) => ({
-  marginTop: theme.spacing(2),
-}));
 
 const QuizForm = ({ quizData }) => {
   const [selectedOptions, setSelectedOptions] = useState({});
@@ -114,13 +111,12 @@ const QuizForm = ({ quizData }) => {
         </StyledPaper>
       ))}
 
-      <StyledButton
-        variant="contained"
-        color="primary"
-        onClick={handleSubmit}
-      >
-        Submit
-      </StyledButton>
+<Buttoncomponent
+            text={"Submit"}
+            type={"submit"}
+            variant={"contained"}
+            style={{ marginTop: 16, backgroundColor: "#00695f" }}
+          />
 
       <Snackbar
         open={openSnackbar}

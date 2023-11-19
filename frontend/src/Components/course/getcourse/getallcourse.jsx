@@ -8,9 +8,6 @@ import CardContent from "@mui/material/CardContent";
 import CardMedia from "@mui/material/CardMedia";
 import CssBaseline from "@mui/material/CssBaseline";
 import Grid from "@mui/material/Grid";
-import Stack from "@mui/material/Stack";
-import Box from "@mui/material/Box";
-import Toolbar from "@mui/material/Toolbar";
 import Typography from "@mui/material/Typography";
 import Container from "@mui/material/Container";
 import Link from "@mui/material/Link";
@@ -18,6 +15,7 @@ import { createTheme, ThemeProvider } from "@mui/material/styles";
 import useCourseHook from "../../../CustomHooks/usegetcoursehook";
 import ShoppingCartIcon from "@mui/icons-material/ShoppingCart";
 import { useNavigate } from "react-router-dom";
+import LinearColor from "../../common/loader/loader"
 function Copyright() {
   return (
     <Typography variant="body2" color="text.secondary" align="center">
@@ -43,9 +41,9 @@ const Getallcourse = () => {
       <CssBaseline />
       <main>
         <Heading4
-          text={"Learners are also viewing"}
+          text={"All Courses"}
           variant={"h4"}
-          style={{ color: "#00695f", textAlign: "center", fontSize: "1.5rem" }}
+          style={{ color: "#00695f", textAlign: "center", fontSize: "1.5rem" ,paddingTop:"10px"}}
         />
         <Container sx={{ py: 8 }} maxWidth="md">
           {courseData && courseData.length > 0 ? (
@@ -98,7 +96,7 @@ const Getallcourse = () => {
               ))}
             </Grid>
           ) : (
-            <div>No course data available</div>
+           <LinearColor/>
           )}
         </Container>
       </main>

@@ -3,12 +3,13 @@ import CardMedia from "@mui/material/CardMedia";
 import { styled } from "@mui/system";
 
 const StyledCardMedia = styled(CardMedia)({
-  width: 350,
+  width: 1350,
+  height:400,
   objectFit: "cover",
   display: { xs: "none", sm: "block" }
 });
 
-const Imagecomponent = ({ courseData, lessonData,link }) => {
+const Imagecomponent2 = ({ courseData, lessonData,link }) => {
   return (
     <StyledCardMedia
       component="img"
@@ -18,4 +19,4 @@ const Imagecomponent = ({ courseData, lessonData,link }) => {
   );
 };
 
-export default Imagecomponent;
+export default Imagecomponent2;

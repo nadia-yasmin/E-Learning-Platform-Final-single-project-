@@ -7,6 +7,8 @@ import { TextField, Stack } from "@mui/material";
 import useLoginHook from "../../CustomHooks/useloginhook";
 import { Container, Paper, Avatar, Grid } from "@mui/material";
 import { ThemeProvider, createTheme } from "@mui/material/styles";
+import Alert from '@mui/material/Alert';
+import AlertTitle from '@mui/material/AlertTitle';
 import { styled } from "@mui/system";
 const StyledPaper = styled(Paper)(({ theme }) => ({
   marginTop: theme.spacing(8),
@@ -44,7 +46,7 @@ const Login = () => {
   } = useForm();
   const [email, setEmail] = useState("");
   const [password, setPasword] = useState("");
-  const { createLogin } = useLoginHook();
+  const { createLogin,successAlert, errorAlert, alertMessage  } = useLoginHook();
 
   const handleEmailChange = (e) => {
     setEmail(e.target.value);
@@ -138,7 +140,20 @@ const Login = () => {
           />
         </form>
       </StyledPaper>
+      {successAlert && (
+        <Alert severity="success">
+          <AlertTitle>Success</AlertTitle>
+          {alertMessage}
+        </Alert>
+      )}
+      {errorAlert && (
+        <Alert severity="error">
+          <AlertTitle>Error</AlertTitle>
+          {alertMessage}
+        </Alert>
+      )}
     </CenteredContainer>
+    
   );
 };
 

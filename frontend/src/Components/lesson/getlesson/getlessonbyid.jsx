@@ -8,6 +8,7 @@ import "../../../App.css";
 import LinearColor from "../../common/loader/loader";
 import QuizForm from "../../common/quiz/quiz";
 import Assignment from "../../common/assignment/assignment"
+import PostForm from "../../common/discussion/post"
 const Viewlesson = () => {
   const { lessonId } = useParams();
   const [lessonData, setLessonData] = useState([]);
@@ -71,7 +72,7 @@ const Viewlesson = () => {
         return <Assignment lessonData={lessonData} />
         // return <div>hi</div>
       case 'five':
-        return <Typography>Discussion Content</Typography>;
+        return <PostForm />
       default:
         return null;
     }

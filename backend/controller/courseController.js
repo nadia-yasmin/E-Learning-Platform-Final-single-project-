@@ -28,8 +28,11 @@ class courseController {
     try {
       const { title, instructor, categoryId, typeId, description, paid } =
         req.body;
+        console.log("req.files",req.files)
       let image = req.files["image"][0];
       let intro = req.files["intro"][0];
+
+  
       AWS.config.update({
         accessKeyId: "AKIARBUZNPTUDGAEUUQX",
         secretAccessKey: "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",
@@ -685,7 +688,7 @@ class courseController {
         .send(success("Review added successfully", { review: savedReview }));
     } catch (error) {
       console.error("Add review error", error);
-      return res.status(500).send(success("Internal server error"));
+      return res.status(500).send(failure("Internal server error"));
     }
   }
 
@@ -715,7 +718,7 @@ class courseController {
       });
     } catch (error) {
       console.error("Update review error", error);
-      return res.status(500).send(success("Internal server error"));
+      return res.status(500).send(failure("Internal server error"));
     }
   }
   async showcoursebyid(req, res) {
@@ -737,7 +740,7 @@ class courseController {
       return res.status(200).json({ course });
     } catch (error) {
       console.error("Show course by id error", error);
-      return res.status(500).send(success("Internal server error"));
+      return res.status(500).send(failure("Internal server error"));
     }
   }
 
@@ -842,8 +845,61 @@ class courseController {
       return res.status(200).send(success("Course deleted successfully"));
     } catch (error) {
       console.error("Delete course error", error);
-      return res.status(500).send(success("Internal server error"));
+      return res.status(500).send(failure("Internal server error"));
     }
   }
+  async getinstructorscourse(req, res) {
+    try {
+      const { instructorId } = req.body;
+      const success = (message, data) => ({
+        success: true,
+        message,
+        data,
+      });
+      const courses = await courseModel.find({ instructor: instructorId });
+      console.log("controller worked",courses)
+      return res.status(HTTP_STATUS.OK).send(success("All instructors courses", { courses: courses }));
+
+
+    }catch (error) {
+      console.log("Get instructors course error", error);
+      return res.status(500).send(failure("Internal server error"));
+    }
+  }
+  async getallcategories(req, res) {
+    try {
+      const success = (message, data) => ({
+        success: true,
+        message,
+        data,
+      });
+      const categories = await categoryModel.find()
+      console.log("All categories",categories)
+      return res.status(HTTP_STATUS.OK).send(success("All categories", { categories: categories }));
+
+
+    }catch (error) {
+      console.log("Get all categories error", error);
+      return res.status(500).send(failure("Internal server error"));
+    }
+  }
+  async getalltypes(req, res) {
+    try {
+      const success = (message, data) => ({
+        success: true,
+        message,
+        data,
+      });
+      const types = await typeModel.find();
+      console.log("All types",types)
+      return res.status(HTTP_STATUS.OK).send(success("All types", { types: types }));
+
+
+    }catch (error) {
+      console.log("Get all types error", error);
+      return res.status(500).send(failure("Internal server error"));
+    }
+  }
+
 }
 module.exports = new courseController();
