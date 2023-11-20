@@ -84,12 +84,13 @@ const ViewCourse = () => {
             <CardActionArea component="a" href="#">
               <Card sx={{ display: "flex" }}>
                 <CardContent sx={{ flex: 1 }}>
-                  <CourseDetails
-                    title={courseData.title}
-                    category={courseData.category}
-                    type={courseData.type}
-                    description={courseData.description}
-                  />
+                <CourseDetails
+                  title={courseData.title}
+                  category={courseData.category}
+                  type={courseData.type}
+                  description={courseData.description}
+                  courseId={courseData._id}
+                />
 
                 </CardContent>
                 <Imagecomponent courseData={courseData} />

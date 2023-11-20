@@ -10,17 +10,17 @@ import CssBaseline from "@mui/material/CssBaseline";
 import Grid from "@mui/material/Grid";
 import Typography from "@mui/material/Typography";
 import Container from "@mui/material/Container";
-import Link from "@mui/material/Link";
 import { createTheme, ThemeProvider } from "@mui/material/styles";
-import useCourseHook from "../../../CustomHooks/usegetcoursehook";
 import ShoppingCartIcon from "@mui/icons-material/ShoppingCart";
 import { useNavigate } from "react-router-dom";
-import LinearColor from "../../common/loader/loader"
-const cards = [1, 2, 3, 4, 5, 6, 7, 8, 9];
+import { useSelector, useDispatch } from "react-redux";
 const defaultTheme = createTheme();
-
-const Getallcourse = () => {
-  const { courseData, loading } = useCourseHook();
+const DebounceDemo = () => {
+  const searchParam = useSelector((state) => state.course.searchParam);
+  const courseData = useSelector((state) => state.course.courseData);
+  const loading = useSelector((state) => state.course.loading);
+  const error = useSelector((state) => state.course.error);
+  const dispatch = useDispatch();
   const navigate = useNavigate();
   console.log("courseData from page", courseData);
   return (
@@ -28,9 +28,9 @@ const Getallcourse = () => {
       <CssBaseline />
       <main>
         <Heading4
-          text={"All Courses"}
+          text={"Learners are also viewing"}
           variant={"h4"}
-          style={{ color: "#00695f", textAlign: "center", fontSize: "1.5rem" ,paddingTop:"10px"}}
+          style={{ color: "#00695f", textAlign: "center", fontSize: "1.5rem" }}
         />
         <Container sx={{ py: 8 }} maxWidth="md">
           {courseData && courseData.length > 0 ? (
@@ -83,12 +83,11 @@ const Getallcourse = () => {
               ))}
             </Grid>
           ) : (
-           <LinearColor/>
+            <div>No course data available</div>
           )}
         </Container>
       </main>
     </ThemeProvider>
   );
 };
-
-export default Getallcourse;
+export default DebounceDemo;

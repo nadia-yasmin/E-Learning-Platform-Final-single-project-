@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState,useEffect } from "react";
 import { styled, alpha } from "@mui/material/styles";
 import AppBar from "@mui/material/AppBar";
 import Box from "@mui/material/Box";
@@ -16,7 +16,15 @@ import AccountCircle from "@mui/icons-material/AccountCircle";
 import MailIcon from "@mui/icons-material/Mail";
 import NotificationsIcon from "@mui/icons-material/Notifications";
 import MoreIcon from "@mui/icons-material/MoreVert";
-import { useNavigate, useParams } from "react-router-dom";
+// import { useNavigate, useParams } from "react-router-dom";
+import { useNavigate, useParams, Link } from "react-router-dom";
+import axiosInstance from "../../Utils/axiosInstance";
+import { useDispatch } from "react-redux";
+import {
+  setSearchData,
+  setLoading,
+  setError,
+} from "../../Store/slices/searchcourse";
 const Search = styled("div")(({ theme }) => ({
   position: "relative",
   borderRadius: theme.shape.borderRadius,
@@ -58,16 +66,55 @@ const StyledInputBase = styled(InputBase)(({ theme }) => ({
 }));
 
 export default function PrimarySearchAppBar() {
+  const navigate = useNavigate();
   const [anchorEl, setAnchorEl] = React.useState(null);
   const [mobileMoreAnchorEl, setMobileMoreAnchorEl] = React.useState(null);
 
   const isMenuOpen = Boolean(anchorEl);
   const isMobileMenuOpen = Boolean(mobileMoreAnchorEl);
   const [open, setOpen] = React.useState(true);
+  const [searchParam, setProductSearchParam] = useState("");
+  console.log("FUNCTION INSIDE NAVBAR working");
+  const [courseData, setCourseData] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const dispatch = useDispatch();
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        setLoading(true);
+        const response = await axiosInstance.get(
+          `/getcourses?searchParam=${searchParam}`
+        );
+        console.log("Data from search", response.data.data);
+        setCourseData(response.data.data);
+        dispatch(setSearchData(response.data.data));
+      } catch (error) {
+        console.error("Error fetching data:", error);
+        dispatch(setError("Some error occurred"));
+      } finally {
+        setLoading(false);
+        dispatch(setLoading(false));
+      }
+    };
+
+    fetchData();
+  }, [searchParam, dispatch]);
+  useEffect(() => {
+    if (searchParam && courseData.length > 0) {
+      navigate("/search");
+    }
+  }, [courseData, navigate]);
+
+  console.log("courseData,loading from navbar ", courseData, loading);
+
+  const handleInputChange = (e) => {
+    const value = e.target.value;
+    setProductSearchParam(value);
+    console.log("searchParam", searchParam);
+  };
   const toggleDrawer = () => {
     setOpen(!open);
   };
-  const navigate = useNavigate();
 
   const handleMenuClick = () => {
     navigate('/dashboard');
@@ -232,6 +279,8 @@ export default function PrimarySearchAppBar() {
             </SearchIconWrapper>
             <StyledInputBase
               placeholder="Search…"
+              value={searchParam}
+              onChange={handleInputChange}
               inputProps={{ "aria-label": "search" }}
             />
           </Search>

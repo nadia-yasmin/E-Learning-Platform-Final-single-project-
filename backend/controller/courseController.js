@@ -97,11 +97,11 @@ class courseController {
       if (!type) {
         return res.status(400).send(failure("Type not found"));
       }
-      if (!category.type.includes(type._id)) {
-        return res
-          .status(400)
-          .send(failure("Type does not belong to the selected category"));
-      }
+      // if (!category.type.includes(type._id)) {
+      //   return res
+      //     .status(400)
+      //     .send(failure("Type does not belong to the selected category"));
+      // }
       const result = await courseModel.create({
         title: title,
         instructor: instructor,
@@ -110,7 +110,6 @@ class courseController {
         description: description,
         image: image1,
         intro: intro1,
-        paid: paid,
       });
       if (result) {
         return res.status(200).send(success("New course added", result));
@@ -272,7 +271,7 @@ class courseController {
         page = 1;
       }
       if (!limit) {
-        limit = 4;
+        limit = 10;
       }
 
       if (searchParam) {

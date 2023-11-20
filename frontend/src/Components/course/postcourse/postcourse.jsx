@@ -1,7 +1,7 @@
 import React, {useState, useEffect} from "react";
 import { useForm, Controller } from "react-hook-form";
 // import Buttoncomponent from "./common/button/button";
-import { TextField, Stack } from "@mui/material";
+import { TextField, Stack,InputLabel } from "@mui/material";
 import Swal from "sweetalert2";
 import "sweetalert2/dist/sweetalert2.css";
 // import usesignuphook from "../../CustomHooks/useSignuphook";
@@ -18,7 +18,10 @@ import Grow from '@mui/material/Grow';
 import Popper from '@mui/material/Popper';
 import MenuItem from '@mui/material/MenuItem';
 import MenuList from '@mui/material/MenuList';
-import axiosInstance from "../../../Utils/axiosInstance"
+import axiosInstancefile from "../../../Utils/axiosinstanceform"
+import Loader from "../../common/loader/loader"
+import { ToastContainer, toast } from "react-toastify";
+import axiosInstance from "../../../Utils/axiosInstance";
 const StyledPaper = styled(Paper)(({ theme }) => ({
   marginTop: theme.spacing(8),
   display: "flex",
@@ -54,31 +57,37 @@ const Addcourse = () => {
     const [categoryOpen, setCategoryOpen] = React.useState(false);
     const [typeData, setTypeData]=useState([])
     const categoryAnchorRef = React.useRef(null);
-  
+    const [loading, setLoading] = useState(false);
     const [typeOpen, setTypeOpen] = React.useState(false);
     const typeAnchorRef = React.useRef(null);
-    const [selectedCategoryName, setSelectedCategoryId] = useState(null);
-    const [selectedTypeName, setSelectedTypeId] = useState(null);
+    const [categoryId, setSelectedCategoryId] = useState(null);
+    const [typeId, setSelectedTypeId] = useState(null);
 
-    const handleCategoryItemClick = async (categoryName) => {
-        setSelectedCategoryId(categoryName);
-        console.log("selectedCategoryName", selectedCategoryName);
+
+
+    const handleCategoryItemClick = async (categoryId) => {
         await new Promise((resolve) => {
+        setSelectedCategoryId(categoryId);
+       
           handleCategoryClose(); 
+          resolve()
         });
       };
-      
-      const handleTypeItemClick = async (typeName) => {
-        setSelectedTypeId(typeName);
-        console.log("selectedTypeName", selectedTypeName);
+      console.log("selectedCategoryId", categoryId);
+      const handleTypeItemClick = async (typeId) => {
         await new Promise((resolve) => {
+        setSelectedTypeId(typeId);
+  
           handleTypeClose(); 
+          resolve()
         });
       };
+      console.log("selectedTypeId", typeId);
       
     useEffect(() => {
  const fetchData = async () => {
     try {
+
       const response = await axiosInstance.get(
         "/getallcategories"
       );
@@ -88,7 +97,7 @@ const Addcourse = () => {
     } catch (error) {
       console.error("Error fetching data:", error);
       throw error; 
-    }
+    } 
   };
   if (categoryOpen) {
     fetchData();
@@ -105,20 +114,22 @@ const Addcourse = () => {
       formData.append("description", data.description);
       formData.append("image", data.image[0]); // Assuming image is an array of files
       formData.append("intro", data.intro[0]); // Assuming intro is an array of files
-      formData.append("instructorId", userData._id);
-      formData.append("category", selectedCategoryName);
-      formData.append("type", selectedTypeName);
+      formData.append("instructor", userData._id);
+      formData.append("categoryId", categoryId);
+      formData.append("typeId", typeId);
   
-      const response = await axiosInstance.post("/addcourse", formData, {
+      const response = await axiosInstancefile.post("/addcourse", formData, {
         headers: {
           "Content-Type": "multipart/form-data",
         },
       });
   
       console.log("Course addition", response);
+      toast.success(response.data.message)
       // Handle the response if needed
       return response;
     } catch (error) {
+        toast.failure(error.response.data.message)
       console.error("Error adding course data:", error);
       throw error;
     }
@@ -136,6 +147,7 @@ const Addcourse = () => {
   useEffect(() => {
     const fetchDataType = async () => {
        try {
+        setLoading(true);
          const response = await axiosInstance.get(
            "/getalltypes"
          );
@@ -145,7 +157,9 @@ const Addcourse = () => {
        } catch (error) {
          console.error("Error fetching data:", error);
          throw error;
-       }
+       } finally{
+        setLoading(false);
+    }
      };
      if (typeOpen) {
         fetchDataType();
@@ -280,13 +294,13 @@ const Addcourse = () => {
                   aria-haspopup="true"
                   onClick={handleCategoryToggle}
                 >
-                  Category
+                Category
                 </Button>
                 <Popper
                   open={categoryOpen}
                   anchorEl={categoryAnchorRef.current}
                   role={undefined}
-                  placement="bottom-start"
+                  placement="right-start"
                   transition
                   disablePortal
                 >
@@ -298,7 +312,7 @@ const Addcourse = () => {
                   placement === 'bottom-start' ? 'left top' : 'left bottom',
               }}
             >
-              <Paper style={{ backgroundColor: 'white' }}>
+              <Paper style={{ backgroundColor: 'white', marginRight: '30px' }}>
                 <ClickAwayListener onClickAway={handleCategoryClose}>
                   <MenuList
                     autoFocusItem={categoryOpen}
@@ -307,7 +321,7 @@ const Addcourse = () => {
                     onKeyDown={(event) => handleListKeyDown(event, setCategoryOpen)}
                   >
                    {categoryData.map((category) => (
-                      <MenuItem key={category._id}  onClick={() => handleCategoryItemClick(category.name)}>
+                      <MenuItem key={category._id}  onClick={() => handleCategoryItemClick(category._id)}>
                         {category.name}
                       </MenuItem>
                     ))}
@@ -337,7 +351,7 @@ const Addcourse = () => {
                   open={typeOpen}
                   anchorEl={typeAnchorRef.current}
                   role={undefined}
-                  placement="bottom-start"
+                  placement="right-start"
                   transition
                   disablePortal
                 >
@@ -349,7 +363,7 @@ const Addcourse = () => {
                   placement === 'bottom-start' ? 'left top' : 'left bottom',
               }}
             >
-              <Paper>
+              <Paper style={{ backgroundColor: 'white', marginRight: '60px' }}>
                 <ClickAwayListener onClickAway={handleTypeClose}>
                   <MenuList
                     autoFocusItem={open}
@@ -358,7 +372,7 @@ const Addcourse = () => {
                     onKeyDown={(event) => handleListKeyDown(event, setTypeOpen)}
                   >
                        {typeData.map((type) => (
-                      <MenuItem key={type._id}  onClick={() => handleTypeItemClick(type.name)}>
+                      <MenuItem key={type._id}  onClick={() => handleTypeItemClick(type._id)}>
                         {type.name}
                       </MenuItem>
                     ))}
@@ -372,62 +386,44 @@ const Addcourse = () => {
 
             </Grid>
             <Grid item xs={12}>
-              <Controller
-                name="image"
-                control={control}
-                rules={{
-                  required: "Image is required",
-                }}
-                render={({ field }) => (
-                  <div>
-                    <Input
-                      type="file"
-                      name="image"
-                      {...field}
-                      accept="image/*"
-                      error={Boolean(errors.image)}
-                      helperText={errors.image?.message}
-                    />
-                    <label htmlFor="image">
-                      <Buttoncomponent
-                        text="Upload Image"
-                        variant="outlined"
-                        component="span"
-                        style={{ marginTop: 8 }}
-                      />
-                    </label>
-                  </div>
-                )}
-              />
-            </Grid>
-            <Grid item xs={12}>
+              <InputLabel htmlFor="intro">Introductory video File:</InputLabel>
               <Controller
                 name="intro"
                 control={control}
-                rules={{
-                  required: "Intro (video) is required",
-                }}
+                rules={{ required: "Introductory video file is required" }}
                 render={({ field }) => (
-                  <div>
-                    <Input
-                      type="file"
-                      name="intro"
-                      {...field}
-                      accept="video/*"
-                      error={Boolean(errors.intro)}
-                      helperText={errors.intro?.message}
-                    />
-                    <label htmlFor="intro">
-                      <Buttoncomponent
-                        text="Upload Intro"
-                        variant="outlined"
-                        component="span"
-                        style={{ marginTop: 8 }}
-                      />
-                    </label>
-                  </div>
+                  <Input
+                    type="file"
+                    name="intro"
+                    accept="video/*"
+                    onChange={(e) => field.onChange(e.target.files)}
+                    multiple
+                  />
                 )}
               />
+              {errors.intro && (
+                <p style={{ color: "red" }}>{errors.intro.message}</p>
+              )}
+            </Grid>
+            <Grid item xs={12}>
+              <InputLabel htmlFor="image">Thumbnail image</InputLabel>
+              <Controller
+                name="image"
+                control={control}
+                rules={{ required: "Thumbnail image file is required" }}
+                render={({ field }) => (
+                  <Input
+                    type="file"
+                    name="image"
+                    accept="image/*"
+                    onChange={(e) => field.onChange(e.target.files)}
+                    multiple
+                  />
+                )}
+              />
+              {errors.assignment && (
+                <p style={{ color: "red" }}>{errors.assignment.message}</p>
+              )}
             </Grid>
           </Grid>
             <Buttoncomponent

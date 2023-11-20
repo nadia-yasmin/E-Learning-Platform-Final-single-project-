@@ -1,9 +1,16 @@
-import React from 'react';
-import Typography from '@mui/material/Typography';
-
-const CourseDetails = ({ number, title, category, type, description }) => (
+import React from "react";
+import Typography from "@mui/material/Typography";
+import { Link } from "react-router-dom";
+const CourseDetails = ({
+  number,
+  title,
+  category,
+  type,
+  description,
+  courseId,
+}) => (
   <>
-  {number && (
+    {number && (
       <Typography component="h2" variant="h5">
         Lesson: {number}
       </Typography>
@@ -28,8 +35,13 @@ const CourseDetails = ({ number, title, category, type, description }) => (
         Course description: {description}
       </Typography>
     )}
-    {description && (
-      <Typography variant="subtitle1" color="primary">
+    {courseId && (
+      <Typography
+        variant="subtitle1"
+        color="primary"
+        component={Link}
+        to={`/addlesson/${courseId}`}
+      >
         Continue reading...
       </Typography>
     )}

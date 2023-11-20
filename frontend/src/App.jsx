@@ -12,6 +12,8 @@ import Showdashboard from "./Components/common/dashboard/showdashboard"
 import Showprofile from "./Components/user/profile/showprofile"
 import Getinstructorscourse from "./Components/course/getcourse/getinstructorscourse"
 import Addcourse from "./Components/course/postcourse/postcourse"
+import DebounceDemo from "./Components/course/getcourse/searchcourse"
+import Addlesson from "./Components/lesson/postlesson/addlesson";
 import "./App.css";
 function App() {
   return (
@@ -36,7 +38,8 @@ function App() {
           <Route path="/courses" element={<Getinstructorscourse />} />
           <Route path="/addcourse" element={<Addcourse />} />
           
-          
+          <Route path="/search" element={<DebounceDemo />} />
+          <Route path="/addlesson/:courseId" element={<Addlesson />} />
         </Routes>
         <Footer />
       </BrowserRouter>
