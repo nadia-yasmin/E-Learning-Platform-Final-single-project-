@@ -125,6 +125,7 @@ class courseController {
     try {
       const { courseId } = req.query;
       const { learnerId } = req.body;
+      console.log("courseId,learnerId",courseId,learnerId)
       const cart = await cartModel.findOne({ learnerId });
       if (cart && cart.courseId.includes(courseId)) {
         return res.status(400).send(failure("Course is already in the cart"));
@@ -335,7 +336,7 @@ class courseController {
         .populate("instructor");
 
       if (courses.length > 0) {
-        console.log(courses);
+        // console.log(courses);
         return res.status(200).send(success("Successfully fetched", courses));
       }
       if (courses.length == 0) {
@@ -876,7 +877,6 @@ class courseController {
       console.log("All categories",categories)
       return res.status(HTTP_STATUS.OK).send(success("All categories", { categories: categories }));
 
-
     }catch (error) {
       console.log("Get all categories error", error);
       return res.status(500).send(failure("Internal server error"));
@@ -899,6 +899,79 @@ class courseController {
       return res.status(500).send(failure("Internal server error"));
     }
   }
+  async getbycategoryid(req, res) {
+    try {
+      const { categoryId } = req.query;
+      if (!categoryId) {
+        return res.status(400).json({ error: "Invalid parameters" });
+      }
+      if (!mongoose.Types.ObjectId.isValid(categoryId)) {
+        categoryId = new mongoose.Types.ObjectId(categoryId);
+      }
+      const category = await categoryModel.findById(categoryId);
+      if (!category) {
+        return res.status(404).json({ error: "Category not found" });
+      }
+      console.log("category.name",category.name)
+      const courses = await courseModel.find({ 'category': category.name });
+      return res.status(200).json({ courses });
+    } catch (error) {
+      console.log("Get courses by category ID error", error);
+      return res.status(500).json({ error: "Internal server error" });
+    }
+  }
+  async showCart(req, res) {
+    try {
+      const { learnerId } = req.query;
+      console.log("learnerId",learnerId)
+      const learner = await learnerModel.findOne({ _id: learnerId });  
+      if (!learner) {
+        return res.status(404).json({ message: "Learner not found" });
+      }
+      const cartId = learner.cartId;
+      if (!cartId) {
+        return res.status(404).json({ message: "Cart not found" });
+      }
+      const cart = await cartModel.findOne({ _id: cartId }).populate('courseId');; 
+      if (!cart) {
+        return res.status(404).json({ message: "Cart not found" });
+      }
+      return res.status(200).json(cart);
+    } catch (error) {
+      console.error("Error showing cart:", error);
+      return res.status(500).json({ message: "Internal Server Error" });
+    }
+  };
+
+  async removeFromCart(req, res) {
+    try {
+      const { courseId, learnerId } = req.body;
+      console.log("learnerId courseId from remove cart",courseId, learnerId);
+      const learner = await learnerModel.findOne({ _id: learnerId });
+      if (!learner) {
+        return res.status(404).json({ message: "Learner not found" });
+      }
+      const cartId = learner.cartId;
+      if (!cartId) {
+        return res.status(404).json({ message: "Cart not found" });
+      }
+      const updatedCart = await cartModel.findOneAndUpdate(
+        { _id: cartId },
+        { $pull: { courseId: courseId } },
+        { new: true }
+      ).populate('courseId'); 
+      if (!updatedCart) {
+        return res.status(404).json({ message: "Cart not found" });
+      } 
+      return res.status(200).json({ message: "Removed from cart" });
+    } catch (error) {
+      console.error("Error removing from cart:", error);
+      return res.status(500).json({ message: "Internal Server Error" });
+    }
+  }
+  
+  
+  
 
 }
 module.exports = new courseController();

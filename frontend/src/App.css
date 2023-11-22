@@ -1,3 +1,4 @@
+
 body {
   width: 100%;
   height: 100vh;
@@ -9,4 +10,227 @@ body {
 .playerDiv {
   width:100%;
   position: relative;
+}
+:root {
+  --color-border: #eee;
+  --color-label: #aaa;
+  --font-default: 'HelveticaNeue-Light', 'Helvetica Neue Light', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+  --font-bold: 'HelveticaNeue-Medium', 'Helvetica Neue Medium';
+}
+
+/* Global "table" column settings */
+.product-image { float: left; width: 20%; }
+.product-details { float: left; width: 37%; }
+.product-price { float: left; width: 12%; }
+.product-quantity { float: left; width: 10%; }
+.product-removal { float: left; width: 9%; }
+.product-line-price { float: left; width: 12%; text-align: right; }
+
+/* This is used as the traditional .clearfix class */
+.group:before,
+.group:after {
+    content: '';
+    display: table;
+} 
+.group:after {
+    clear: both;
+}
+.group {
+    zoom: 1;
+}
+
+.shopping-cart:before,
+.shopping-cart:after,
+.column-labels:before,
+.column-labels:after,
+.product:before,
+.product:after,
+.totals-item:before,
+.totals-item:after {
+    content: '';
+    display: table;
+} 
+
+.shopping-cart:after,
+.column-labels:after,
+.product:after,
+.totals-item:after {
+    clear: both;
+}
+
+.shopping-cart,
+.column-labels,
+.product,
+.totals-item {
+    zoom: 1;
+}
+
+
+h1 {
+  font-weight: 100;
+} */
+
+label {
+  color: var(--color-label);
+}
+
+.shopping-cart {
+  margin-top: -45px;
+}
+
+/* Column headers */
+.column-labels {
+  label {
+    padding-bottom: 30px;
+    margin-bottom: 30px;
+    border-bottom: 1px solid var(--color-border);
+  }
+
+  .product-image, .product-details, .product-removal {
+    text-indent: -9999px;
+  }
+}
+
+/* Product entries */
+.product {
+  margin-bottom: 20px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid var(--color-border);
+
+  .product-image {
+    text-align: center;
+    img {
+      width: 100px;
+    }
+  }
+
+  .product-details {
+    .product-title {
+      margin-right: 20px;
+      font-family: var(--font-bold);
+    }
+    .product-description {
+      margin: 5px 20px 5px 0;
+      line-height: 1.4em;
+    }
+  }
+
+  .product-quantity {
+    input {
+      width: 40px;
+    }
+  }
+
+  .remove-product {
+    border: 0;
+    padding: 4px 8px;
+    background-color: #c66;
+    color: #fff;
+    font-family: var(--font-bold);
+    font-size: 12px;
+    border-radius: 3px;
+  }
+
+  .remove-product:hover {
+    background-color: #a44;
+  }
+}
+
+.shopping-cart {
+  margin-top: -45px;
+  margin: 0 auto; /* Center the shopping cart */
+}
+
+.checkout {
+  margin-top: 20px;
+  margin-bottom: 20px;
+  padding: 6px 25px;
+  background-color: #6b6;
+  color: #fff;
+  font-size: 25px;
+  border-radius: 3px;
+  display: block; /* Center the button */
+  margin: 0 auto; /* Center the button */
+}
+.checkout:hover {
+  background-color: #494;
+}
+
+@media screen and (max-width: 650px) {
+  .shopping-cart {
+    margin: 0;
+    padding-top: 20px;
+    border-top: 1px solid var(--color-border);
+  }
+
+  .column-labels {
+    display: none;
+  }
+
+  .product-image {
+    float: right;
+    width: auto;
+    img {
+      margin: 0 0 10px 10px;
+    }
+  }
+
+  .product-details {
+    float: none;
+    margin-bottom: 10px;
+    width: auto;
+  }
+
+  .product-price {
+    clear: both;
+    width: 70px;
+  }
+
+  .product-quantity {
+    width: 100px;
+    input {
+      margin-left: 20px;
+    }
+  }
+
+  .product-quantity:before {
+    content: 'x';
+  }
+
+  .product-removal {
+    width: auto;
+  }
+
+  .product-line-price {
+    float: right;
+    width: 70px;
+  }
+}
+@media screen and (max-width: 350px) {
+  .product-removal {
+    float: right;
+  }
+
+  .product-line-price {
+    float: right;
+    clear: left;
+    width: auto;
+    margin-top: 10px;
+  }
+
+  .product .product-line-price:before {
+    content: 'Item Total: $';
+  }
+
+  .totals {
+    .totals-item {
+      label {
+        width: 60%;
+      }
+
+      .totals-value {
+        width: 40%;
+      }
+    }
+  }
 }

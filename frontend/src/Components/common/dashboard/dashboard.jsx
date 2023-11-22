@@ -10,6 +10,7 @@ import Divider from '@mui/material/Divider';
 import IconButton from '@mui/material/IconButton';
 import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';
 import { mainListItems, secondaryListItems } from './listitems';
+import { mainListItemsLearner, secondaryListItemsLearner } from './listitemslearner';
 
 const drawerWidth = 240;
 
@@ -41,12 +42,23 @@ const Drawer = styled(MuiDrawer, { shouldForwardProp: (prop) => prop !== 'open' 
 
 export default function Dashboard() {
   const [open, setOpen] = React.useState(true);
+  const [userData, setUserData] = React.useState(null);
+
+  React.useEffect(() => {
+    const userDataString = localStorage.getItem('userdata');
+    if (userDataString) {
+      const parsedUserData = JSON.parse(userDataString);
+      setUserData(parsedUserData);
+    }
+  }, []);
+
   const toggleDrawer = () => {
     setOpen(!open);
   };
 
   return (
-   
+    <>
+      {userData && (
         <Drawer variant="permanent" open={open}>
           <Toolbar
             sx={{
@@ -59,10 +71,22 @@ export default function Dashboard() {
           </Toolbar>
           <Divider />
           <List component="nav">
-            {mainListItems}
-            <Divider sx={{ my: 1 }} />
-            {secondaryListItems}
+            {userData.role === 'instructor' ? (
+              <>
+                {mainListItems}
+                <Divider sx={{ my: 1 }} />
+                {secondaryListItems}
+              </>
+            ) : (
+              <>
+                {mainListItemsLearner}
+                <Divider sx={{ my: 1 }} />
+                {secondaryListItemsLearner}
+              </>
+            )}
           </List>
         </Drawer>
+      )}
+    </>
   );
 }

@@ -1,16 +1,10 @@
 import React, {useState, useEffect} from "react";
 import { useForm, Controller } from "react-hook-form";
-// import Buttoncomponent from "./common/button/button";
 import { TextField, Stack,InputLabel } from "@mui/material";
 import Swal from "sweetalert2";
 import "sweetalert2/dist/sweetalert2.css";
-// import usesignuphook from "../../CustomHooks/useSignuphook";
 import { Container, Paper, Avatar, Grid } from "@mui/material";
-import Input from "@mui/material/Input";
-import { useParams, useNavigate } from "react-router-dom";
-import { ThemeProvider, createTheme } from "@mui/material/styles";
 import { styled } from "@mui/system";
-import AddIcon from '@mui/icons-material/Add';
 import Buttoncomponent from "../../form/common/button/button"
 import Button from '@mui/material/Button';
 import ClickAwayListener from '@mui/material/ClickAwayListener';
@@ -52,7 +46,7 @@ const CenteredContainer = styled("div")({
   height: "130vh",
 });
 
-const Addcourse = () => {
+const Updatecourse = () => {
     const [categoryData, setCategortyData] = useState([]);
     const [categoryOpen, setCategoryOpen] = React.useState(false);
     const [typeData, setTypeData]=useState([])
@@ -110,24 +104,17 @@ const Addcourse = () => {
       const formData = new FormData();
       formData.append("title", data.title);
       formData.append("description", data.description);
-      formData.append("image", data.image[0]);
-      formData.append("intro", data.intro[0]); 
-      formData.append("instructor", userData._id);
       formData.append("categoryId", categoryId);
       formData.append("typeId", typeId);
   
-      const response = await axiosInstancefile.post("/addcourse", formData, {
-        headers: {
-          "Content-Type": "multipart/form-data",
-        },
-      });
+      const response = await axiosInstancefile.post("/updatecourse", formData);
   
-      console.log("Course addition", response);
+      console.log("Course updated", response);
       toast.success(response.data.message)
       return response;
     } catch (error) {
         toast.failure(error.response.data.message)
-      console.error("Error adding course data:", error);
+      console.error("Error updating course data:", error);
       throw error;
     }
   };
@@ -226,11 +213,7 @@ const Addcourse = () => {
       handleSubmit,
       formState: { errors },
     } = useForm({ mode: "onChange" });
-  
-    const { role } = useParams();
-    const userData = JSON.parse(localStorage.getItem("userdata"));
-  
-    return (
+     return (
       <CenteredContainer>
         <StyledPaper elevation={6}>
           <Avatar src="/broken-image.jpg" style={{ marginBottom: 16 }} />
@@ -378,50 +361,10 @@ const Addcourse = () => {
         </Popper>
       </div>
 
-            </Grid>
-            <Grid item xs={12}>
-              <InputLabel htmlFor="intro">Introductory video File:</InputLabel>
-              <Controller
-                name="intro"
-                control={control}
-                rules={{ required: "Introductory video file is required" }}
-                render={({ field }) => (
-                  <Input
-                    type="file"
-                    name="intro"
-                    accept="video/*"
-                    onChange={(e) => field.onChange(e.target.files)}
-                    multiple
-                  />
-                )}
-              />
-              {errors.intro && (
-                <p style={{ color: "red" }}>{errors.intro.message}</p>
-              )}
-            </Grid>
-            <Grid item xs={12}>
-              <InputLabel htmlFor="image">Thumbnail image</InputLabel>
-              <Controller
-                name="image"
-                control={control}
-                rules={{ required: "Thumbnail image file is required" }}
-                render={({ field }) => (
-                  <Input
-                    type="file"
-                    name="image"
-                    accept="image/*"
-                    onChange={(e) => field.onChange(e.target.files)}
-                    multiple
-                  />
-                )}
-              />
-              {errors.assignment && (
-                <p style={{ color: "red" }}>{errors.assignment.message}</p>
-              )}
-            </Grid>
+            </Grid>         
           </Grid>
             <Buttoncomponent
-              text={"Add course"}
+              text={"Update course"}
               type={"submit"}
               variant={"contained"}
               style={{ marginTop: 16, backgroundColor: "#00695f" }}
@@ -432,5 +375,5 @@ const Addcourse = () => {
     );
   };
   
-  export default Addcourse;
+  export default Updatecourse;
   

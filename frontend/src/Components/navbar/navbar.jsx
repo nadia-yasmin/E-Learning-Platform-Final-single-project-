@@ -16,6 +16,7 @@ import AccountCircle from "@mui/icons-material/AccountCircle";
 import MailIcon from "@mui/icons-material/Mail";
 import NotificationsIcon from "@mui/icons-material/Notifications";
 import MoreIcon from "@mui/icons-material/MoreVert";
+import DashboardCustomizeIcon from '@mui/icons-material/DashboardCustomize';
 // import { useNavigate, useParams } from "react-router-dom";
 import { useNavigate, useParams, Link } from "react-router-dom";
 import axiosInstance from "../../Utils/axiosInstance";
@@ -261,7 +262,8 @@ export default function PrimarySearchAppBar() {
               onClick={handleMenuClick}
 
             >
-              <MenuIcon />
+              
+              <DashboardCustomizeIcon />
             </IconButton>
             {/* {showDashboard && <Dashboard />} */}
           </div>

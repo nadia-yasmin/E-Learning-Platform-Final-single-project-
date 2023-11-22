@@ -176,6 +176,14 @@ class lessonController {
   async createQuiz(req, res) {
     try {
       const { lessonId } = req.query;
+      if (!lessonId) {
+        return res.status(400).json({ error: "Invalid parameters" });
+      }
+      console.log("lessonId",lessonId)
+      if (!mongoose.Types.ObjectId.isValid(lessonId)) {
+        lessonId = new mongoose.Types.ObjectId(lessonId);
+      }
+ 
       const { question, options } = req.body;
 
       const quiz = [
@@ -184,12 +192,13 @@ class lessonController {
           options: options,
         },
       ];
+      console.log("lessonId quiz",lessonId,quiz)
 
       const newQuiz = await quizModel.create({ lessonId, quiz });
 
       if (newQuiz) {
         const lesson = await lessonModel.findById(lessonId);
-        lesson.quiz = newQuiz._id;
+        lesson.quizId = newQuiz._id;
         await lesson.save();
         return res.status(200).send(success("Quiz created", newQuiz));
       } else {
@@ -745,5 +754,56 @@ class lessonController {
       return res.status(500).send(success("Internal server error"));
     }
   }
+  async showLessonByCourse(req, res) {
+    try {
+      const { courseId } = req.query;
+      console.log("courseId",courseId)
+      if (!courseId) {
+        return res.status(400).json({ error: "Invalid parameters" });
+      }
+      if (!mongoose.Types.ObjectId.isValid(courseId)) {
+        courseId = new mongoose.Types.ObjectId(courseId);
+      }
+  
+      const lessons = await lessonModel.find({courseId});
+      if (!lessons || lessons.length === 0) {
+        return res.status(404).json({ error: "No lessons found for the given course" });
+      }  
+      return res.status(200).json({ lessons });
+    } catch (error) {
+      console.error("Show lesson by course error", error);
+      return res.status(500).json({ error: "Internal server error" });
+    }
+  }
+  async showquizbylesson(req, res) {
+    try {
+      const { lessonId } = req.query;
+      if (!lessonId) {
+        return res.status(400).json({ error: "Invalid parameters" });
+      }
+      if (!lessonId) {
+        return res.status(400).json({ error: "Invalid parameters" });
+      }
+      if (!mongoose.Types.ObjectId.isValid(lessonId)) {
+        lessonId = new mongoose.Types.ObjectId(lessonId);
+      }
+      const lesson = await lessonModel.findById(lessonId)
+  
+      if (!lesson) {
+        return res.status(404).json({ error: "Lesson not found" });
+      }  
+      if (lesson.quizId) {
+        const quiz = await quizModel.findById(lesson.quizId);
+        return res.status(200).json({ quiz });
+      } else {
+        return res.status(200).json({ message: "No quiz exists for this lesson" });
+      }
+    } catch (error) {
+      console.error("Show lesson by id error", error);
+      return res.status(500).json({ error: "Internal server error" });
+    }
+  }
+  
+  
 }
 module.exports = new lessonController();

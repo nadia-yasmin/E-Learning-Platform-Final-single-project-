@@ -123,7 +123,13 @@ routes.put("/approvecoursecreation", adminController.approvecoursecreation);
 routes.delete("/removecart", learnerController.removecart);
 routes.delete("/removefromcart", learnerController.removefromcart);
 // viewownprofile
-
+routes.get("/showlessonbycourse", lessonController.showLessonByCourse);
+routes.get("/showquizbylesson", lessonController.showquizbylesson);
+routes.get("/getbycategoryid", courseController.getbycategoryid);
+routes.get("/showcart", courseController.showCart);
+routes.put("/removefromcart", courseController.removeFromCart);
 //URL NOT FOUND
 routes.use(urlnotfound.notFound);
 module.exports = routes;
+
+

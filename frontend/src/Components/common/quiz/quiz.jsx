@@ -1,89 +1,91 @@
-import React, { useState ,useEffect} from 'react';
-import {
-  Paper,
-  Typography,
-  Radio,
-  FormControlLabel,
-  Snackbar,
-  styled,
-} from '@mui/material';
-import Buttoncomponent from "../../form/common/button/button"
+import React, { useState, useEffect } from 'react';
+import Radio from '@mui/material/Radio';
+import RadioGroup from '@mui/material/RadioGroup';
+import FormControlLabel from '@mui/material/FormControlLabel';
+import FormControl from '@mui/material/FormControl';
+import FormLabel from '@mui/material/FormLabel';
+import Button from '@mui/material/Button';
+import Snackbar from '@mui/material/Snackbar';
 import axiosInstance from '../../../Utils/axiosInstance';
-const StyledPaper = styled(Paper)(({ theme }) => ({
-  padding: theme.spacing(3),
-  marginBottom: theme.spacing(2),
-}));
+import { toast,ToastContainer} from 'react-toastify';
 
-const StyledTypography = styled(Typography)(({ theme }) => ({
-  marginBottom: theme.spacing(2),
-}));
-
-const StyledOptionsContainer = styled('div')(({ theme }) => ({
-  marginLeft: theme.spacing(2),
-}));
-
-const StyledOptionLabel = styled(FormControlLabel)(({ theme }) => ({
-  marginBottom: theme.spacing(1),
-}));
-
-
-const QuizForm = ({ quizData }) => {
+const QuizComponent = ({ quizData, quizId }) => {
   const [selectedOptions, setSelectedOptions] = useState({});
   const [openSnackbar, setOpenSnackbar] = useState(false);
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const response = await axiosInstance.get(
-          `/showlessonbyid?lessonId=${lessonId}`
-        );
-        console.log("SINGLE LESSON RESPONSE", response);
-        setLessonData(response.data.lesson);
-      } catch (error) {
-        console.error("Error fetching data:", error);
-      }
-    };
-
-    fetchData();
-  }, [selectedOptions]);
-
-  const handleOptionChange = (questionId, optionId) => {
-    setSelectedOptions((prevSelectedOptions) => {
-      const updatedOptions = { ...prevSelectedOptions };
-      if (updatedOptions[questionId] === optionId) {
-        delete updatedOptions[questionId];
-      } else {
-        Object.keys(updatedOptions).forEach((key) => {
-          if (key === questionId) {
-            delete updatedOptions[key];
-          }
-        });
-        updatedOptions[questionId] = optionId;
-
-      }
-
-  
-      return updatedOptions;
+  const showSuccessToast = (message) => {
+    toast.success(message, {
+      position: toast.POSITION.TOP_RIGHT,
+      autoClose: 5000, // Auto-close the toast after 5000 milliseconds (5 seconds)
     });
   };
   
-  console.log("selectedOptions",selectedOptions)
-
-  const resetSelection = () => {
-    // Reset the selected options to an empty object or initial/default value
-    setSelectedOptions({});
+ const showFailureToast = (message) => {
+    toast.error(message, {
+      position: toast.POSITION.TOP_RIGHT,
+      autoClose: 5000,
+    });
   };
-  const handleSubmit = async () => {
-    // Trigger API call to submit quiz with selectedOptions
-    // You can replace this with your actual API call logic
+  const postData = async (data) => {
     try {
-      // Your API call logic here
-
-      // Show success snackbar
-      setOpenSnackbar(true);
+      const response = await axiosInstance.post(`/attemptquiz?quizId=${quizId}`, data);
+      console.log("New answer added", response);
+  
+      toast.success(response.data.message);
+      return response;
     } catch (error) {
-      // Show error snackbar
-      setOpenSnackbar(true);
+      toast.error(error.response.data.message);
+      console.error("Error adding course data:", error);
+      throw error;
     }
+  };
+
+  const submitQuiz = async (learnerId) => {
+    try {
+      const response = await axiosInstance.post("/submitquiz", { learnerId, quizId });
+      console.log("Quiz submitted", response);
+       showSuccessToast(response.data.message);
+      console.log("toast",response.data.feedback.score)
+      // toast('submitted')
+      return response;
+    } catch (error) {
+      toast.error(error.response);
+      console.error("Error submitting quiz:", error);
+      throw error;
+    }
+  };
+
+  const learnerId = JSON.parse(localStorage.getItem("userdata"))._id;
+
+  useEffect(() => {
+    const submitAnswer = async () => {
+      try {
+        const answers = Object.entries(selectedOptions).map(([questionId, selectedOption]) => ({
+          learnerId: learnerId,
+          answer: {
+            questionId: questionId,
+            selectedOptionId: selectedOption,
+          },
+        }));
+        await Promise.all(answers.map(answer => postData(answer)));
+      } catch (error) {
+        console.error("Error submitting form:", error);
+      }
+    };
+
+    submitAnswer(); // Call the function when the dependencies change
+  }, [selectedOptions]);
+
+  const handleOptionChange = (questionId, optionId) => {
+    setSelectedOptions((prevSelectedOptions) => ({
+      ...prevSelectedOptions,
+      [questionId]: optionId,
+    }));
+  };
+
+  const handleSubmit = () => {
+    setOpenSnackbar(true);
+    // Call the function to submit the entire quiz
+    submitQuiz(learnerId);
   };
 
   const handleCloseSnackbar = () => {
@@ -91,148 +93,47 @@ const QuizForm = ({ quizData }) => {
   };
 
   return (
-    <div>
-      {quizData.map((question) => (
-        <StyledPaper key={question._id}>
-          <StyledTypography variant="h6">
-            {question.question}
-          </StyledTypography>
-          <StyledOptionsContainer>
-            {question.options.map((option) => (
-              <StyledOptionLabel
-                key={option._id}
-                value={option._id}
-                control={<Radio />}
-                label={option.text}
-                onChange={() => handleOptionChange(question._id, option._id)}
-              />
-            ))}
-          </StyledOptionsContainer>
-        </StyledPaper>
-      ))}
+    <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh' }}>
+      <FormControl style={{ marginBottom: '160px' }}>
+        {quizData.map((question) => (
+          <div key={question._id}>
+            <FormLabel>{question.question}</FormLabel>
+            <RadioGroup
+              name={`radio-buttons-group-${question._id}`}
+              value={selectedOptions[question._id] || ''}
+              onChange={(event) =>
+                handleOptionChange(question._id, event.target.value)
+              }
+            >
+              {question.options.map((option) => (
+                <FormControlLabel
+                  key={option._id}
+                  value={option._id}
+                  control={<Radio />}
+                  label={option.text}
+                />
+              ))}
+            </RadioGroup>
+          </div>
+        ))}
 
-<Buttoncomponent
-            text={"Submit"}
-            type={"submit"}
-            variant={"contained"}
-            style={{ marginTop: 16, backgroundColor: "#00695f" }}
-          />
+        <Button
+          variant="contained"
+          color="primary"
+          onClick={handleSubmit}
+        >
+          Submit
+        </Button>
 
-      <Snackbar
-        open={openSnackbar}
-        autoHideDuration={6000}
-        onClose={handleCloseSnackbar}
-        message="Quiz submitted successfully!"
-      />
+        <Snackbar
+          open={openSnackbar}
+          autoHideDuration={6000}
+          onClose={handleCloseSnackbar}
+          message="Quiz submitted successfully!"
+        />
+      </FormControl>
     </div>
   );
 };
 
-export default QuizForm;
-// import React,{ useState } from 'react';
-// import Radio from '@mui/material/Radio';
-// import RadioGroup from '@mui/material/RadioGroup';
-// import FormControlLabel from '@mui/material/FormControlLabel';
-// import FormControl from '@mui/material/FormControl';
-// import FormLabel from '@mui/material/FormLabel';
-// import {
-//     Paper,
-//     Typography,
-//     Snackbar,
-//     styled,
-//     Button
-// } from '@mui/material'
-// const StyledPaper = styled(Paper)(({ theme }) => ({
-//   padding: theme.spacing(3),
-//   marginBottom: theme.spacing(2),
-// }));
-
-// const StyledTypography = styled(FormLabel)(({ theme }) => ({
-//   marginBottom: theme.spacing(2),
-// }));
-
-// const StyledOptionsContainer = styled('div')(({ theme }) => ({
-//   marginLeft: theme.spacing(2),
-// }));
-
-// const StyledOptionLabel = styled(FormControlLabel)(({ theme }) => ({
-//   marginBottom: theme.spacing(1),
-// }));
-
-// const StyledButton = styled(Button)(({ theme }) => ({
-//   marginTop: theme.spacing(2),
-// }));
-// export default function QuizForm({ quizData }) {
-//     const [selectedOptions, setSelectedOptions] = useState({});
-//     const [openSnackbar, setOpenSnackbar] = useState(false);
-  
-//     const handleOptionChange = (questionId, optionId) => {
-//       setSelectedOptions((prevSelectedOptions) => ({
-//         ...prevSelectedOptions,
-//         [questionId]: optionId,
-//       }));
-//     };
-  
-//     const handleSubmit = async () => {
-//       // Trigger API call to submit quiz with selectedOptions
-//       // You can replace this with your actual API call logic
-//       try {
-//         // Your API call logic here
-  
-//         // Show success snackbar
-//         setOpenSnackbar(true);
-//       } catch (error) {
-//         // Show error snackbar
-//         setOpenSnackbar(true);
-//       }
-//     };
-  
-//     const handleCloseSnackbar = () => {
-//       setOpenSnackbar(false);
-//     };
-  
-//     return (
-//       <FormControl>
-//         {quizData.map((question) => (
-//           <StyledPaper key={question.id}>
-//             <StyledTypography id="demo-radio-buttons-group-label">
-//               {question.question}
-//             </StyledTypography>
-//             <StyledOptionsContainer>
-//               <RadioGroup
-//                 aria-labelledby="demo-radio-buttons-group-label"
-//                 value={selectedOptions[question.id] || ''}
-//                 name={`radio-buttons-group-${question.id}`}
-//                 onChange={(event) =>
-//                   handleOptionChange(question.id, event.target.value)
-//                 }
-//               >
-//                 {question.options.map((option) => (
-//                   <FormControlLabel
-//                     key={option.id}
-//                     value={option.id}
-//                     control={<Radio />}
-//                     label={option.text}
-//                   />
-//                 ))}
-//               </RadioGroup>
-//             </StyledOptionsContainer>
-//           </StyledPaper>
-//         ))}
-//         <StyledButton
-//           variant="contained"
-//           color="primary"
-//           onClick={handleSubmit}
-//         >
-//           Submit
-//         </StyledButton>
-  
-//         <Snackbar
-//           open={openSnackbar}
-//           autoHideDuration={6000}
-//           onClose={handleCloseSnackbar}
-//           message="Quiz submitted successfully!"
-//         />
-//       </FormControl>
-//     );
-// }
+export default QuizComponent;

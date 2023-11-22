@@ -60,7 +60,7 @@ const Viewlesson = () => {
         return (
           <>
             {lessonData.quiz && Array.isArray(lessonData.quiz.quiz) ? (
-              <QuizForm quizData={lessonData.quiz.quiz} />
+              <QuizForm quizData={lessonData.quiz.quiz} quizId={lessonData.quiz._id} />
             ) : (
               <p>No quiz data available.</p>
             )}

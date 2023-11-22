@@ -14,7 +14,14 @@ import Getinstructorscourse from "./Components/course/getcourse/getinstructorsco
 import Addcourse from "./Components/course/postcourse/postcourse"
 import DebounceDemo from "./Components/course/getcourse/searchcourse"
 import Addlesson from "./Components/lesson/postlesson/addlesson";
+import Getinstructorslesson from "./Components/lesson/getlesson/getinstructorlessons"
 import "./App.css";
+import Updatecourse from "./Components/course/updatecourse/updatecourse";
+import Createquiz from "./Components/quiz/postquiz/createquiz"
+import Showquizadmin from "./Components/quiz/getquiz/showquizadmin"
+import Addquiz from "./Components/quiz/postquiz/addquiz"
+import Getallcoursebycategory from "./Components/course/getcourse/getcoursebycategory"
+import Viewcart from "./Components/cart/Viewcart"
 function App() {
   return (
     <div>
@@ -40,6 +47,14 @@ function App() {
           
           <Route path="/search" element={<DebounceDemo />} />
           <Route path="/addlesson/:courseId" element={<Addlesson />} />
+          <Route path="/updatecourse/:courseId" element={<Updatecourse />} />
+          <Route path="/instructorlessons/:courseId" element={<Getinstructorslesson />} />
+          <Route path="/createquiz/:lessonId" element={<Createquiz />} />
+          <Route path="/showquizbylesson/:lessonId" element={<Showquizadmin />} />
+          <Route path="/addquiz/:lessonId" element={<Addquiz />} />
+          <Route path="/allcourses/:categoryId" element={<Getallcoursebycategory />} />
+          <Route path="/viewcart/:learnerId" element={<Viewcart />} />
+          
         </Routes>
         <Footer />
       </BrowserRouter>

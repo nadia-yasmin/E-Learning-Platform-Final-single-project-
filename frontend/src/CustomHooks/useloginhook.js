@@ -19,7 +19,9 @@ const useLoginHook = (token, userId, newPassword, oldPassword, role) => {
     setAlertMessage(errorMessage);
     setErrorAlert(true);
   };
-  const dispatch = useDispatch();
+  // const refreshPage = () => {
+  //   window.location.reload();
+  // };
   const createLogin = (formData) => {
     console.log("formData", formData);
     axiosInstance
@@ -28,7 +30,7 @@ const useLoginHook = (token, userId, newPassword, oldPassword, role) => {
       .then((data) => {
         if (data.success) {
           const token = data.data.token;
-          // showSuccessAlert(data.message);
+          // refreshPage();
           navigate("/dashboard")
           localStorage.setItem("userdata", JSON.stringify(data.data));
           localStorage.setItem("token", token);

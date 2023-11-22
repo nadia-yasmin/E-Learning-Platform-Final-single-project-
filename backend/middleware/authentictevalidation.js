@@ -9,7 +9,7 @@ const isAuthorised = (req, res, next) => {
     try {
         if (!req.headers.authorization) {
             console.log("Unauthorised access, login korenai")
-            return res.status(200).send(success("Unauthorised access"))
+            return res.status(200).send(failure("Unauthorised access"))
         }
         const jwt = req.headers.authorization.split(" ")[1];
         const validate = jsonwebtoken.verify(jwt, process.env.SECRET_KEY);
@@ -18,21 +18,20 @@ const isAuthorised = (req, res, next) => {
             next();
         }
         else {
-            return res.status(200).send(success("User is not authorised"))
+            return res.status(200).send(failure("User is not authorised"))
         }
     }
     catch (error) {
         console.log("token error", error)
         if (error instanceof jsonwebtoken.JsonWebTokenError) {
-            return res.status(200).send(success("Token Invalid"))
+            return res.status(200).send(failure("Token Invalid, Please login again!"))
         }
         if (error instanceof jsonwebtoken.TokenExpiredError) {
-            return res.status(200).send(success("Token expired"))
+            return res.status(200).send(failure("Token expired, Please login again"))
         }
         const jwt = req.headers.authorization.split(" ")[1];
-        // console.log("jwt", jwt)
 
-        return res.status(200).send(success("Issue related to token"))
+        return res.status(200).send(failure("Issue related to token, Please login again"))
 
     }
 }

@@ -36,7 +36,7 @@ const CenteredContainer = styled("div")({
   justifyContent: "center",
   alignItems: "center",
   textAlign: "center" ,
-  height: "80vh", // Adjust this if needed
+  height: "80vh",
 });
 const Login = () => {
   const {
