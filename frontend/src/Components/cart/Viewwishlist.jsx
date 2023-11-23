@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from "react";
-// import Heading4 from "../../form/common/heading/heading4";
 import Card from "@mui/material/Card";
 import CardContent from "@mui/material/CardContent";
 import CardMedia from "@mui/material/CardMedia";
@@ -13,29 +12,48 @@ import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import axiosInstance from "../../Utils/axiosInstance";
 import { Button } from "@mui/material";
+import ShoppingCartIcon from "@mui/icons-material/ShoppingCart";
 import ShowErrorMessage from "../common/Error/filenotfound";
 import "../../App.css";
 const defaultTheme = createTheme();
 
-const Viewcart = () => {
+const Viewwishlist = () => {
   const [cartData, setCartData] = useState([]);
   const [cartId, setCartId] = useState([]);
   const [refresh, setRefresh] = useState(false);
-  const [refreshtwo, setRefreshTwo] = useState(false);
 
   const [showErrorMessage, setShowErrorMessage] = useState(false);
   const userData = JSON.parse(localStorage.getItem("userdata"));
   const navigate = useNavigate();
-  console.log("learnerId from viewcart", userData._id);
+  const addToCart = async (courseId) => {
+    try {
+      console.log("courseId from view wishlist", courseId);
+      const response = await axiosInstance.post(
+        `/addtocart?courseId=${courseId}`,
+        {
+          learnerId: userData._id,
+        }
+      );
+      toast.success(response.data.message);
+      console.log("Add to cart response", response);
+    } catch (error) {
+      toast.error(error.response.data.message);
+      console.error("Error adding to cart:", error.response.data.message);
+    }
+  };
+  const handleAddToCart = (courseId) => {
+    console.log("this is working", courseId);
+    addToCart(courseId);
+  };
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const response = await axiosInstance.get(
-          `/showwishlist4?learnerId=${userData._id}`
-        );
-        setCartData(response.data.courseId);
-        setCartId(response.data._id);
-        console.log("View cart response", response);
+        // console.log("learnerId from view subscription", userData._id);
+        const response = await axiosInstance.post(`/showwishlist`, {
+          learnerId: userData._id,
+        });
+        // console.log("View wishlist response", response.data.wishlist);
+        setCartData(response.data.wishlist);
       } catch (error) {
         console.error("Error fetching data:", error);
       }
@@ -43,59 +61,17 @@ const Viewcart = () => {
     fetchData();
   }, [refresh]);
 
-  const removeCart = async (courseId) => {
-    try {
-      console.log(
-        "From remove cart learnerId courseId",
-        userData._id,
-        courseId
-      );
-      const response = await axiosInstance.put("/removefromcart", {
-        learnerId: userData._id,
-        courseId: courseId,
-      });
-      console.log("View cart response", response);
-      setRefresh(!refresh);
-      // toast.success(response.data.message)
-    } catch (error) {
-      console.error("Error removing from cart:", error);
-    }
-  };
-
-  const sendSubscriptionRequest = async () => {
-    try {
-      console.log("From remove cart learnerId cartId", userData._id, cartId);
-      const response = await axiosInstance.post("/transaction", {
-        learnerId: userData._id,
-        cartId: cartId,
-      });
-      console.log("View subscription response", response.data.message);
-      toast.success(response.data.message);
-      navigate("/subscriptions");
-      setRefreshTwo(!refreshtwo);
-    } catch (error) {
-      console.error("Error removing from cart:", error);
-    }
-  };
-
-  useEffect(() => {
-    const timeoutId = setTimeout(() => {
-      if (cartData.length === 0) {
-        setShowErrorMessage(true);
-      }
-    }, 2000);
-    return () => clearTimeout(timeoutId);
-  }, [cartData]);
-  const handleRemoveClick = (courseId) => {
-    removeCart(courseId);
-    console.log("Category ID is ", categoryId);
-  };
   return (
+    // <div>Hi</div>000
     <ThemeProvider theme={defaultTheme}>
       <CssBaseline />
       <Container
         maxWidth="md"
-        style={{ paddingTop: "20px", paddingBottom: "20px" }}
+        style={{
+          paddingTop: "20px",
+          paddingBottom: "20px",
+          minHeight: "100vh",
+        }}
       >
         <ToastContainer />
         <Typography
@@ -107,11 +83,13 @@ const Viewcart = () => {
             marginBottom: "50px",
           }}
         >
-          Shopping Cart
+          Subscription requests
         </Typography>
 
         {showErrorMessage ? (
-          <ShowErrorMessage errorMessage={"No cart data to show"} />
+          <ShowErrorMessage
+            errorMessage={"You did not request for subscription"}
+          />
         ) : (
           <>
             {cartData.length === 0 ? (
@@ -132,29 +110,19 @@ const Viewcart = () => {
                         {item.title}
                       </Typography>
                     </CardContent>
-                    <div className="product-removal">
+                    <div style={{ display: "flex", gap: "10px" }}>
                       <Button
                         variant="contained"
                         color="secondary"
                         size="small"
-                        style={{ backgroundColor: "maroon", color: "white" }}
-                        onClick={() => handleRemoveClick(item._id)}
+                        // style={{ backgroundColor: "maroon", color: "white" }}
+                        onClick={() => handleAddToCart(item._id)}
                       >
-                        Remove
+                        <ShoppingCartIcon />
                       </Button>
                     </div>
                   </Card>
                 ))}
-
-                <Button
-                  variant="contained"
-                  color="primary"
-                  className="checkout"
-                  style={{ margin: "20px auto", display: "block" }}
-                  onClick={() => sendSubscriptionRequest()}
-                >
-                  Send Subscription Request
-                </Button>
               </div>
             )}
           </>
@@ -164,4 +132,4 @@ const Viewcart = () => {
   );
 };
 
-export default Viewcart;
+export default Viewwishlist;

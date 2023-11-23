@@ -31,11 +31,10 @@ class courseController {
     try {
       const { title, instructor, categoryId, typeId, description, paid } =
         req.body;
-        console.log("req.files",req.files)
+      console.log("req.files", req.files);
       let image = req.files["image"][0];
       let intro = req.files["intro"][0];
 
-  
       AWS.config.update({
         accessKeyId: accessKeyId,
         secretAccessKey: secretAccessKey,
@@ -128,15 +127,33 @@ class courseController {
     try {
       const { courseId } = req.query;
       const { learnerId } = req.body;
-      console.log("courseId,learnerId",courseId,learnerId)
-      const cart = await cartModel.findOne({ learnerId });
-      if (cart && cart.courseId.includes(courseId)) {
-        return res.status(400).send(failure("Course is already in the cart"));
-      }
+      console.log("courseId,learnerId", courseId, learnerId);
       const buyer = await learnerModel.findOne({
         _id: learnerId,
         "course.courseId": courseId,
       });
+      if (buyer.transactionId) {
+        const existingTransaction = await transactionModel.findById(
+          buyer.transactionId
+        );
+        if (
+          existingTransaction &&
+          existingTransaction.courseId.includes(courseId)
+        ) {
+          return res
+            .status(400)
+            .send(
+              failure(
+                "You already have a request for subscription. Please wait for admin approval."
+              )
+            );
+        }
+      }
+      const cart = await cartModel.findOne({ learnerId });
+      if (cart && cart.courseId.includes(courseId)) {
+        return res.status(400).send(failure("Course is already in the cart"));
+      }
+
       if (
         buyer &&
         buyer.course.some(
@@ -145,13 +162,14 @@ class courseController {
       ) {
         return res
           .status(400)
-          .send(failure("You have already checked out this course"));
+          .send(failure("You have already subscribed to this course"));
       }
 
       const learner = await learnerModel.findOne({ _id: learnerId });
       if (!learner) {
         return res.status(400).send(failure("Learner not found"));
       }
+
       let cartId = learner.cartId;
       if (!cartId) {
         const cart = await cartModel.create({
@@ -213,36 +231,47 @@ class courseController {
         }
       }
 
-      const newTransaction = new transactionModel({
+      let existingTransaction = await transactionModel.findOne({
         userId: learnerId,
-        cartId: cartId,
       });
 
-      for (const courseId of userCart.courseId) {
-        learner.course.push({
-          courseId: courseId,
-          enrollment: false,
+      if (!existingTransaction) {
+        existingTransaction = new transactionModel({
+          userId: learnerId,
+          cartId: cartId,
+          courseId: userCart.courseId,
         });
+      } else {
+        for (const courseId of userCart.courseId) {
+          if (!existingTransaction.courseId.includes(courseId)) {
+            existingTransaction.courseId.push(courseId);
+          }
+        }
+      }
+
+      for (const courseId of userCart.courseId) {
+        if (!learner.course.some((course) => course.courseId === courseId)) {
+          learner.course.push({
+            courseId: courseId,
+            enrollment: false,
+          });
+        }
       }
 
       userCart.courseId = [];
       userCart.checked = true;
-      await userCart.save();
-      await newTransaction
-        .save()
-        .then((data) => {
-          learner.transactionId = newTransaction._id;
-          learner.save();
-          return res
-            .status(200)
-            .send(
-              success("One transaction has been created", { Transaction: data })
-            );
+
+      await Promise.all([
+        userCart.save(),
+        existingTransaction.save(),
+        learner.save(),
+      ]);
+
+      return res.status(200).send(
+        success("One transaction has been created", {
+          Transaction: existingTransaction,
         })
-        .catch((err) => {
-          console.log("Transaction error", err);
-          return res.status(500).send(failure("Failed to add the transaction"));
-        });
+      );
     } catch (error) {
       console.error("Checkout error", error);
       return res.status(500).send(failure("Internal server error"));
@@ -594,7 +623,7 @@ class courseController {
       if (isEnrolled) {
         return res
           .status(400)
-          .json({ error: "You are already enrolled in this course" });
+          .json({ error: "You are already subscribed to this course" });
       }
       if (learner.wishlistId) {
         const existingWishlist = await wishlistModel.findById(
@@ -773,7 +802,7 @@ class courseController {
       AWS.config.update({
         accessKeyId: accessKeyId,
         secretAccessKey: secretAccessKey,
-        region:region,
+        region: region,
       });
       const s3 = new AWS.S3();
       if (req.files && req.files["image"] && req.files["image"].length > 0) {
@@ -860,11 +889,11 @@ class courseController {
         data,
       });
       const courses = await courseModel.find({ instructor: instructorId });
-      console.log("controller worked",courses)
-      return res.status(HTTP_STATUS.OK).send(success("All instructors courses", { courses: courses }));
-
-
-    }catch (error) {
+      console.log("controller worked", courses);
+      return res
+        .status(HTTP_STATUS.OK)
+        .send(success("All instructors courses", { courses: courses }));
+    } catch (error) {
       console.log("Get instructors course error", error);
       return res.status(500).send(failure("Internal server error"));
     }
@@ -876,11 +905,12 @@ class courseController {
         message,
         data,
       });
-      const categories = await categoryModel.find()
-      console.log("All categories",categories)
-      return res.status(HTTP_STATUS.OK).send(success("All categories", { categories: categories }));
-
-    }catch (error) {
+      const categories = await categoryModel.find();
+      console.log("All categories", categories);
+      return res
+        .status(HTTP_STATUS.OK)
+        .send(success("All categories", { categories: categories }));
+    } catch (error) {
       console.log("Get all categories error", error);
       return res.status(500).send(failure("Internal server error"));
     }
@@ -893,11 +923,11 @@ class courseController {
         data,
       });
       const types = await typeModel.find();
-      console.log("All types",types)
-      return res.status(HTTP_STATUS.OK).send(success("All types", { types: types }));
-
-
-    }catch (error) {
+      console.log("All types", types);
+      return res
+        .status(HTTP_STATUS.OK)
+        .send(success("All types", { types: types }));
+    } catch (error) {
       console.log("Get all types error", error);
       return res.status(500).send(failure("Internal server error"));
     }
@@ -915,8 +945,8 @@ class courseController {
       if (!category) {
         return res.status(404).json({ error: "Category not found" });
       }
-      console.log("category.name",category.name)
-      const courses = await courseModel.find({ 'category': category.name });
+      console.log("category.name", category.name);
+      const courses = await courseModel.find({ category: category.name });
       return res.status(200).json({ courses });
     } catch (error) {
       console.log("Get courses by category ID error", error);
@@ -926,30 +956,7 @@ class courseController {
   async showCart(req, res) {
     try {
       const { learnerId } = req.query;
-      console.log("learnerId",learnerId)
-      const learner = await learnerModel.findOne({ _id: learnerId });  
-      if (!learner) {
-        return res.status(404).json({ message: "Learner not found" });
-      }
-      const cartId = learner.cartId;
-      if (!cartId) {
-        return res.status(404).json({ message: "Cart not found" });
-      }
-      const cart = await cartModel.findOne({ _id: cartId }).populate('courseId');; 
-      if (!cart) {
-        return res.status(404).json({ message: "Cart not found" });
-      }
-      return res.status(200).json(cart);
-    } catch (error) {
-      console.error("Error showing cart:", error);
-      return res.status(500).json({ message: "Internal Server Error" });
-    }
-  };
-
-  async removeFromCart(req, res) {
-    try {
-      const { courseId, learnerId } = req.body;
-      console.log("learnerId courseId from remove cart",courseId, learnerId);
+      console.log("learnerId", learnerId);
       const learner = await learnerModel.findOne({ _id: learnerId });
       if (!learner) {
         return res.status(404).json({ message: "Learner not found" });
@@ -958,23 +965,132 @@ class courseController {
       if (!cartId) {
         return res.status(404).json({ message: "Cart not found" });
       }
-      const updatedCart = await cartModel.findOneAndUpdate(
-        { _id: cartId },
-        { $pull: { courseId: courseId } },
-        { new: true }
-      ).populate('courseId'); 
+      const cart = await cartModel
+        .findOne({ _id: cartId })
+        .populate("courseId");
+      if (!cart) {
+        return res.status(404).json({ message: "Cart not found" });
+      }
+      return res.status(200).json(cart);
+    } catch (error) {
+      console.error("Error showing cart:", error);
+      return res.status(500).json({ message: "Internal Server Error" });
+    }
+  }
+
+  async removeFromCart(req, res) {
+    try {
+      const { courseId, learnerId } = req.body;
+      console.log("learnerId courseId from remove cart", courseId, learnerId);
+      const learner = await learnerModel.findOne({ _id: learnerId });
+      if (!learner) {
+        return res.status(404).json({ message: "Learner not found" });
+      }
+      const cartId = learner.cartId;
+      if (!cartId) {
+        return res.status(404).json({ message: "Cart not found" });
+      }
+      const updatedCart = await cartModel
+        .findOneAndUpdate(
+          { _id: cartId },
+          { $pull: { courseId: courseId } },
+          { new: true }
+        )
+        .populate("courseId");
       if (!updatedCart) {
         return res.status(404).json({ message: "Cart not found" });
-      } 
+      }
       return res.status(200).json({ message: "Removed from cart" });
     } catch (error) {
       console.error("Error removing from cart:", error);
       return res.status(500).json({ message: "Internal Server Error" });
     }
   }
-  
-  
-  
+  async viewAllSubscriptions(req, res) {
+    try {
+      const { learnerId } = req.body;
+      const learner = await learnerModel.findOne({ _id: learnerId });
+      if (!learner) {
+        return res.status(404).json({ message: "Learner not found" });
+      }
 
+      if (learner.transactionId) {
+        const transaction = await transactionModel
+          .findById(learner.transactionId)
+          .populate("courseId");
+        if (transaction) {
+          return res.status(200).json({ transaction });
+        } else {
+          return res.status(404).json({ message: "Transaction not found" });
+        }
+      } else {
+        return res
+          .status(404)
+          .json({ message: "No active transaction for the learner" });
+      }
+    } catch (error) {
+      console.error("Error showing transactions:", error);
+      return res.status(500).json({ message: "Internal Server Error" });
+    }
+  }
+  async cancelSubscriptionRequest(req, res) {
+    try {
+      const { learnerId, courseId } = req.body;
+
+      console.log(" learnerId, courseId ", learnerId, courseId);
+      const learner = await learnerModel.findOne({ _id: learnerId });
+      if (!learner) {
+        return res.status(404).json({ message: "Learner not found" });
+      }
+      if (!learner.transactionId) {
+        return res
+          .status(400)
+          .json({ message: "No active subscription request for the learner" });
+      }
+      const transaction = await transactionModel.findById(
+        learner.transactionId
+      );
+      if (!transaction) {
+        return res.status(404).json({ message: "Subscription not found" });
+      }
+      transaction.courseId = transaction.courseId.filter(
+        (id) => !id.equals(courseId)
+      );
+      await transaction.save();
+      return res.status(200).json({
+        message: "Subscription request canceled successfully",
+        transaction,
+      });
+    } catch (error) {
+      console.error("Error canceling subscription request:", error);
+      return res.status(500).json({ message: "Internal Server Error" });
+    }
+  }
+
+  async showsubscribedcourses(req, res) {
+    try {
+      const { learnerId } = req.query;
+      console.log("learnerId from show subscribed course", learnerId);
+
+      const learner = await learnerModel.findOne({ _id: learnerId });
+      if (!learner) {
+        return res.status(404).json({ message: "Learner not found" });
+      }
+
+      const subscribedCourses = await Promise.all(
+        learner.course
+          .filter((course) => course.enrollment)
+          .map(async (course) => {
+            const detailedCourse = await courseModel.findById(course.courseId);
+            return detailedCourse;
+          })
+      );
+
+      return res.status(200).json({ subscribedCourses });
+    } catch (error) {
+      console.error("Error loading subscribed request:", error);
+      return res.status(500).json({ message: "Internal Server Error" });
+    }
+  }
 }
 module.exports = new courseController();

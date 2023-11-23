@@ -7,21 +7,24 @@ import Signupoptions from "./Components/form/signupoptions";
 import Signup from "./Components/form/signup";
 import Getallcourse from "./Components/course/getcourse/getallcourse";
 import Viewcourse from "./Components/course/getcourse/getsinglecourse";
-import Viewlesson from "./Components/lesson/getlesson/getlessonbyid"
-import Showdashboard from "./Components/common/dashboard/showdashboard"
-import Showprofile from "./Components/user/profile/showprofile"
-import Getinstructorscourse from "./Components/course/getcourse/getinstructorscourse"
-import Addcourse from "./Components/course/postcourse/postcourse"
-import DebounceDemo from "./Components/course/getcourse/searchcourse"
+import Viewlesson from "./Components/lesson/getlesson/getlessonbyid";
+import Showdashboard from "./Components/common/dashboard/showdashboard";
+import Showprofile from "./Components/user/profile/showprofile";
+import Getinstructorscourse from "./Components/course/getcourse/getinstructorscourse";
+import Addcourse from "./Components/course/postcourse/postcourse";
+import DebounceDemo from "./Components/course/getcourse/searchcourse";
 import Addlesson from "./Components/lesson/postlesson/addlesson";
-import Getinstructorslesson from "./Components/lesson/getlesson/getinstructorlessons"
+import Getinstructorslesson from "./Components/lesson/getlesson/getinstructorlessons";
 import "./App.css";
 import Updatecourse from "./Components/course/updatecourse/updatecourse";
-import Createquiz from "./Components/quiz/postquiz/createquiz"
-import Showquizadmin from "./Components/quiz/getquiz/showquizadmin"
-import Addquiz from "./Components/quiz/postquiz/addquiz"
-import Getallcoursebycategory from "./Components/course/getcourse/getcoursebycategory"
-import Viewcart from "./Components/cart/Viewcart"
+import Createquiz from "./Components/quiz/postquiz/createquiz";
+import Showquizadmin from "./Components/quiz/getquiz/showquizadmin";
+import Addquiz from "./Components/quiz/postquiz/addquiz";
+import Getallcoursebycategory from "./Components/course/getcourse/getcoursebycategory";
+import Viewcart from "./Components/cart/Viewcart";
+import Viewallsubscription from "./Components/cart/Viewsubscription";
+import Getsubscribedcourse from "./Components/course/getcourse/getsubscribedcourse";
+import Viewwishlist from "./Components/cart/Viewwishlist";
 function App() {
   return (
     <div>
@@ -31,30 +34,37 @@ function App() {
           <Route path="/" element={<Getallcourse />} />
           <Route path="/login/learner" element={<Login />} />
           <Route path="/signup" element={<Signupoptions />} />
-          <Route
-            path="/signup/:role"
-            element={<Signup />}
-          />
-           <Route
-            path="/dashboard"
-            element={<Showdashboard />}
-          />
+          <Route path="/signup/:role" element={<Signup />} />
+          <Route path="/dashboard" element={<Showdashboard />} />
           <Route path="/profile" element={<Showprofile />} />
           <Route path="/viewcourse/:courseId" element={<Viewcourse />} />
           <Route path="/lessons/:lessonId" element={<Viewlesson />} />
           <Route path="/courses" element={<Getinstructorscourse />} />
           <Route path="/addcourse" element={<Addcourse />} />
-          
           <Route path="/search" element={<DebounceDemo />} />
           <Route path="/addlesson/:courseId" element={<Addlesson />} />
           <Route path="/updatecourse/:courseId" element={<Updatecourse />} />
-          <Route path="/instructorlessons/:courseId" element={<Getinstructorslesson />} />
+          <Route
+            path="/instructorlessons/:courseId"
+            element={<Getinstructorslesson />}
+          />
           <Route path="/createquiz/:lessonId" element={<Createquiz />} />
-          <Route path="/showquizbylesson/:lessonId" element={<Showquizadmin />} />
+          <Route
+            path="/showquizbylesson/:lessonId"
+            element={<Showquizadmin />}
+          />
           <Route path="/addquiz/:lessonId" element={<Addquiz />} />
-          <Route path="/allcourses/:categoryId" element={<Getallcoursebycategory />} />
+          <Route
+            path="/allcourses/:categoryId"
+            element={<Getallcoursebycategory />}
+          />
           <Route path="/viewcart/:learnerId" element={<Viewcart />} />
-          
+          <Route path="/subscriptions" element={<Viewallsubscription />} />
+          <Route
+            path="/getsubscribedcourses"
+            element={<Getsubscribedcourse />}
+          />
+          <Route path="/viewwishlist" element={<Viewwishlist />} />
         </Routes>
         <Footer />
       </BrowserRouter>

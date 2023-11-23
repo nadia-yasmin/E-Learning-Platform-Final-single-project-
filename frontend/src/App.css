@@ -198,8 +198,15 @@ label {
   }
 
   .product-removal {
-    width: auto;
+    display: flex;
+    gap: 100px;
+    width: 200px
+    }
+  
+  .product-removal button {
+    white-space: nowrap;
   }
+  
 
   .product-line-price {
     float: right;
