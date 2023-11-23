@@ -23,6 +23,9 @@ const HTTP_STATUS = require("../constants/statusCodes");
 const AWS = require("aws-sdk");
 const multer = require("multer");
 const upload = require("../config/file");
+const accessKeyId = process.env.accessKeyId;
+const secretAccessKey = process.env.secretAccessKey;
+const region = process.env.region;
 class courseController {
   async addCourse(req, res) {
     try {
@@ -34,9 +37,9 @@ class courseController {
 
   
       AWS.config.update({
-        accessKeyId: "AKIARBUZNPTUDGAEUUQX",
-        secretAccessKey: "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",
-        region: "eu-west-3",
+        accessKeyId: accessKeyId,
+        secretAccessKey: secretAccessKey,
+        region: region,
       });
 
       console.log("req.image", image);
@@ -768,9 +771,9 @@ class courseController {
         course.type = type;
       }
       AWS.config.update({
-        accessKeyId: "AKIARBUZNPTUDGAEUUQX",
-        secretAccessKey: "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",
-        region: "eu-west-3",
+        accessKeyId: accessKeyId,
+        secretAccessKey: secretAccessKey,
+        region:region,
       });
       const s3 = new AWS.S3();
       if (req.files && req.files["image"] && req.files["image"].length > 0) {

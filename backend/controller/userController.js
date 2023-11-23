@@ -25,6 +25,9 @@ const HTTP_STATUS = require("../constants/statusCodes");
 const AWS = require("aws-sdk");
 const multer = require("multer");
 const upload = require("../config/file");
+const accessKeyId = process.env.accessKeyId;
+const secretAccessKey = process.env.secretAccessKey;
+const region = process.env.region;
 class userController {
   async showalladmins(req, res) {
     try {
@@ -109,9 +112,9 @@ class userController {
           .send(failure("User with this email does not exist"));
       }
       AWS.config.update({
-        accessKeyId: "AKIARBUZNPTUDGAEUUQX",
-        secretAccessKey: "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",
-        region: "eu-west-3",
+        accessKeyId: accessKeyId,
+        secretAccessKey: secretAccessKey,
+        region: region,
       });
       const s3 = new AWS.S3();
       let updatedFields = {};
@@ -222,36 +225,35 @@ class userController {
 
   async viewOwnProfile(req, res) {
     try {
-      const token = req.headers.authorization.split(' ')[1];
+      const token = req.headers.authorization.split(" ")[1];
       const decodedToken = jsonwebtoken.decode(token, process.env.SECRET_KEY);
-  
+
       let userModel;
       switch (decodedToken.role) {
-        case 'learner':
+        case "learner":
           userModel = learnerModel;
           break;
-        case 'instructor':
+        case "instructor":
           userModel = instructorModel;
           break;
-        case 'admin':
+        case "admin":
           userModel = adminModel;
           break;
         default:
-          return res.status(400).json({ error: 'Invalid role' });
+          return res.status(400).json({ error: "Invalid role" });
       }
-  
+
       const user = await userModel.findOne({ email: decodedToken.email });
-  
+
       if (!user) {
-        return res.status(404).json({ error: 'User not found' });
+        return res.status(404).json({ error: "User not found" });
       }
-  
+
       return res.status(200).json({ user });
     } catch (error) {
-      console.error('View own profile error', error);
-      return res.status(500).json({ error: 'Internal server error' });
+      console.error("View own profile error", error);
+      return res.status(500).json({ error: "Internal server error" });
     }
   }
-  
 }
 module.exports = new userController();

@@ -20,6 +20,9 @@ const ejs = require("ejs");
 const ejsRenderFile = promisify(ejs.renderFile);
 const crypto = require("crypto");
 const AWS = require("aws-sdk");
+const accessKeyId = process.env.accessKeyId;
+const secretAccessKey = process.env.secretAccessKey;
+const region = process.env.region;
 class authController {
   async signUp(req, res) {
     try {
@@ -48,9 +51,9 @@ class authController {
           .send(failure("User with this email is already registered"));
       }
       AWS.config.update({
-        accessKeyId: "AKIARBUZNPTUDGAEUUQX",
-        secretAccessKey: "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",
-        region: "eu-west-3",
+        accessKeyId:accessKeyId,
+        secretAccessKey: secretAccessKey,
+        region: region,
       });
       const s3 = new AWS.S3();
       const params = {
