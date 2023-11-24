@@ -124,7 +124,7 @@ routes.post("/submitquiz", lessonController.submitQuiz);
 //not done
 routes.post("/addtowishlist", courseController.addtoWishlist);
 //not done
-routes.post("/showwishlist", courseController.showWishlist);
+routes.get("/showwishlist", courseController.showWishlist);
 //not done
 routes.get("/showalladmins", userController.showalladmins);
 //not done

@@ -38,7 +38,7 @@ const Viewwishlist = () => {
       console.log("Add to cart response", response);
     } catch (error) {
       toast.error(error.response.data.message);
-      console.error("Error adding to cart:", error.response.data.message);
+      console.error("Error adding to cart:", error);
     }
   };
   const handleAddToCart = (courseId) => {
@@ -49,9 +49,10 @@ const Viewwishlist = () => {
     const fetchData = async () => {
       try {
         // console.log("learnerId from view subscription", userData._id);
-        const response = await axiosInstance.post(`/showwishlist`, {
-          learnerId: userData._id,
-        });
+        const response = await axiosInstance.get(
+          `/showwishlist?learnerId=${userData._id}`
+        );
+
         // console.log("View wishlist response", response.data.wishlist);
         setCartData(response.data.wishlist);
       } catch (error) {
@@ -60,7 +61,7 @@ const Viewwishlist = () => {
     };
     fetchData();
   }, [refresh]);
-
+  console.log("cartData", cartData);
   return (
     // <div>Hi</div>000
     <ThemeProvider theme={defaultTheme}>
@@ -97,7 +98,7 @@ const Viewwishlist = () => {
             ) : (
               <div className="shopping-cart">
                 {cartData.map((item) => (
-                  <Card key={item.productId} className="product">
+                  <Card key={item._id} className="product">
                     <CardMedia className="product-image">
                       <img
                         src={item.image}
@@ -116,7 +117,10 @@ const Viewwishlist = () => {
                         color="secondary"
                         size="small"
                         // style={{ backgroundColor: "maroon", color: "white" }}
-                        onClick={() => handleAddToCart(item._id)}
+                        onClick={() => {
+                          console.log("Clicked. Item ID:", item);
+                          handleAddToCart(item._id);
+                        }}
                       >
                         <ShoppingCartIcon />
                       </Button>

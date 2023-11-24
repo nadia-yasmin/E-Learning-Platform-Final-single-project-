@@ -26,6 +26,7 @@ const upload = require("../config/file");
 const accessKeyId = process.env.accessKeyId;
 const secretAccessKey = process.env.secretAccessKey;
 const region = process.env.region;
+require("dotenv").config();
 class courseController {
   async addCourse(req, res) {
     try {
@@ -132,7 +133,8 @@ class courseController {
         _id: learnerId,
         "course.courseId": courseId,
       });
-      if (buyer.transactionId) {
+      console.log("buyer", buyer);
+      if (buyer && buyer.transactionId !== undefined) {
         const existingTransaction = await transactionModel.findById(
           buyer.transactionId
         );
@@ -149,6 +151,7 @@ class courseController {
             );
         }
       }
+
       const cart = await cartModel.findOne({ learnerId });
       if (cart && cart.courseId.includes(courseId)) {
         return res.status(400).send(failure("Course is already in the cart"));
@@ -366,6 +369,7 @@ class courseController {
       const courses = await courseModel
         .find(query, null, options)
         .populate("instructor");
+      // .populate("reviews");
 
       if (courses.length > 0) {
         // console.log(courses);
@@ -466,9 +470,29 @@ class courseController {
       });
 
       if (existingRate) {
+        existingRate.rate = rate;
+        const savedRate = await existingRate.save();
+        const averageRate = await rateModel.aggregate([
+          {
+            $match: { courseId: new mongoose.Types.ObjectId(courseId) },
+          },
+          {
+            $group: {
+              _id: null,
+              averageRate: { $avg: "$rate" },
+            },
+          },
+        ]);
+        if (averageRate.length > 0) {
+          const average = averageRate[0].averageRate;
+          await courseModel.updateOne(
+            { _id: new mongoose.Types.ObjectId(courseId) },
+            { $set: { "ratings.rate": average } }
+          );
+        }
         return res
-          .status(400)
-          .send(failure("You have already provided a rate for this course."));
+          .status(200)
+          .json({ message: "Rate updated successfully", rate: savedRate });
       }
       const newRate = new rateModel({
         rate,
@@ -657,7 +681,7 @@ class courseController {
 
   async showWishlist(req, res) {
     try {
-      const { learnerId } = req.body;
+      const { learnerId } = req.query;
       const learner = await learnerModel.findById(learnerId);
 
       if (!learner) {
@@ -671,7 +695,7 @@ class courseController {
         .findById(learner.wishlistId)
         .populate({
           path: "courseId",
-          select: "-_id -learnerId", // Exclude _id and learnerId fields
+          select: "-learnerId",
         });
 
       if (!wishlist) {
@@ -687,10 +711,10 @@ class courseController {
 
   async addreview(req, res) {
     try {
-      const { email, text } = req.body;
+      const { learnerId, text } = req.body;
       let { courseId } = req.query;
 
-      const learner = await learnerModel.findOne({ email: email });
+      const learner = await learnerModel.findById(learnerId);
       if (!learner) {
         return res.status(404).json({ error: "learner is not found" });
       }
@@ -765,7 +789,15 @@ class courseController {
 
       const course = await courseModel
         .findById(courseId)
-        .populate("instructor");
+        .populate("instructor")
+        .populate({
+          path: "reviews",
+          model: "reviews",
+          populate: {
+            path: "learnerId",
+            model: "learners",
+          },
+        });
       if (!course) {
         return res.status(404).json({ error: "Course not found" });
       }
@@ -800,9 +832,9 @@ class courseController {
         course.type = type;
       }
       AWS.config.update({
-        accessKeyId: accessKeyId,
-        secretAccessKey: secretAccessKey,
-        region: region,
+        accessKeyId,
+        secretAccessKey,
+        region,
       });
       const s3 = new AWS.S3();
       if (req.files && req.files["image"] && req.files["image"].length > 0) {

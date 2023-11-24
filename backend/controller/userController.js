@@ -28,6 +28,7 @@ const upload = require("../config/file");
 const accessKeyId = process.env.accessKeyId;
 const secretAccessKey = process.env.secretAccessKey;
 const region = process.env.region;
+require("dotenv").config();
 class userController {
   async showalladmins(req, res) {
     try {
@@ -112,9 +113,9 @@ class userController {
           .send(failure("User with this email does not exist"));
       }
       AWS.config.update({
-        accessKeyId: accessKeyId,
-        secretAccessKey: secretAccessKey,
-        region: region,
+        accessKeyId,
+        secretAccessKey,
+        region,
       });
       const s3 = new AWS.S3();
       let updatedFields = {};

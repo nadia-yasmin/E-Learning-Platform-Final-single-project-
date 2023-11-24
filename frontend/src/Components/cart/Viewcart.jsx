@@ -31,9 +31,10 @@ const Viewcart = () => {
     const fetchData = async () => {
       try {
         const response = await axiosInstance.get(
-          `/showwishlist4?learnerId=${userData._id}`
+          `/showcart?learnerId=${userData._id}`
         );
         setCartData(response.data.courseId);
+        console.log("cartData", cartData);
         setCartId(response.data._id);
         console.log("View cart response", response);
       } catch (error) {
@@ -61,7 +62,6 @@ const Viewcart = () => {
       console.error("Error removing from cart:", error);
     }
   };
-
   const sendSubscriptionRequest = async () => {
     try {
       console.log("From remove cart learnerId cartId", userData._id, cartId);
@@ -95,7 +95,11 @@ const Viewcart = () => {
       <CssBaseline />
       <Container
         maxWidth="md"
-        style={{ paddingTop: "20px", paddingBottom: "20px" }}
+        style={{
+          paddingTop: "20px",
+          paddingBottom: "20px",
+          minHeight: "100vh",
+        }}
       >
         <ToastContainer />
         <Typography

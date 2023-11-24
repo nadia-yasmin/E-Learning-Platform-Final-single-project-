@@ -26,13 +26,14 @@ const courseModel = require("../model/course.js");
 const accessKeyId = process.env.accessKeyId;
 const secretAccessKey = process.env.secretAccessKey;
 const region = process.env.region;
+require("dotenv").config();
 class lessonController {
   async createBucket(req, res) {
     try {
       AWS.config.update({
-        accessKeyId: accessKeyId,
-        secretAccessKey: secretAccessKey,
-        region: region,
+        accessKeyId,
+        secretAccessKey,
+        region,
       });
       const s3 = new AWS.S3();
       const params = {
@@ -66,9 +67,9 @@ class lessonController {
       let slides1 = req.files["slides"][0];
       let assignment1 = req.files["assignment"][0];
       AWS.config.update({
-        accessKeyId: accessKeyId,
-        secretAccessKey: secretAccessKey,
-        region: region,
+        accessKeyId,
+        secretAccessKey,
+        region,
       });
       const s3 = new AWS.S3();
       const params = {
@@ -396,9 +397,9 @@ class lessonController {
       }
 
       AWS.config.update({
-        accessKeyId: accessKeyId,
-        secretAccessKey: secretAccessKey,
-        region: region,
+        accessKeyId,
+        secretAccessKey,
+        region,
       });
       const s3 = new AWS.S3();
       const params = {
@@ -641,9 +642,9 @@ class lessonController {
       }
 
       AWS.config.update({
-        accessKeyId: accessKeyId,
-        secretAccessKey: secretAccessKey,
-        region: region,
+        accessKeyId,
+        secretAccessKey,
+        region,
       });
       const s3 = new AWS.S3();
       if (req.files && req.files["video"] && req.files["video"].length > 0) {
