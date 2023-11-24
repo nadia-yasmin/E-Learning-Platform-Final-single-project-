@@ -26,6 +26,7 @@ import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 const ViewCourse = () => {
   const { courseId } = useParams();
+  const [refresh, setRefresh] = useState(false);
   const { courseData, loading } = useviewcoursehook(courseId);
   const [reviewText, setReviewText] = useState("");
   console.log("courseData from get single course", courseData);
@@ -81,7 +82,9 @@ const ViewCourse = () => {
         }
       );
       console.log("Review added", response);
+
       toast.success(response.data.message);
+      setRefresh(!refresh);
       return response;
     } catch (error) {
       toast(error.response.data.message.error);

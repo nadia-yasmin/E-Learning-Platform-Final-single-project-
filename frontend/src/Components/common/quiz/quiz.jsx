@@ -1,13 +1,14 @@
-import React, { useState, useEffect } from 'react';
-import Radio from '@mui/material/Radio';
-import RadioGroup from '@mui/material/RadioGroup';
-import FormControlLabel from '@mui/material/FormControlLabel';
-import FormControl from '@mui/material/FormControl';
-import FormLabel from '@mui/material/FormLabel';
-import Button from '@mui/material/Button';
-import Snackbar from '@mui/material/Snackbar';
-import axiosInstance from '../../../Utils/axiosInstance';
-import { toast,ToastContainer} from 'react-toastify';
+import React, { useState, useEffect } from "react";
+import Radio from "@mui/material/Radio";
+import RadioGroup from "@mui/material/RadioGroup";
+import FormControlLabel from "@mui/material/FormControlLabel";
+import FormControl from "@mui/material/FormControl";
+import FormLabel from "@mui/material/FormLabel";
+import Button from "@mui/material/Button";
+import Snackbar from "@mui/material/Snackbar";
+import axiosInstance from "../../../Utils/axiosInstance";
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 const QuizComponent = ({ quizData, quizId }) => {
   const [selectedOptions, setSelectedOptions] = useState({});
@@ -18,8 +19,8 @@ const QuizComponent = ({ quizData, quizId }) => {
       autoClose: 5000, // Auto-close the toast after 5000 milliseconds (5 seconds)
     });
   };
-  
- const showFailureToast = (message) => {
+
+  const showFailureToast = (message) => {
     toast.error(message, {
       position: toast.POSITION.TOP_RIGHT,
       autoClose: 5000,
@@ -27,10 +28,11 @@ const QuizComponent = ({ quizData, quizId }) => {
   };
   const postData = async (data) => {
     try {
-      const response = await axiosInstance.post(`/attemptquiz?quizId=${quizId}`, data);
+      const response = await axiosInstance.post(
+        `/attemptquiz?quizId=${quizId}`,
+        data
+      );
       console.log("New answer added", response);
-  
-      toast.success(response.data.message);
       return response;
     } catch (error) {
       toast.error(error.response.data.message);
@@ -41,10 +43,13 @@ const QuizComponent = ({ quizData, quizId }) => {
 
   const submitQuiz = async (learnerId) => {
     try {
-      const response = await axiosInstance.post("/submitquiz", { learnerId, quizId });
+      const response = await axiosInstance.post("/submitquiz", {
+        learnerId,
+        quizId,
+      });
       console.log("Quiz submitted", response);
-       showSuccessToast(response.data.message);
-      console.log("toast",response.data.feedback.score)
+      toast(`Your mark is ${response.data.feedback.score}`);
+      console.log("toast", response.data.feedback.score);
       // toast('submitted')
       return response;
     } catch (error) {
@@ -59,14 +64,16 @@ const QuizComponent = ({ quizData, quizId }) => {
   useEffect(() => {
     const submitAnswer = async () => {
       try {
-        const answers = Object.entries(selectedOptions).map(([questionId, selectedOption]) => ({
-          learnerId: learnerId,
-          answer: {
-            questionId: questionId,
-            selectedOptionId: selectedOption,
-          },
-        }));
-        await Promise.all(answers.map(answer => postData(answer)));
+        const answers = Object.entries(selectedOptions).map(
+          ([questionId, selectedOption]) => ({
+            learnerId: learnerId,
+            answer: {
+              questionId: questionId,
+              selectedOptionId: selectedOption,
+            },
+          })
+        );
+        await Promise.all(answers.map((answer) => postData(answer)));
       } catch (error) {
         console.error("Error submitting form:", error);
       }
@@ -93,14 +100,22 @@ const QuizComponent = ({ quizData, quizId }) => {
   };
 
   return (
-    <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh' }}>
-      <FormControl style={{ marginBottom: '160px' }}>
+    <div
+      style={{
+        display: "flex",
+        justifyContent: "center",
+        alignItems: "center",
+        height: "100vh",
+      }}
+    >
+      <ToastContainer />
+      <FormControl style={{ marginBottom: "160px" }}>
         {quizData.map((question) => (
           <div key={question._id}>
             <FormLabel>{question.question}</FormLabel>
             <RadioGroup
               name={`radio-buttons-group-${question._id}`}
-              value={selectedOptions[question._id] || ''}
+              value={selectedOptions[question._id] || ""}
               onChange={(event) =>
                 handleOptionChange(question._id, event.target.value)
               }
@@ -117,11 +132,7 @@ const QuizComponent = ({ quizData, quizId }) => {
           </div>
         ))}
 
-        <Button
-          variant="contained"
-          color="primary"
-          onClick={handleSubmit}
-        >
+        <Button variant="contained" color="primary" onClick={handleSubmit}>
           Submit
         </Button>
 
