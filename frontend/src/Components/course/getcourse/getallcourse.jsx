@@ -10,7 +10,7 @@ import Container from "@mui/material/Container";
 import { createTheme, ThemeProvider } from "@mui/material/styles";
 import useCourseHook from "../../../CustomHooks/usegetcoursehook";
 import { useNavigate } from "react-router-dom";
-import LinearColor from "../../common/loader/loader"
+import LinearColor from "../../common/loader/loader";
 import axiosInstance from "../../../Utils/axiosInstance";
 import Getallcoursetemplate from "./common/getallcoursetemplate";
 const defaultTheme = createTheme();
@@ -22,12 +22,11 @@ const Getallcourse = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const response = await axiosInstance.get('/getallcategories');
+        const response = await axiosInstance.get("/getallcategories");
         setCategoryData(response.data.data.categories);
         console.log("Category response", response.data.data.categories);
       } catch (error) {
         console.error("Error fetching data:", error);
-        showErrorAlert(error.message)
       }
     };
     fetchData();
@@ -44,15 +43,23 @@ const Getallcourse = () => {
         <Heading4
           text={"All Courses"}
           variant={"h4"}
-          style={{ color: "#00695f", textAlign: "center", fontSize: "1.5rem", paddingTop: "10px" }}
+          style={{
+            color: "#00695f",
+            textAlign: "center",
+            fontSize: "1.5rem",
+            paddingTop: "10px",
+          }}
         />
-        <Getallcoursetemplate
-          courseData={courseData}
-        />
+        <Getallcoursetemplate courseData={courseData} />
         <Heading4
-          text={"Select by category"}
+          text={"All Categories"}
           variant={"h4"}
-          style={{ color: "#00695f", textAlign: "center", fontSize: "1.5rem", paddingTop: "10px" }}
+          style={{
+            color: "#00695f",
+            textAlign: "center",
+            fontSize: "1.5rem",
+            paddingTop: "10px",
+          }}
         />
         <Container sx={{ py: 8 }} maxWidth="md">
           {categoryData && categoryData.length > 0 ? (

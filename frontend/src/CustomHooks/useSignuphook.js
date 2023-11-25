@@ -2,7 +2,7 @@ import axiosInstance from "../Utils/axiosInstance";
 import Swal from "sweetalert2";
 import "sweetalert2/dist/sweetalert2.css";
 const usesignuphook = (role) => {
-  console.log("from signup hook role is",role)
+  console.log("from signup hook role is", role);
   const showSuccessAlert = (message) => {
     Swal.fire({
       title: "Success",
@@ -40,7 +40,7 @@ const usesignuphook = (role) => {
       })
       .catch((error) => {
         console.error("Error adding user:", error);
-        showErrorAlert(JSON.stringify(error.response.data.message));
+        // showErrorAlert(JSON.stringify(error.response.data.message));
         throw error;
       });
   };

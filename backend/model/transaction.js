@@ -12,6 +12,13 @@ const transactionsSchema = new mongoose.Schema(
       ref: "carts",
       required: true,
     },
+    courseId: [
+      {
+        type: mongoose.Types.ObjectId,
+        ref: "courses",
+        required: true,
+      },
+    ],
   },
   { timestamps: true }
 );

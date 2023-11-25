@@ -21,6 +21,7 @@ const ejs = require("ejs");
 const ejsRenderFile = promisify(ejs.renderFile);
 const crypto = require("crypto");
 const AWS = require("aws-sdk");
+require("dotenv").config();
 class learnerController {
   async removecart(req, res) {
     try {

@@ -4,7 +4,7 @@ import Typography from "@mui/material/Typography";
 
 const Heading4 = ({ text, variant, style }) => {
   return (
-    <Box sx={{ width: "100%", maxWidth: 500 }}>
+    <Box sx={{ width: "100%", marginLeft: "30px" }}>
       <Typography variant={variant} gutterBottom style={style}>
         {text}
       </Typography>
