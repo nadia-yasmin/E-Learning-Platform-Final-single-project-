@@ -45,9 +45,9 @@ routes.put(
     courseController.updateCourse(req, res, next);
   }
 );
-//done//done
+//done
 routes.delete("/deletecourse", courseController.deleteCourse);
-//done//done
+//done
 routes.post(
   "/addlesson",
   upload.fields([
@@ -73,15 +73,11 @@ routes.put(
   }
 );
 //not done
-//not done
 routes.delete("/deletelesson", lessonController.deletelesson);
-//done
 //done
 routes.post("/createquiz", lessonController.createQuiz);
 //done
-//done
 routes.post("/addquiz", lessonController.addQuiz);
-//done
 //done
 routes.post(
   "/adduser",
@@ -91,7 +87,6 @@ routes.post(
   authController.signUp
 );
 //not done
-//not done
 routes.put(
   "/updateuser",
   upload.single("file"),
@@ -99,61 +94,43 @@ routes.put(
   userController.updateuser
 );
 //not done
-//not done
 routes.delete("/deleteuser", userController.deleteuser);
-//done
 //done
 routes.post("/addtocart", courseController.enrollCourse);
 //done
-//done
 routes.post("/login", authController.login);
-//not done
 //not done
 routes.post("/transaction", courseController.createTransaction);
 //not done
-//not done
 routes.post("/createcategory", courseController.createCategory);
 //done
-//done
 routes.get("/getallcategories", courseController.getallcategories);
-//not done
 //done
 routes.post("/createtype", courseController.createType);
 //done
-//done
 routes.get("/getalltypes", courseController.getalltypes);
 //not done
-//not done
 routes.post("/addrate", courseController.addRate);
-//not done
 //not done
 routes.put("/updateRate", courseController.updateRate);
 //done
 routes.delete("/deleterate", courseController.deleteRate);
-//done//done
-routes.get("/getcourses", courseController.getCourses);
 //done
+routes.get("/getcourses", courseController.getCourses);
 //done
 routes.post("/attemptquiz", lessonController.attemptQuiz);
 //done
-//done
 routes.post("/submitquiz", lessonController.submitQuiz);
-//not done
 //not done
 routes.post("/addtowishlist", courseController.addtoWishlist);
 //not done
-//not done
 routes.get("/showwishlist", courseController.showWishlist);
-//not done
 //not done
 routes.get("/showalladmins", userController.showalladmins);
 //not done
-//not done
 routes.get("/showallinstructors", userController.showallinstructors);
 //not done
-//not done
 routes.get("/showalllearners", userController.showalllearners);
-//not done
 //not done
 routes.post(
   "/submitassignment",
@@ -161,15 +138,11 @@ routes.post(
   lessonController.submitassignment
 );
 //not done
-//not done
 routes.post("/evaluateassignment", lessonController.evaluateassignment);
-//not done
 //not done
 routes.post("/postdiscussion", lessonController.postdiscussion);
 //not done
-//not done
 routes.post("/addreview", courseController.addreview);
-//not done
 //not done
 routes.put("/updatereview", courseController.updatereview);
 //view profile
@@ -187,23 +160,20 @@ routes.post(
 //done
 routes.get("/showlessonbyweek", lessonController.showlessonbyweek);
 //done
-//done
 routes.get("/showlessonbyid", lessonController.showlessonid);
 //done
-//done
 routes.get("/getcoursebyid", courseController.showcoursebyid);
-//not done
 //not done
 routes.get("/showpendingcourse", adminController.showpendingcourse);
 //not done
 routes.put("/approverejectcourse", adminController.approverejectcourse);
 //not done
 routes.put("/approvecoursecreation", adminController.approvecoursecreation);
+//not done
 routes.delete("/removecart", learnerController.removecart);
 //done
 routes.delete("/removefromcart", learnerController.removefromcart);
 // viewownprofile
-//done
 //done
 routes.get("/showlessonbycourse", lessonController.showLessonByCourse);
 //done
@@ -211,11 +181,9 @@ routes.get("/showquizbylesson", lessonController.showquizbylesson);
 //done
 routes.get("/getbycategoryid", courseController.getbycategoryid);
 //done
-//done
 routes.get("/showcart", courseController.showCart);
 //done
 routes.post("/viewallsubscription", courseController.viewAllSubscriptions);
-//done
 //done
 routes.put("/removefromcart", courseController.removeFromCart);
 //done
