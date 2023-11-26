@@ -12,6 +12,7 @@ import "react-toastify/dist/ReactToastify.css";
 
 const QuizComponent = ({ quizData, quizId }) => {
   const [selectedOptions, setSelectedOptions] = useState({});
+  const learnerId = JSON.parse(localStorage.getItem("userdata"))._id;
   const [openSnackbar, setOpenSnackbar] = useState(false);
   const showSuccessToast = (message) => {
     toast.success(message, {
@@ -59,7 +60,7 @@ const QuizComponent = ({ quizData, quizId }) => {
     }
   };
 
-  const learnerId = JSON.parse(localStorage.getItem("userdata"))._id;
+
 
   useEffect(() => {
     const submitAnswer = async () => {

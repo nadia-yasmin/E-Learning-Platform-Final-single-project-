@@ -6,6 +6,7 @@ const cartModel = require("../model/cart");
 const learnerModel = require("../model/learner");
 const transactionModel = require("../model/transaction");
 const categoryModel = require("../model/category");
+const instructorModel= require("../model/instructor")
 const typeModel = require("../model/types");
 const rateModel = require("../model/rate");
 const wishlistModel = require("../model/wishlist");
@@ -23,27 +24,28 @@ const HTTP_STATUS = require("../constants/statusCodes");
 const AWS = require("aws-sdk");
 const multer = require("multer");
 const upload = require("../config/file");
+require("dotenv").config();
 const accessKeyId = process.env.accessKeyId;
 const secretAccessKey = process.env.secretAccessKey;
 const region = process.env.region;
-require("dotenv").config();
+
 class courseController {
   async addCourse(req, res) {
     try {
       const { title, instructor, categoryId, typeId, description, paid } =
         req.body;
-      console.log("req.files", req.files);
+      console.log("accessKeyId,secretAccessKey ,region",accessKeyId,secretAccessKey ,region);
       let image = req.files["image"][0];
       let intro = req.files["intro"][0];
 
       AWS.config.update({
-        accessKeyId: accessKeyId,
-        secretAccessKey: secretAccessKey,
-        region: region,
+        accessKeyId,
+        secretAccessKey,
+        region,
       });
 
-      console.log("req.image", image);
-      console.log("req.intro", intro);
+      // console.log("req.image", image);
+      // console.log("req.intro", intro);
       const s3 = new AWS.S3();
       const params = {
         Bucket: "nadia-bucket",
@@ -55,7 +57,7 @@ class courseController {
         Key: intro.originalname,
         Body: intro.buffer,
       };
-      console.log("Params", params);
+      // console.log("Params", params);
       const uploadImage = async () => {
         return new Promise((resolve, reject) => {
           s3.upload(params, (err, data) => {
@@ -114,9 +116,21 @@ class courseController {
         image: image1,
         intro: intro1,
       });
+      console.log("instructor",instructor)
       if (result) {
-        return res.status(200).send(success("New course added", result));
-      } else {
+        const instructorToUpdate = await instructorModel.findOneAndUpdate(
+          { _id: instructor},
+          { $push: { courseId: result._id } },
+          { new: true }
+        );
+        console.log("Instructor up to date",instructorToUpdate)
+        if (instructorToUpdate) {
+          return res.status(200).send(success("New course added", result));
+        } else {
+          return res.status(400).send(failure("Could not update instructor"));
+        }
+      } 
+      else {
         return res.status(400).send(failure("Could not add a new course"));
       }
     } catch (error) {

@@ -17,6 +17,14 @@ const PostForm = () => {
   };
 
   return (
+    <div
+    style={{
+      display: "flex",
+      justifyContent: "center",
+      alignItems: "center",
+      height: "70vh",
+    }}
+  >
     <Container component="main" maxWidth="xs">
       <Paper elevation={3} style={{ padding: 20, marginTop: 20 }}>
         <Typography variant="h5" component="div" gutterBottom>
@@ -43,6 +51,7 @@ const PostForm = () => {
         </form>
       </Paper>
     </Container>
+    </div>
   );
 };
 

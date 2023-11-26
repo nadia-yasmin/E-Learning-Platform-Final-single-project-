@@ -12,31 +12,63 @@ import {
 import Imagecomponent from "../image/image";
 import Buttoncomponent from "../../form/common/button/button";
 import { useForm, Controller } from "react-hook-form";
-const Assignment = ({ lessonData }) => {
+import axiosInstancefile from "../../../Utils/axiosinstanceform"
+import { ToastContainer, toast } from "react-toastify";
+import Heading4 from "../../form/common/heading/heading4";
+import "react-toastify/dist/ReactToastify.css";
+const Assignment = ({ lessonData}) => {
   const {
     control,
     handleSubmit,
     formState: { errors },
-  } = useForm();
-
-  const onSubmit = (data) => {
-    // Handle form submission
-    console.log(data);
+  } = useForm({ mode: "onChange" });
+  const learnerId = JSON.parse(localStorage.getItem("userdata"))._id;
+  const createPost = async (data) => {
+    try {
+      const formData = new FormData();
+      formData.append("learnerId", learnerId);
+      formData.append("file", data.file[0]);
+  
+      const response = await axiosInstancefile.post(
+        `/submitassignment?lessonId=${lessonData._id}`,
+        formData
+      );
+      toast.success(response.data.message);
+      console.log("Submit assign,emt RESPONSE", response);
+    } catch (error) {
+      toast.error(error.response.data.error);
+      console.error("Error fetching data:", error);
+    }
   };
+  const onSubmit = (data) => {
+    console.log(data);
+    createPost(data);
+  };
+
   return (
-    <Grid container justifyContent="center">
-      <Grid item xs={12} md={8}>
-        <Typography variant="h5" gutterBottom>
+    <div
+    style={{
+      display: "flex",
+      justifyContent: "center",
+      alignItems: "center",
+      height: "100vh",
+    }}
+  >
+    <Grid container justifyContent="center" alignItems="center">
+      <ToastContainer />
+      <Grid item xs={12} md={8} marginLeft={"550PX"} justifyContent={"center"} alignItems={"center"}>
+      <Typography variant="h5" gutterBottom padding={"10px"} marginLeft={"90px"}> 
           Assignment
         </Typography>
         <Imagecomponent lessonData={lessonData} />
-        <Typography variant="h5" gutterBottom>
+        <Typography variant="h5" gutterBottom padding={"10px"}>
           {lessonData.assignment.text}
         </Typography>
-      </Grid>
-      <Grid item xs={12}>
         <form
-        // onSubmit={handleSubmit(onSubmit)}
+          noValidate
+          onSubmit={handleSubmit(onSubmit)}
+          encType="multipart/form-data"
+          padding={"10px"}
         >
           <Controller
             name="file"
@@ -47,8 +79,9 @@ const Assignment = ({ lessonData }) => {
               <Input
                 type="file"
                 name="file"
-                multiple
+                accept=".ppt, .pptx, .pdf, .doc, .docx"
                 onChange={(event) => field.onChange(event.target.files)}
+                multiple
                 error={Boolean(errors.file)}
                 helperText={errors.file?.message}
               />
@@ -58,11 +91,13 @@ const Assignment = ({ lessonData }) => {
             text={"Submit"}
             type={"submit"}
             variant={"contained"}
-            style={{ marginTop: 16, backgroundColor: "#00695f" }}
+            style={{ marginTop: 16, marginLeft:"100px", backgroundColor: "#00695f" }}
           />
         </form>
       </Grid>
     </Grid>
+  </div>
+  
   );
 };
 

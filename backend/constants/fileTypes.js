@@ -8,5 +8,7 @@ const fileTypes = [
   ".webp",
   ".mp4",
   ".ppt",
+  ".docx",
+ 
 ];
 module.exports = fileTypes;

@@ -13,16 +13,15 @@ const instructorSchema = new mongoose.Schema(
       type: Boolean,
       default: false,
     },
-    course: [
+    courseId: [
       {
-        courseId: {
           type: mongoose.Types.ObjectId,
           ref: "courses",
-        },
-        enrollment: {
-          type: Boolean,
-          default: false,
-        },
+      },
+    ],
+    learnerId: [{
+          type: mongoose.Types.ObjectId,
+          ref: "learners",
       },
     ],
     role: {

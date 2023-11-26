@@ -55,7 +55,22 @@ const Viewlesson = () => {
   const renderTabContent = () => {
     switch (value) {
       case "one":
-        return <Typography>{lessonData.description}</Typography>;
+        return ( <div
+            style={{
+              display: "flex",
+              justifyContent: "center",
+              alignItems: "center",
+              height: "50vh",
+              maxWidth: "90vh",
+              marginLeft: "450px",
+              marginTop: "20PX",
+              border: "2px dashed #4CAF50", 
+              padding: "20px", 
+              borderRadius: "10px",
+              boxShadow: "0 4px 8px rgba(0, 0, 0, 0.1)"
+          }}
+        ><Typography>{lessonData.description}</Typography>
+        </div>);
       case "two":
         return (
           <Grid container justifyContent="center">

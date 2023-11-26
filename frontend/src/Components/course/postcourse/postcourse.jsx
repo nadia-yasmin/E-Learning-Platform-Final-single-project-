@@ -2,9 +2,6 @@ import React, { useState, useEffect } from "react";
 import { useForm, Controller } from "react-hook-form";
 // import Buttoncomponent from "./common/button/button";
 import { TextField, Stack, InputLabel } from "@mui/material";
-import Swal from "sweetalert2";
-import "sweetalert2/dist/sweetalert2.css";
-// import usesignuphook from "../../CustomHooks/useSignuphook";
 import { Container, Paper, Avatar, Grid } from "@mui/material";
 import Input from "@mui/material/Input";
 import { useParams, useNavigate } from "react-router-dom";
@@ -20,8 +17,9 @@ import MenuItem from "@mui/material/MenuItem";
 import MenuList from "@mui/material/MenuList";
 import axiosInstancefile from "../../../Utils/axiosinstanceform";
 import Loader from "../../common/loader/loader";
-import { ToastContainer, toast } from "react-toastify";
 import axiosInstance from "../../../Utils/axiosInstance";
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 const StyledPaper = styled(Paper)(({ theme }) => ({
   marginTop: theme.spacing(8),
   display: "flex",
@@ -121,7 +119,7 @@ const Addcourse = () => {
       toast.success(response.data.message);
       return response;
     } catch (error) {
-      toast.failure(error.response.data.message);
+      toast(error.response.data.message);
       console.error("Error adding course data:", error);
       throw error;
     }
@@ -232,6 +230,7 @@ const Addcourse = () => {
 
   return (
     <CenteredContainer>
+      <ToastContainer />
       <StyledPaper elevation={6}>
         <Avatar src="/broken-image.jpg" style={{ marginBottom: 16 }} />
         <form

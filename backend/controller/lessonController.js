@@ -370,6 +370,7 @@ class lessonController {
     try {
       const { lessonId } = req.query;
       const { learnerId } = req.body;
+      console.log("lessonId,learnerId",lessonId,learnerId)
       const existingSubmission = await assignmentsubmissionModel.findOne({
         learnerId,
         lessonId,
@@ -378,6 +379,12 @@ class lessonController {
         return res.status(400).json({ error: "Assignment already submitted" });
       }
 
+      console.log("req.file, req.files",req.file, req.files)
+
+
+      console.log("accessKeyId, secretAccessKey,region",accessKeyId,
+      secretAccessKey,
+      region,)
       const lesson = await lessonModel.findById(lessonId);
 
       if (!lesson) {

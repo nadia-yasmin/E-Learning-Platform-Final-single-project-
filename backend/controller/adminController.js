@@ -70,10 +70,22 @@ class adminController {
       if (approve) {
         console.log("approval worked");
         learner.course[courseIndex].enrollment = true;
-      } else {
+        const course = await courseModel.findById(courseId);
+        if (!course) {
+            return res.status(404).send(failure("Course not found"));
+        }
+        const instructor = await instructorModel.findById(course.instructor);
+        if (!instructor) {
+            return res.status(404).send(failure("Instructor not found"));
+        }
+        if (!instructor.learnerId.includes(learnerId)) {
+          instructor.learnerId.push(learnerId);
+          await instructor.save();
+      }
+    } else {
         console.log("disapproval worked");
         learner.course.splice(courseIndex, 1);
-      }
+    }
       await learner.save();
       return res
         .status(200)
