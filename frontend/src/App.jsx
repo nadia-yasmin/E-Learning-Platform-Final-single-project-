@@ -22,9 +22,10 @@ import Showquizadmin from "./Components/quiz/getquiz/showquizadmin";
 import Addquiz from "./Components/quiz/postquiz/addquiz";
 import Getallcoursebycategory from "./Components/course/getcourse/getcoursebycategory";
 import Viewcart from "./Components/cart/Viewcart";
-import Viewallsubscription from "./Components/cart/Viewsubscription";
 import Getsubscribedcourse from "./Components/course/getcourse/getsubscribedcourse";
 import Viewwishlist from "./Components/cart/Viewwishlist";
+import Viewalllearners from "./Components/user/listofusers/showalllearners"
+import Approvecancelsubscription from "./Components/Approve/subscriptionapproval"
 function App() {
   return (
     <div>
@@ -59,12 +60,13 @@ function App() {
             element={<Getallcoursebycategory />}
           />
           <Route path="/viewcart/:learnerId" element={<Viewcart />} />
-          <Route path="/subscriptions" element={<Viewallsubscription />} />
           <Route
             path="/getsubscribedcourses"
             element={<Getsubscribedcourse />}
           />
           <Route path="/viewwishlist" element={<Viewwishlist />} />
+          <Route path="/viewlearners" element={<Viewalllearners />} />
+          <Route path="/approvecancelsubscription/:learnerId" element={<Approvecancelsubscription />} /> 
         </Routes>
         <Footer />
       </BrowserRouter>

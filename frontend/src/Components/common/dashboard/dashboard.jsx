@@ -11,6 +11,7 @@ import IconButton from '@mui/material/IconButton';
 import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';
 import { mainListItems, secondaryListItems } from './listitems';
 import { mainListItemsLearner, secondaryListItemsLearner } from './listitemslearner';
+import {mainListItemsAdmin,secondaryListItemsAdmin} from './listitemsadmin'
 
 const drawerWidth = 240;
 
@@ -71,20 +72,27 @@ export default function Dashboard() {
           </Toolbar>
           <Divider />
           <List component="nav">
-            {userData.role === 'instructor' ? (
-              <>
-                {mainListItems}
-                <Divider sx={{ my: 1 }} />
-                {secondaryListItems}
-              </>
-            ) : (
-              <>
-                {mainListItemsLearner}
-                <Divider sx={{ my: 1 }} />
-                {secondaryListItemsLearner}
-              </>
-            )}
-          </List>
+  {userData.role === 'instructor' ? (
+    <>
+      {mainListItems}
+      <Divider sx={{ my: 1 }} />
+      {secondaryListItems}
+    </>
+  ) : userData.role === 'learner' ? (
+    <>
+      {mainListItemsLearner}
+      <Divider sx={{ my: 1 }} />
+      {secondaryListItemsLearner}
+    </>
+  ) : userData.role === 'admin' ? (
+    <>
+      {mainListItemsAdmin}
+      <Divider sx={{ my: 1 }} />
+      {secondaryListItemsAdmin}
+    </>
+  ) : null}
+</List>
+
         </Drawer>
       )}
     </>

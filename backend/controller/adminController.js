@@ -24,10 +24,11 @@ class adminController {
   async showpendingcourse(req, res) {
     try {
       const { learnerId } = req.query;
+      console.log("learnerId",learnerId)
       const learner = await learnerModel.findById(learnerId).populate({
         path: "course.courseId",
         model: "courses",
-      });
+      }).exec();
       if (!learner) {
         return res.status(404).send(failure("Learner not found"));
       }
@@ -47,11 +48,13 @@ class adminController {
       return res.status(500).send(failure("Internal server error", error));
     }
   }
+  
 
   async approverejectcourse(req, res) {
     try {
       const { learnerId, courseId } = req.query;
       const { approve } = req.body;
+      console.log("courseId learnerId",courseId, learnerId)
       const learner = await learnerModel.findById(learnerId);
       if (!learner) {
         return res.status(404).send(failure("Learner not found"));
@@ -81,6 +84,24 @@ class adminController {
     }
   }
 
+  async viewunapprovedcourse(req, res) {
+    try {
+      const course = await courseModel.find();
+      if (!course) {
+        return res.status(404).send(failure("Course not found"));
+      }
+      if (approve) {
+        course.approved = true;
+        await course.save();
+        return res.status(200).send(success("Course approved successfully"));
+      } else {
+        return res.status(400).send(failure("Course approval failed"));
+      }
+    } catch (error) {
+      console.log("Approve/reject course creation error", error);
+      return res.status(500).send(failure("Internal server error", error));
+    }
+  }
   async approvecoursecreation(req, res) {
     try {
       const { courseId } = req.query;

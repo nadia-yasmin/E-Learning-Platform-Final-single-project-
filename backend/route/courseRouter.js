@@ -109,9 +109,9 @@ routes.get("/getallcategories", courseController.getallcategories);
 routes.post("/createtype", courseController.createType);
 //done
 routes.get("/getalltypes", courseController.getalltypes);
-//not done
+//done
 routes.post("/addrate", courseController.addRate);
-//not done
+//done
 routes.put("/updateRate", courseController.updateRate);
 //done
 routes.delete("/deleterate", courseController.deleteRate);
@@ -121,7 +121,7 @@ routes.get("/getcourses", courseController.getCourses);
 routes.post("/attemptquiz", lessonController.attemptQuiz);
 //done
 routes.post("/submitquiz", lessonController.submitQuiz);
-//not done
+//done
 routes.post("/addtowishlist", courseController.addtoWishlist);
 //not done
 routes.get("/showwishlist", courseController.showWishlist);
@@ -129,7 +129,7 @@ routes.get("/showwishlist", courseController.showWishlist);
 routes.get("/showalladmins", userController.showalladmins);
 //not done
 routes.get("/showallinstructors", userController.showallinstructors);
-//not done
+//done
 routes.get("/showalllearners", userController.showalllearners);
 //not done
 routes.post(
@@ -141,7 +141,7 @@ routes.post(
 routes.post("/evaluateassignment", lessonController.evaluateassignment);
 //not done
 routes.post("/postdiscussion", lessonController.postdiscussion);
-//not done
+//Done
 routes.post("/addreview", courseController.addreview);
 //not done
 routes.put("/updatereview", courseController.updatereview);
@@ -165,11 +165,11 @@ routes.get("/showlessonbyid", lessonController.showlessonid);
 routes.get("/getcoursebyid", courseController.showcoursebyid);
 //not done
 routes.get("/showpendingcourse", adminController.showpendingcourse);
-//not done
+//done
 routes.put("/approverejectcourse", adminController.approverejectcourse);
 //not done
 routes.put("/approvecoursecreation", adminController.approvecoursecreation);
-//not done
+//NOT done
 routes.delete("/removecart", learnerController.removecart);
 //done
 routes.delete("/removefromcart", learnerController.removefromcart);

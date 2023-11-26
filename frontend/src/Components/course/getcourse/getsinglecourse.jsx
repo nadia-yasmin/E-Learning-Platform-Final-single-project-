@@ -93,7 +93,7 @@ const ViewCourse = () => {
     }
   };
 
-  console.log("courseData", courseData);
+  console.log("courseData FOR RATING AND REVIEW", courseData);
   const [lessonData, setLessonData] = useState([]);
   const [expanded, setExpanded] = React.useState(false);
   const handleChange = (panel) => (event, isExpanded) => {
@@ -338,25 +338,24 @@ const ViewCourse = () => {
         </Grid>
       </Grid>
       <Grid item xs={12} md={12} className="your-center-class">
-        <Grid container spacing={2}>
-          {courseData.reviews && courseData.reviews.length > 0 ? (
-            <Grid container spacing={2}>
-              {courseData.reviews.map((review, index) => (
-                <Testimonial
-                  key={index}
-                  // rating={review.rating}
-                  text={review.text}
-                  author={review.learnerId.name}
-                  imageSrc={review.learnerId.image}
-                  alt={review.learnerId.name}
-                />
-              ))}
-            </Grid>
-          ) : (
-            <LinearColor />
-          )}
-        </Grid>
-      </Grid>
+  <Grid container spacing={2}>
+    {courseData.reviews && courseData.reviews.length > 0 ? (
+      courseData.reviews.map((review, index) => (
+        <Testimonial
+          key={index}
+          // rating={review.rating}
+          text={review.text}
+          author={review.learnerId.name}
+          imageSrc={review.learnerId.image}
+          alt={review.learnerId.name}
+        />
+      ))
+    ) : (
+      <LinearColor />
+    )}
+  </Grid>
+</Grid>
+
       {/* </> */}
     </Grid>
   );

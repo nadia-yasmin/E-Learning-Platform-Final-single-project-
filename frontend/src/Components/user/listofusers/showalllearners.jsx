@@ -6,64 +6,60 @@ import CssBaseline from "@mui/material/CssBaseline";
 import Typography from "@mui/material/Typography";
 import Container from "@mui/material/Container";
 import { createTheme, ThemeProvider } from "@mui/material/styles";
-import { useNavigate } from "react-router-dom";
-import LinearColor from "../common/loader/loader";
+import { useNavigate ,Link} from "react-router-dom";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import axiosInstance from "../../Utils/axiosInstance";
+import axiosInstance from "../../../Utils/axiosInstance"
 import { Button } from "@mui/material";
 import PendingActionsTwoToneIcon from "@mui/icons-material/PendingActionsTwoTone";
-import ShowErrorMessage from "../common/Error/filenotfound";
-import "../../App.css";
+import ShowErrorMessage from "../../common/Error/filenotfound"
+import LinearColor from "../../common/loader/loader"
+import "../../../App.css"
 const defaultTheme = createTheme();
 
-const Viewallsubscription = () => {
+const Viewalllearners = () => {
   const [cartData, setCartData] = useState([]);
   const [cartId, setCartId] = useState([]);
   const [refresh, setRefresh] = useState(false);
-
+const navigate=useNavigate()
   const [showErrorMessage, setShowErrorMessage] = useState(false);
   const userData = JSON.parse(localStorage.getItem("userdata"));
-  const navigate = useNavigate();
   console.log("learnerId from viewcart");
-  const cancelSubscriptionRequest = async (courseId) => {
-    try {
-      console.log(
-        "From remove cart learnerId courseId",
-        userData._id,
-        courseId
-      );
-      const response = await axiosInstance.put("/cancelsubscriptionrequest", {
-        learnerId: userData._id,
-        courseId: courseId,
-      });
-      console.log("Cancel subscription response", response.data.message);
-      toast.success(response.data.message);
-      setRefresh(!refresh);
-    } catch (error) {
-      console.error("Error removing from cart:", error);
-    }
+//   const ApproveSubscriptionRequest = async (learnerId) => {
+//     try {
+//       console.log(
+//         "learnerId",
+//learnerId
+//       );
+//       const response = await axiosInstance.get("/cancelsubscriptionrequest");
+//       console.log("Show all learners", response);
+//     //   toast.success(response.data.message);
+//     //   setRefresh(!refresh);
+//     } catch (error) {
+//       console.error("Error removing from cart:", error);
+//     }
+//   };
+const ApproveSubscriptionRequest = (learnerId) => {
+    navigate(`/approveorcancelsubscription/${learnerId}`)
   };
   useEffect(() => {
     const fetchData = async () => {
       try {
-        console.log("learnerId from view subscription", userData._id);
-        const response = await axiosInstance.post(`/viewallsubscription`, {
-          learnerId: userData._id,
-        });
+        const response = await axiosInstance.get(`/showalllearners`)
         console.log(
-          "View subscription response",
-          response.data.transaction.courseId
+          "View all learners",
+          response
         );
-        setCartData(response.data.transaction.courseId);
+        setCartData(response.data.learners);
       } catch (error) {
         console.error("Error fetching data:", error);
       }
     };
     fetchData();
   }, [refresh]);
-
+console.log("cartData",cartData)
   return (
+    // <div>Hi </div>
     <ThemeProvider theme={defaultTheme}>
       <CssBaseline />
       <Container
@@ -98,32 +94,35 @@ const Viewallsubscription = () => {
             ) : (
               <div className="shopping-cart">
                 {cartData.map((item) => (
+                    //(`/addlesson/${courseId}`)
+                    <Link to={`/approvecancelsubscription/${item._id}`}>
                   <Card key={item.productId} className="product">
                     <CardMedia className="product-image">
                       <img
                         src={item.image}
-                        alt={item.title}
+                        alt={item.name}
                         style={{ width: "100px" }}
                       />
                     </CardMedia>
                     <CardContent className="product-details">
-                      <Typography variant="h6" className="product-title">
-                        {item.title}
+                      <Typography variant="h6" className="product-name">
+                        {item.name}
                       </Typography>
                     </CardContent>
                     <div style={{ display: "flex", gap: "10px" }}>
-                      <PendingActionsTwoToneIcon />
-                      <Button
+                    <Button
                         variant="contained"
                         color="secondary"
                         size="small"
-                        style={{ backgroundColor: "maroon", color: "white" }}
-                        onClick={() => cancelSubscriptionRequest(item._id)}
+                        style={{ backgroundColor: "green", color: "white" }}
+                        onClick={() => ApproveSubscriptionRequest(item._id)}
                       >
-                        Cancel Request
+                        View Profile
                       </Button>
+                      
                     </div>
                   </Card>
+                  </Link>
                 ))}
               </div>
             )}
@@ -134,4 +133,4 @@ const Viewallsubscription = () => {
   );
 };
 
-export default Viewallsubscription;
+export default Viewalllearners;
