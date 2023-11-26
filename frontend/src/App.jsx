@@ -29,6 +29,7 @@ import Approvecancelsubscription from "./Components/Approve/subscriptionapproval
 import Viewunapprovedcourse from "./Components/Approve/viewunapprovedcourse"
 import Viewmylearners from "./Components/Instructor/viewmylearners";
 import Viewmystudentsassignments from "./Components/Instructor/viewmystudentsassignment"
+import Resetpassword from "./Components/form/resetpassword"
 function App() {
   return (
     <div>
@@ -73,6 +74,8 @@ function App() {
           <Route path="/viewunapprovedcourse" element={<Viewunapprovedcourse />} /> 
           <Route path="/learners" element={<Viewmylearners />} /> 
           <Route path="/viewmystudentsassignments/:learnerId" element={<Viewmystudentsassignments />} /> 
+          <Route path="/reset-password/:token/:userId" element={<Resetpassword />} /> 
+          
         </Routes>
         <Footer />
       </BrowserRouter>

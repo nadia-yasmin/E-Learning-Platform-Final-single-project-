@@ -21,7 +21,7 @@ const ejsRenderFile = promisify(ejs.renderFile);
 const crypto = require("crypto");
 const AWS = require("aws-sdk");
 require("dotenv").config();
-
+const transporter= require("../config/mail")
 
 class authController {
   async signUp(req, res) {
@@ -266,17 +266,41 @@ class authController {
       auth.resetPassword=true
 
       await auth.save()
+      let userModel, userType;
 
-      const resetPasswordURL = path.join(process.env.BACKEND_AUTH_URL, "reset-password", auth._id.toString(), resetToken);
-      console.log("Constructed path:", path.join(__dirname, "..","views","forgotPassword.ejs"));
-      const htmlBody = await ejsRenderFile(path.join(__dirname, "..","views","forgotPassword.ejs"), {
+      if (auth.instructorId) {
+        userModel = instructorModel;
+        userType = 'Instructor';
+      } else if (auth.learnerId) {
+        userModel = learnerModel;
+        userType = 'Learner';
+      } else {
+        userModel = adminModel;
+        userType = 'Admin';
+      }
+  
+      const user = await userModel.findOne({ email: recipient });
+  
+      if (!user) {
+        return res.status(404).send(failure(`${userType} not found for the given email`));
+      }
+      const resetPasswordURL = path.join(process.env.BACKEND_AUTH_URL, "reset-password", resetToken,auth._id.toString());
+      console.log("Constructed path:", path.join(__dirname, "..","views","forgetPassword.ejs"));
+      const htmlBody = await ejsRenderFile(path.join(__dirname, "..","views","forgetPassword.ejs"), {
         name: auth.email,
         resetPasswordURL: resetPasswordURL
     });
     
-      console.log("htmlBody", htmlBody)
+      // console.log("htmlBody", htmlBody)
+      console.log("transporter",transporter)
 
-      const emailResult = await sendMail(recipient, "Reset Password", htmlBody);
+      const emailResult = await transporter.sendMail({
+        from: "my-app@system.com",
+        to:`${user.name} ${recipient}`,
+      subject:"Froget Password?",
+      html:htmlBody
+      })
+       
 
       if (emailResult) {
           return res.status(200).send(success("Reset password link sent to your email"))
@@ -292,7 +316,8 @@ class authController {
 
 async resetPassword(req, res) {
   try {
-      const { token, userId } = req.params;
+      const { token, userId } = req.query;
+      console.log("token, userId",token, userId)
 
       const auth = await authModel.findOne({ _id: userId, resetPasswordToken: token, resetPasswordExpired: { $gt: new Date() } });
       if (!auth) {

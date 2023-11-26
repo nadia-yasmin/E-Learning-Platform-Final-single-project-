@@ -203,6 +203,8 @@ routes.get("/showmystudents", instructorController.showmystudents);
 //Done
 routes.post("/viewmystudentsassignments", instructorController.viewmystudentsassignments);
 
+//Done
+routes.post("/resetpassword", authController.resetPassword);
 //URL NOT FOUND
 routes.use(urlnotfound.notFound);
 module.exports = routes;
