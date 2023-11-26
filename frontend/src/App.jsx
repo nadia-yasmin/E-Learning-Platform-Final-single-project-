@@ -27,6 +27,8 @@ import Viewwishlist from "./Components/cart/Viewwishlist";
 import Viewalllearners from "./Components/user/listofusers/showalllearners"
 import Approvecancelsubscription from "./Components/Approve/subscriptionapproval"
 import Viewunapprovedcourse from "./Components/Approve/viewunapprovedcourse"
+import Viewmylearners from "./Components/Instructor/viewmylearners";
+import Viewmystudentsassignments from "./Components/Instructor/viewmystudentsassignment"
 function App() {
   return (
     <div>
@@ -69,6 +71,8 @@ function App() {
           <Route path="/viewlearners" element={<Viewalllearners />} />
           <Route path="/approvecancelsubscription/:learnerId" element={<Approvecancelsubscription />} /> 
           <Route path="/viewunapprovedcourse" element={<Viewunapprovedcourse />} /> 
+          <Route path="/learners" element={<Viewmylearners />} /> 
+          <Route path="/viewmystudentsassignments/:learnerId" element={<Viewmystudentsassignments />} /> 
         </Routes>
         <Footer />
       </BrowserRouter>

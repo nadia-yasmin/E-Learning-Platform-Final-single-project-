@@ -33,7 +33,7 @@ export const mainListItems = (
     <MainListItem icon={<PersonOutlineIcon />} text="Profile" to="/profile" />
     <MainListItem icon={<CategoryIcon />} text="Categories" to="/categories" />
     <MainListItem icon={<ViewListIcon />} text="Courses CRUD" to="/courses" />
-    <MainListItem icon={<GroupIcon />} text="Learners" to="/learners" />
+    <MainListItem icon={<GroupIcon />} text="My Students" to="/learners" />
   </>
 );
 

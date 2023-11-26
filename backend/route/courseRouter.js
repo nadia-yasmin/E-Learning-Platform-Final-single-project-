@@ -9,6 +9,7 @@ const authController = require("../controller/authController");
 const userController = require("../controller/userController");
 const adminController = require("../controller/adminController");
 const learnerController = require("../controller/learnerController");
+const instructorController =require("../controller/instructorController")
 const {
   isAuthorised,
   isAdmin,
@@ -197,6 +198,11 @@ routes.put(
 );
 //done
 routes.get("/showsubscribedcourse", courseController.showsubscribedcourses);
+//done
+routes.get("/showmystudents", instructorController.showmystudents);
+//Done
+routes.post("/viewmystudentsassignments", instructorController.viewmystudentsassignments);
+
 //URL NOT FOUND
 routes.use(urlnotfound.notFound);
 module.exports = routes;
