@@ -26,6 +26,7 @@ import Getsubscribedcourse from "./Components/course/getcourse/getsubscribedcour
 import Viewwishlist from "./Components/cart/Viewwishlist";
 import Viewalllearners from "./Components/user/listofusers/showalllearners"
 import Approvecancelsubscription from "./Components/Approve/subscriptionapproval"
+import Viewunapprovedcourse from "./Components/Approve/viewunapprovedcourse"
 function App() {
   return (
     <div>
@@ -67,6 +68,7 @@ function App() {
           <Route path="/viewwishlist" element={<Viewwishlist />} />
           <Route path="/viewlearners" element={<Viewalllearners />} />
           <Route path="/approvecancelsubscription/:learnerId" element={<Approvecancelsubscription />} /> 
+          <Route path="/viewunapprovedcourse" element={<Viewunapprovedcourse />} /> 
         </Routes>
         <Footer />
       </BrowserRouter>

@@ -99,6 +99,8 @@ routes.delete("/deleteuser", userController.deleteuser);
 routes.post("/addtocart", courseController.enrollCourse);
 //done
 routes.post("/login", authController.login);
+//done
+routes.post("/sendforgetpasswordemail", authController.sendForgotPasswordEmail);
 //not done
 routes.post("/transaction", courseController.createTransaction);
 //not done
@@ -167,7 +169,9 @@ routes.get("/getcoursebyid", courseController.showcoursebyid);
 routes.get("/showpendingcourse", adminController.showpendingcourse);
 //done
 routes.put("/approverejectcourse", adminController.approverejectcourse);
-//not done
+//done
+routes.get("/viewunapprovedcourse", adminController.viewunapprovedcourse);
+//done
 routes.put("/approvecoursecreation", adminController.approvecoursecreation);
 //NOT done
 routes.delete("/removecart", learnerController.removecart);

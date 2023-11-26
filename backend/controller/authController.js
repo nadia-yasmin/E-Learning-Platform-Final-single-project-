@@ -22,6 +22,7 @@ const crypto = require("crypto");
 const AWS = require("aws-sdk");
 require("dotenv").config();
 
+
 class authController {
   async signUp(req, res) {
     try {
@@ -246,53 +247,114 @@ class authController {
     }
   }
 
-  async sendForgotPasswordEmail(req, res) {
-    try {
-      const { recipient } = req.body;
-      console.log("recipient mail", recipient);
+ async sendForgotPasswordEmail(req, res) {
+  try {
+      const { recipient } = req.body
+      console.log("recipient mail", recipient)
       if (!recipient || recipient === "") {
-        return res.status(400).send(failure("invalid request"));
+          return res.status(400).send(failure("invalid request"))
       }
 
-      const auth = await authModel.findOne({ email: recipient });
+      const auth = await authModel.findOne({ email: recipient })
       if (!auth) {
-        return res.status(400).send(failure("invalid request"));
+          return res.status(400).send(failure("invalid request"))
       }
 
-      const resetToken = crypto.randomBytes(32).toString("hex");
-      auth.resetPasswordToken = resetToken;
-      auth.resetPasswordExpired = new Date(Date.now() + 60 * 60 * 1000);
+      const resetToken = crypto.randomBytes(32).toString('hex')
+      auth.resetPasswordToken = resetToken
+      auth.resetPasswordExpire = new Date(Date.now() + 60*60*1000)
+      auth.resetPassword=true
 
-      await auth.save();
+      await auth.save()
 
-      const resetPasswordURL = path.join(
-        process.env.BACKEND_AUTH_URL,
-        "reset-password",
-        auth._id.toString(),
-        resetToken
-      );
-
-      const htmlBody = await ejsRenderFile(
-        path.join(__dirname, "../../views/forgotPassword.ejs"),
-        {
-          name: auth.username,
-          resetPasswordURL: resetPasswordURL,
-        }
-      );
-      console.log("htmlBody", htmlBody);
+      const resetPasswordURL = path.join(process.env.BACKEND_AUTH_URL, "reset-password", auth._id.toString(), resetToken);
+      console.log("Constructed path:", path.join(__dirname, "..","views","forgotPassword.ejs"));
+      const htmlBody = await ejsRenderFile(path.join(__dirname, "..","views","forgotPassword.ejs"), {
+        name: auth.email,
+        resetPasswordURL: resetPasswordURL
+    });
+    
+      console.log("htmlBody", htmlBody)
 
       const emailResult = await sendMail(recipient, "Reset Password", htmlBody);
 
       if (emailResult) {
-        return res
-          .status(200)
-          .send(success("Reset password link sent to your email"));
+          return res.status(200).send(success("Reset password link sent to your email"))
       }
-      return res.status(400).send(failure("Something went wrong"));
-    } catch (error) {
-      console.log("error found", error);
-      return res.status(500).send(failure("Internal server error", error));
-    }
+      return res.status(400).send(failure("Something went wrong"))
+
+
+  } catch (error) {
+      console.log("error found", error)
+      return res.status(500).send(failure("Internal server error", error))
   }
+}
+
+async resetPassword(req, res) {
+  try {
+      const { token, userId } = req.params;
+
+      const auth = await authModel.findOne({ _id: userId, resetPasswordToken: token, resetPasswordExpired: { $gt: new Date() } });
+      if (!auth) {
+          return res.status(400).send(failure("invalid request"));
+      }
+      console.log("authPass", auth.password)
+
+
+      const { newPassword, confirmPassword } = req.body
+      console.log("authPass", newPassword)
+      if (!newPassword || !confirmPassword) {
+          return res.status(400).send(failure("Please enter all the fields"))
+      }
+
+      const passwordMatch = await bcrypt.compare(newPassword, auth.password);
+
+      if (passwordMatch) {
+          console.log("newpass=oldpass");
+          return res.status(400).send(failure("You are setting up an old password"));
+      }
+
+      if (newPassword !== confirmPassword) {
+          return res.status(400).send(failure("Passwords do not match"))
+      }
+
+      const hashedPassword = await bcrypt.hash(newPassword, 10).then((hash) => {
+          return hash
+      })
+
+      auth.password = hashedPassword
+      auth.resetPasswordToken = null
+      auth.resetPasswordExpire = null
+
+      await auth.save()
+
+      return res.status(200).send(success("Password reset successful"))
+  } catch (error) {
+      return res.status(500).send(failure("Internal server error", error))
+  }
+}
+
+async validatePasswordResetRequest(req, res) {
+  try {
+      const { token, userId } = req.params;
+
+      const auth = await authModel.findOne({ _id: new mongoose.Types.ObjectId(userId) });
+      if (!auth) {
+          return res.status(400).send(failure("Invalid request"))
+      }
+
+      if (auth.resetPasswordExpire < Date.now()) {
+          return res.status(400).send(failure("Expired request"))
+      }
+
+      if (auth.resetPasswordToken !== token || auth.resetPassword === false) {
+          return res.status(400).send(failure("Invalid token"))
+      }
+      return res.status(200).send(success("Request is still valid"))
+  } catch (error) {
+      console.log(error);
+      return res.status(500).send(failure("Internal server error"))
+  }
+}
 }
 module.exports = new authController();

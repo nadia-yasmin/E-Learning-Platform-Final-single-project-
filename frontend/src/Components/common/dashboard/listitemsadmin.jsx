@@ -47,22 +47,17 @@ export const secondaryListItemsAdmin= (
     </ListSubheader>
     <MainListItem
       icon={<SubscriptionsIcon />}
-      text="Subscription Requests"
-      to="/subscriptionsrequests"
-    />
-    <MainListItem
-      icon={<ShoppingCartIcon />}
       text="Course Requests"
-      to={`/courseadditionrequests`}
+      to="/viewunapprovedcourse"
     />
     <MainListItem
       icon={<FavoriteBorderIcon />}
-      text="All Learners"
+      text="Learners"
       to="/viewlearners"
     />
     <MainListItem
       icon={<FavoriteBorderIcon />}
-      text="All Instructors"
+      text="Instructors"
       to="/viewinstructors"
     />
     <MainListItem icon={<PercentIcon />} text="Analytics" to="/analytics" />

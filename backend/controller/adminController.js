@@ -86,22 +86,20 @@ class adminController {
 
   async viewunapprovedcourse(req, res) {
     try {
-      const course = await courseModel.find();
-      if (!course) {
-        return res.status(404).send(failure("Course not found"));
+      const unapprovedCourses = await courseModel.find({ approved: false });
+  
+      if (!unapprovedCourses || unapprovedCourses.length === 0) {
+        return res.status(404).send(failure("No unapproved courses found"));
       }
-      if (approve) {
-        course.approved = true;
-        await course.save();
-        return res.status(200).send(success("Course approved successfully"));
-      } else {
-        return res.status(400).send(failure("Course approval failed"));
-      }
+  
+      return res.status(200).send(success("Unapproved courses retrieved successfully", unapprovedCourses));
     } catch (error) {
-      console.log("Approve/reject course creation error", error);
+      console.error("Error retrieving unapproved courses:", error);
       return res.status(500).send(failure("Internal server error", error));
     }
   }
+  
+  
   async approvecoursecreation(req, res) {
     try {
       const { courseId } = req.query;
@@ -115,7 +113,9 @@ class adminController {
         await course.save();
         return res.status(200).send(success("Course approved successfully"));
       } else {
-        return res.status(400).send(failure("Course approval failed"));
+        course.approved = false;
+        await course.save();
+        return res.status(200).send(failure("Course is not approved"));
       }
     } catch (error) {
       console.log("Approve/reject course creation error", error);
