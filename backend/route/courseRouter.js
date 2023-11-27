@@ -25,7 +25,7 @@ const {
 //COURSE
 //done
 routes.post(
-  "/addcourse",
+  "/addcourse",isAuthorised,isInstructor,
   upload.fields([
     { name: "image", maxCount: 1 },
     { name: "intro", maxCount: 1 },
@@ -37,7 +37,7 @@ routes.post(
 //done wihtout media
 
 routes.put(
-  "/updatecourse",
+  "/updatecourse",isAuthorised,isInstructor,
   upload.fields([
     { name: "image", maxCount: 1 },
     { name: "intro", maxCount: 1 },
@@ -47,10 +47,10 @@ routes.put(
   }
 );
 //done
-routes.delete("/deletecourse", courseController.deleteCourse);
+routes.delete("/deletecourse",isAuthorised,isInstructor, courseController.deleteCourse);
 //done
 routes.post(
-  "/addlesson",
+  "/addlesson",isAuthorised,isInstructor,
   upload.fields([
     { name: "video", maxCount: 1 },
     { name: "slides", maxCount: 1 },
@@ -63,7 +63,7 @@ routes.post(
 //not done
 
 routes.put(
-  "/updatelesson",
+  "/updatelesson",isAuthorised,isInstructor,
   upload.fields([
     { name: "video", maxCount: 1 },
     { name: "slides", maxCount: 1 },
@@ -74,11 +74,11 @@ routes.put(
   }
 );
 //not done
-routes.delete("/deletelesson", lessonController.deletelesson);
+routes.delete("/deletelesson",isAuthorised,isInstructor,lessonController.deletelesson);
 //done
-routes.post("/createquiz", lessonController.createQuiz);
+routes.post("/createquiz",isAuthorised,isInstructor, lessonController.createQuiz);
 //done
-routes.post("/addquiz", lessonController.addQuiz);
+routes.post("/addquiz",isAuthorised,isInstructor, lessonController.addQuiz);
 //done
 routes.post(
   "/adduser",
@@ -89,51 +89,51 @@ routes.post(
 );
 //not done
 routes.put(
-  "/updateuser",
+  "/updateuser",isAuthorised,
   upload.single("file"),
   userupdatevalidator.create,
   userController.updateuser
 );
 //not done
-routes.delete("/deleteuser", userController.deleteuser);
+routes.delete("/deleteuser", isAuthorised,userController.deleteuser);
 //done
-routes.post("/addtocart", courseController.enrollCourse);
+routes.post("/addtocart",isAuthorised ,isLearner,courseController.enrollCourse);
 //done
 routes.post("/login", authController.login);
 //done
 routes.post("/sendforgetpasswordemail", authController.sendForgotPasswordEmail);
+//done
+routes.post("/transaction",isAuthorised ,isLearner, courseController.createTransaction);
 //not done
-routes.post("/transaction", courseController.createTransaction);
-//not done
-routes.post("/createcategory", courseController.createCategory);
+routes.post("/createcategory",isAuthorised,isAdmin,courseController.createCategory);
 //done
 routes.get("/getallcategories", courseController.getallcategories);
 //done
-routes.post("/createtype", courseController.createType);
+routes.post("/createtype",isAuthorised,isAdmin, courseController.createType);
 //done
 routes.get("/getalltypes", courseController.getalltypes);
 //done
-routes.post("/addrate", courseController.addRate);
+routes.post("/addrate", isAuthorised,courseController.addRate);
 //done
-routes.put("/updateRate", courseController.updateRate);
+routes.put("/updateRate", isAuthorised.updateRate);
 //done
-routes.delete("/deleterate", courseController.deleteRate);
+routes.delete("/deleterate",isAuthorised, courseController.deleteRate);
 //done
 routes.get("/getcourses", courseController.getCourses);
 //done
-routes.post("/attemptquiz", lessonController.attemptQuiz);
+routes.post("/attemptquiz", isAuthorised,isLearner,lessonController.attemptQuiz);
 //done
-routes.post("/submitquiz", lessonController.submitQuiz);
+routes.post("/submitquiz",  isAuthorised,isLearner,lessonController.submitQuiz);
 //done
-routes.post("/addtowishlist", courseController.addtoWishlist);
-//not done
-routes.get("/showwishlist", courseController.showWishlist);
-//not done
-routes.get("/showalladmins", userController.showalladmins);
-//not done
-routes.get("/showallinstructors", userController.showallinstructors);
+routes.post("/addtowishlist",  isAuthorised,isLearner,courseController.addtoWishlist);
 //done
-routes.get("/showalllearners", userController.showalllearners);
+routes.get("/showwishlist",isAuthorised, courseController.showWishlist);
+//not done
+routes.get("/showalladmins", isAuthorised, isAdmin,userController.showalladmins);
+//not done
+routes.get("/showallinstructors", isAuthorised, isAdmin,userController.showallinstructors);
+//done
+routes.get("/showalllearners", isAuthorised, isAdmin,userController.showalllearners);
 //done
 routes.post(
   "/submitassignment",
@@ -141,15 +141,15 @@ routes.post(
   lessonController.submitassignment
 );
 //done
-routes.post("/evaluateassignment", lessonController.evaluateassignment);
+routes.post("/evaluateassignment",isAuthorised,isInstructor ,lessonController.evaluateassignment);
 //done
-routes.post("/postdiscussion", lessonController.postdiscussion);
+routes.post("/postdiscussion", isAuthorised,lessonController.postdiscussion);
 //done
-routes.get("/showdiscussion", lessonController.showdiscussion);
+routes.get("/showdiscussion", isAuthorised, lessonController.showdiscussion);
 //Done
-routes.post("/addreview", courseController.addreview);
+routes.post("/addreview",isAuthorised,isLearner, courseController.addreview);
 //not done
-routes.put("/updatereview", courseController.updatereview);
+routes.put("/updatereview",isAuthorised,isLearner, courseController.updatereview);
 //view profile
 //done
 routes.get("/getprofile", isAuthorised, userController.viewOwnProfile);
@@ -163,54 +163,53 @@ routes.post(
 
 //updatereview
 //done
-routes.get("/showlessonbyweek", lessonController.showlessonbyweek);
+routes.get("/showlessonbyweek", isAuthorised,lessonController.showlessonbyweek);
 //done
-routes.get("/showlessonbyid", lessonController.showlessonid);
+routes.get("/showlessonbyid", isAuthorised,lessonController.showlessonid);
 //done
-routes.get("/getcoursebyid", courseController.showcoursebyid);
-//not done
-routes.get("/showpendingcourse", adminController.showpendingcourse);
+routes.get("/getcoursebyid", isAuthorised, courseController.showcoursebyid);
 //done
-routes.put("/approverejectcourse", adminController.approverejectcourse);
+routes.get("/showpendingcourse", isAuthorised, isAdmin,adminController.showpendingcourse);
 //done
-routes.get("/viewunapprovedcourse", adminController.viewunapprovedcourse);
+routes.put("/approverejectcourse", isAuthorised, isAdmin,adminController.approverejectcourse);
 //done
-routes.put("/approvecoursecreation", adminController.approvecoursecreation);
+routes.get("/viewunapprovedcourse", isAuthorised, isAdmin,adminController.viewunapprovedcourse);
+//done
+routes.put("/approvecoursecreation", isAuthorised, isAdmin,adminController.approvecoursecreation);
 //NOT done
-routes.delete("/removecart", learnerController.removecart);
+routes.delete("/removecart", isAuthorised,isLearner,learnerController.removecart);
 //done
-routes.delete("/removefromcart", learnerController.removefromcart);
+routes.delete("/removefromcart", isAuthorised,isLearner,learnerController.removefromcart);
 // viewownprofile
 //done
-routes.get("/showlessonbycourse", lessonController.showLessonByCourse);
+routes.get("/showlessonbycourse",isAuthorised, lessonController.showLessonByCourse);
 //done
-routes.get("/showquizbylesson", lessonController.showquizbylesson);
+routes.get("/showquizbylesson", isAuthorised,lessonController.showquizbylesson);
 //done
 routes.get("/getbycategoryid", courseController.getbycategoryid);
 //done
-routes.get("/showcart", courseController.showCart);
+routes.get("/showcart", isAuthorised,courseController.showCart);
 //done
-routes.post("/viewallsubscription", courseController.viewAllSubscriptions);
+routes.post("/viewallsubscription", isAuthorised, courseController.viewAllSubscriptions);
 //done
-routes.put("/removefromcart", courseController.removeFromCart);
+routes.put("/removefromcart", isAuthorised,isLearner,courseController.removeFromCart);
 //done
 routes.put(
-  "/cancelsubscriptionrequest",
-  courseController.cancelSubscriptionRequest
+  "/cancelsubscriptionrequest",isAuthorised,courseController.cancelSubscriptionRequest
 );
 //done
-routes.get("/showsubscribedcourse", courseController.showsubscribedcourses);
+routes.get("/showsubscribedcourse", isAuthorised,courseController.showsubscribedcourses);
 //done
-routes.get("/showmystudents", instructorController.showmystudents);
+routes.get("/showmystudents",isAuthorised,isInstructor,instructorController.showmystudents);
 //Done
 routes.post(
-  "/viewmystudentsassignments",
+  "/viewmystudentsassignments",isAuthorised,isInstructor,
   instructorController.viewmystudentsassignments
 );
 //done
-routes.get("/showprogress", learnerController.showprogress);
+routes.get("/showprogress",isAuthorised, learnerController.showprogress);
 //done
-routes.get("/showassignmentscore", learnerController.showassignmentscore);
+routes.get("/showassignmentscore", isAuthorised,learnerController.showassignmentscore);
 
 //Done
 routes.post("/resetpassword", authController.resetPassword);

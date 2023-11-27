@@ -55,11 +55,6 @@ export const secondaryListItemsAdmin= (
       text="Learners"
       to="/viewlearners"
     />
-    <MainListItem
-      icon={<FavoriteBorderIcon />}
-      text="Instructors"
-      to="/viewinstructors"
-    />
     <MainListItem icon={<PercentIcon />} text="Analytics" to="/analytics" />
   </>
 );

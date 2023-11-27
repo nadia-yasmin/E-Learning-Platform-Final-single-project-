@@ -33,12 +33,17 @@ import Resetpassword from "./Components/form/resetpassword";
 import Forgotpassword from "./Components/form/submitforgotpasswordrequest";
 import Quizmarks from "./Components/common/quiz/quizmarks";
 import RecordVideo from "./Components/course/postcourse/video";
+import Authenticateadmin from "./Components/Authenticate/authenticateadmin"
+import Authenticateinstructor from "./Components/Authenticate/authenticateinstructor";
+import Authenticatelearner from "./Components/Authenticate/authenticatelearner";
+import Editprofile from "./Components/user/profile/editprofile"
 function App() {
   return (
     <div>
       <BrowserRouter>
         <DenseAppBar />
         <Routes>
+          //PUBLIC
           <Route path="/" element={<Getallcourse />} />
           <Route path="/login/learner" element={<Login />} />
           <Route path="/signup" element={<Signupoptions />} />
@@ -47,53 +52,76 @@ function App() {
           <Route path="/profile" element={<Showprofile />} />
           <Route path="/viewcourse/:courseId" element={<Viewcourse />} />
           <Route path="/lessons/:lessonId" element={<Viewlesson />} />
-          <Route path="/courses" element={<Getinstructorscourse />} />
-          <Route path="/addcourse" element={<Addcourse />} />
           <Route path="/search" element={<DebounceDemo />} />
-          <Route path="/addlesson/:courseId" element={<Addlesson />} />
-          <Route path="/updatecourse/:courseId" element={<Updatecourse />} />
-          <Route
-            path="/instructorlessons/:courseId"
-            element={<Getinstructorslesson />}
-          />
-          <Route path="/createquiz/:lessonId" element={<Createquiz />} />
-          <Route
-            path="/showquizbylesson/:lessonId"
-            element={<Showquizadmin />}
-          />
-          <Route path="/addquiz/:lessonId" element={<Addquiz />} />
           <Route
             path="/allcourses/:categoryId"
             element={<Getallcoursebycategory />}
-          />
-          <Route path="/viewcart/:learnerId" element={<Viewcart />} />
-          <Route
-            path="/getsubscribedcourses"
-            element={<Getsubscribedcourse />}
-          />
-          <Route path="/viewwishlist" element={<Viewwishlist />} />
-          <Route path="/viewlearners" element={<Viewalllearners />} />
-          <Route
-            path="/approvecancelsubscription/:learnerId"
-            element={<Approvecancelsubscription />}
-          />
-          <Route
-            path="/viewunapprovedcourse"
-            element={<Viewunapprovedcourse />}
-          />
-          <Route path="/learners" element={<Viewmylearners />} />
-          <Route
-            path="/viewmystudentsassignments/:learnerId"
-            element={<Viewmystudentsassignments />}
           />
           <Route
             path="/reset-password/:token/:userId"
             element={<Resetpassword />}
           />
-
-          <Route path="/recordvideo" element={<RecordVideo />} />
           <Route path="/forgotpassword" element={<Forgotpassword />} />
-          <Route path="/quizmarks" element={<Quizmarks />} />
+          <Route path="/editmyprofile" element={<Editprofile />} />
+
+         //INSTRUCTOR
+          <Route element={<Authenticateinstructor />}>
+            <Route path="/learners" element={<Viewmylearners />} />
+            <Route path="/courses" element={<Getinstructorscourse />} />
+            <Route path="/addcourse" element={<Addcourse />} />
+            <Route path="/addlesson/:courseId" element={<Addlesson />} />
+            <Route path="/updatecourse/:courseId" element={<Updatecourse />} />
+            <Route path="/recordvideo" element={<RecordVideo />} />
+
+            <Route
+              path="/instructorlessons/:courseId"
+              element={<Getinstructorslesson />}
+            />
+            <Route path="/createquiz/:lessonId" element={<Createquiz />} />
+
+            <Route
+              path="/showquizbylesson/:lessonId"
+              element={<Showquizadmin />}
+            />
+            <Route path="/addquiz/:lessonId" element={<Addquiz />} />
+          </Route>
+
+
+
+
+
+          <Route element={<Authenticatelearner />}>
+            <Route path="/quizmarks" element={<Quizmarks />} />
+            <Route path="/viewcart/:learnerId" element={<Viewcart />} />
+            <Route
+              path="/getsubscribedcourses"
+              element={<Getsubscribedcourse />}
+            />
+            <Route path="/viewwishlist" element={<Viewwishlist />} />
+
+            <Route
+              path="/viewmystudentsassignments/:learnerId"
+              element={<Viewmystudentsassignments />}
+            />
+          </Route>
+
+         //ADMIN
+          <Route element={<Authenticateadmin />}>
+            <Route path="/viewlearners" element={<Viewalllearners />} />
+            <Route
+              path="/approvecancelsubscription/:learnerId"
+              element={<Approvecancelsubscription />}
+            />
+            <Route
+              path="/viewunapprovedcourse"
+              element={<Viewunapprovedcourse />}
+            />
+          </Route>
+
+
+
+          
+
         </Routes>
         <Footer />
       </BrowserRouter>

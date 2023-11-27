@@ -7,6 +7,7 @@ import {useNavigate} from "react-router-dom"
 const useLoginHook = (token, userId, newPassword, oldPassword, role) => {
  
   const [successAlert, setSuccessAlert] = useState(false);
+  const [refresh,setRefresh]=useState(false)
   const [errorAlert, setErrorAlert] = useState(false);
   const [alertMessage, setAlertMessage] = useState("");
   const navigate=useNavigate()
@@ -30,7 +31,7 @@ const useLoginHook = (token, userId, newPassword, oldPassword, role) => {
       .then((data) => {
         if (data.success) {
           const token = data.data.token;
-          // refreshPage();
+          setRefresh(!refresh)
           navigate("/dashboard")
           localStorage.setItem("userdata", JSON.stringify(data.data));
           localStorage.setItem("token", token);

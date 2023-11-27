@@ -117,7 +117,7 @@ console.log("cartData",cartData)
                         style={{ backgroundColor: "green", color: "white" }}
                         onClick={() => ApproveSubscriptionRequest(item._id)}
                       >
-                        View Profile
+                        See Requests
                       </Button>
                       
                     </div>
