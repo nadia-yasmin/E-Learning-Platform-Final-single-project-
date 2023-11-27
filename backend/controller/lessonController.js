@@ -370,7 +370,7 @@ class lessonController {
     try {
       const { lessonId } = req.query;
       const { learnerId } = req.body;
-      console.log("lessonId,learnerId",lessonId,learnerId)
+      console.log("lessonId,learnerId", lessonId, learnerId);
       const existingSubmission = await assignmentsubmissionModel.findOne({
         learnerId,
         lessonId,
@@ -379,12 +379,14 @@ class lessonController {
         return res.status(400).json({ error: "Assignment already submitted" });
       }
 
-      console.log("req.file, req.files",req.file, req.files)
+      console.log("req.file, req.files", req.file, req.files);
 
-
-      console.log("accessKeyId, secretAccessKey,region",accessKeyId,
-      secretAccessKey,
-      region,)
+      console.log(
+        "accessKeyId, secretAccessKey,region",
+        accessKeyId,
+        secretAccessKey,
+        region
+      );
       const lesson = await lessonModel.findById(lessonId);
 
       if (!lesson) {
@@ -485,6 +487,10 @@ class lessonController {
       const { email, text } = req.body;
       const user = await authModel.findOne({ email });
       const lesson = await lessonModel.findOne({ _id: lessonId });
+      console.log("lessonId", lessonId);
+      if (!lessonId) {
+        return res.status(404).json({ error: "lessonId not found" });
+      }
       if (!user) {
         return res.status(404).json({ error: "User not found" });
       }
@@ -520,20 +526,38 @@ class lessonController {
           lessonId,
         };
       }
+      if (lesson && lesson.discussion) {
+        const existingDiscussion = await discussionModel.findOne({
+          _id: lesson.discussion,
+        });
 
-      const existingDiscussion = await discussionModel.findOne({
-        _id: lesson.discussion,
-      });
-
-      if (existingDiscussion) {
-        existingDiscussion.discussion.push(discussionData);
-        await existingDiscussion.save();
+        if (existingDiscussion) {
+          // If the lesson already has a discussion, update the existing discussion
+          existingDiscussion.discussion.push(discussionData);
+          await existingDiscussion.save();
+        } else {
+          // If the lesson doesn't have a discussion, create a new discussion
+          const discussion = await discussionModel.create({
+            discussion: [discussionData],
+          });
+          if (lesson) {
+            lesson.discussion = discussion._id;
+            await lesson.save();
+          } else {
+            console.error("Lesson not found");
+          }
+        }
       } else {
+        // If the lesson doesn't have a discussion, create a new discussion
         const discussion = await discussionModel.create({
           discussion: [discussionData],
         });
-        lesson.discussion = discussion._id;
-        await lesson.save();
+        if (lesson) {
+          lesson.discussion = discussion._id;
+          await lesson.save();
+        } else {
+          console.log("Lesson not found");
+        }
       }
 
       return res
@@ -541,6 +565,47 @@ class lessonController {
         .json({ message: "Discussion posted successfully" });
     } catch (error) {
       console.error("Post discussion error", error);
+      return res.status(500).json({ error: "Internal server error" });
+    }
+  }
+
+  async showdiscussion(req, res) {
+    try {
+      const { lessonId } = req.query;
+
+      const discussion = await discussionModel.findOne({
+        "discussion.0.lessonId": lessonId,
+      });
+
+      if (!discussion) {
+        return res.status(404).json({ error: "Discussion not found" });
+      }
+      const learnerIds = discussion.discussion
+        .filter((item) => item.learnerId)
+        .map((item) => item.learnerId);
+
+      const instructorIds = discussion.discussion
+        .filter((item) => item.instructorId)
+        .map((item) => item.instructorId);
+
+      await discussionModel.populate(discussion, {
+        path: "discussion.learnerId",
+        model: "learners",
+        match: { _id: { $in: learnerIds } },
+      });
+
+      await discussionModel.populate(discussion, {
+        path: "discussion.instructorId",
+        model: "instructors",
+        match: { _id: { $in: instructorIds } },
+      });
+
+      return res.status(200).json({
+        message: "Discussion fetched successfully",
+        discussion: discussion,
+      });
+    } catch (error) {
+      console.error("Discussion fetch error", error);
       return res.status(500).json({ error: "Internal server error" });
     }
   }

@@ -3,20 +3,21 @@ import { useState } from "react";
 import { useForm, Controller } from "react-hook-form";
 import Heading4 from "./common/heading/heading4";
 import Buttoncomponent from "./common/button/button";
-import { TextField, Stack } from "@mui/material";
+import { TextField, Stack, Typography } from "@mui/material";
 import useLoginHook from "../../CustomHooks/useloginhook";
 import { Container, Paper, Avatar, Grid } from "@mui/material";
 import { ThemeProvider, createTheme } from "@mui/material/styles";
-import Alert from '@mui/material/Alert';
-import AlertTitle from '@mui/material/AlertTitle';
+import Alert from "@mui/material/Alert";
+import AlertTitle from "@mui/material/AlertTitle";
 import { styled } from "@mui/system";
+import { Link } from "react-router-dom";
 const StyledPaper = styled(Paper)(({ theme }) => ({
   marginTop: theme.spacing(8),
   display: "flex",
   flexDirection: "column",
   alignItems: "center",
   padding: theme.spacing(4),
-  backgroundColor:"#F4FBF8",
+  backgroundColor: "#F4FBF8",
   [theme.breakpoints.down("sm")]: {
     maxWidth: "100%",
   },
@@ -35,7 +36,7 @@ const CenteredContainer = styled("div")({
   display: "flex",
   justifyContent: "center",
   alignItems: "center",
-  textAlign: "center" ,
+  textAlign: "center",
   height: "80vh",
 });
 const Login = () => {
@@ -46,7 +47,8 @@ const Login = () => {
   } = useForm();
   const [email, setEmail] = useState("");
   const [password, setPasword] = useState("");
-  const { createLogin,successAlert, errorAlert, alertMessage  } = useLoginHook();
+  const { createLogin, successAlert, errorAlert, alertMessage } =
+    useLoginHook();
 
   const handleEmailChange = (e) => {
     setEmail(e.target.value);
@@ -62,7 +64,7 @@ const Login = () => {
   return (
     <CenteredContainer>
       <StyledPaper elevation={6}>
-      <Avatar src="/broken-image.jpg" style={{ marginBottom: 16}} />
+        <Avatar src="/broken-image.jpg" style={{ marginBottom: 16 }} />
         {/* <Heading4 text={"Login"} variant={"h4"} /> */}
         <form noValidate onSubmit={handleSubmit(onSubmit)}>
           <Grid container spacing={3} justifyContent="center" maxWidth="100%">
@@ -94,10 +96,7 @@ const Login = () => {
                 )}
               />
               {errors.email && (
-                <Heading4
-                  text={errors.email.message}
-                  variant={"h6"}
-                />
+                <Heading4 text={errors.email.message} variant={"h6"} />
               )}
             </Grid>
             <Grid item xs={12}>
@@ -125,10 +124,7 @@ const Login = () => {
                 )}
               />
               {errors.password && (
-                <Heading4
-                  text={errors.password.message}
-                  variant={"h6"}
-                />
+                <Heading4 text={errors.password.message} variant={"h6"} />
               )}
             </Grid>
           </Grid>
@@ -136,9 +132,22 @@ const Login = () => {
             text={"Log in"}
             type={"submit"}
             variant={"contained"}
-            style={{ marginTop: 16, backgroundColor:"#00695f"}} 
+            style={{ marginTop: 16, backgroundColor: "#00695f" }}
           />
         </form>
+        <Link
+          to="/forgotpassword"
+          style={{ textDecoration: "none" }}
+          // onClick={() => handleForgotPasswordClick()}
+        >
+          <Typography
+            variant="body2"
+            color="primary"
+            style={{ marginTop: 16, textAlign: "center" }}
+          >
+            Forgot Password?
+          </Typography>
+        </Link>
       </StyledPaper>
       {successAlert && (
         <Alert severity="success">
@@ -153,9 +162,7 @@ const Login = () => {
         </Alert>
       )}
     </CenteredContainer>
-    
   );
 };
-
 
 export default Login;

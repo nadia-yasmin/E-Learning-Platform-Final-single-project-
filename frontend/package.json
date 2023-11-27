@@ -16,6 +16,7 @@
     "@mui/material": "^5.14.18",
     "@mui/styled-engine-sc": "^6.0.0-alpha.5",
     "@mui/system": "^5.14.18",
+    "@mui/x-charts": "^6.18.2",
     "@reduxjs/toolkit": "^1.9.7",
     "axios": "^1.6.1",
     "classnames": "^2.3.2",

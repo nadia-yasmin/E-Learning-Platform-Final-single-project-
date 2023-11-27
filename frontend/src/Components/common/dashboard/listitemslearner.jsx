@@ -60,6 +60,7 @@ export const secondaryListItemsLearner = (
       text="Subscriptions Request"
       to="/subscriptions"
     />
+
     <MainListItem
       icon={<ShoppingCartIcon />}
       text="Cart"
@@ -70,6 +71,6 @@ export const secondaryListItemsLearner = (
       text="Wishlist"
       to="/viewwishlist"
     />
-    <MainListItem icon={<PercentIcon />} text="Progress" to="/progress" />
+    <MainListItem icon={<PercentIcon />} text="Progress" to="/quizmarks" />
   </>
 );

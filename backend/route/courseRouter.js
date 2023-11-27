@@ -9,7 +9,7 @@ const authController = require("../controller/authController");
 const userController = require("../controller/userController");
 const adminController = require("../controller/adminController");
 const learnerController = require("../controller/learnerController");
-const instructorController =require("../controller/instructorController")
+const instructorController = require("../controller/instructorController");
 const {
   isAuthorised,
   isAdmin,
@@ -134,16 +134,18 @@ routes.get("/showalladmins", userController.showalladmins);
 routes.get("/showallinstructors", userController.showallinstructors);
 //done
 routes.get("/showalllearners", userController.showalllearners);
-//not done
+//done
 routes.post(
   "/submitassignment",
   upload.single("file"),
   lessonController.submitassignment
 );
-//not done
+//done
 routes.post("/evaluateassignment", lessonController.evaluateassignment);
-//not done
+//done
 routes.post("/postdiscussion", lessonController.postdiscussion);
+//done
+routes.get("/showdiscussion", lessonController.showdiscussion);
 //Done
 routes.post("/addreview", courseController.addreview);
 //not done
@@ -201,7 +203,14 @@ routes.get("/showsubscribedcourse", courseController.showsubscribedcourses);
 //done
 routes.get("/showmystudents", instructorController.showmystudents);
 //Done
-routes.post("/viewmystudentsassignments", instructorController.viewmystudentsassignments);
+routes.post(
+  "/viewmystudentsassignments",
+  instructorController.viewmystudentsassignments
+);
+//done
+routes.get("/showprogress", learnerController.showprogress);
+//done
+routes.get("/showassignmentscore", learnerController.showassignmentscore);
 
 //Done
 routes.post("/resetpassword", authController.resetPassword);

@@ -24,12 +24,14 @@ import Getallcoursebycategory from "./Components/course/getcourse/getcoursebycat
 import Viewcart from "./Components/cart/Viewcart";
 import Getsubscribedcourse from "./Components/course/getcourse/getsubscribedcourse";
 import Viewwishlist from "./Components/cart/Viewwishlist";
-import Viewalllearners from "./Components/user/listofusers/showalllearners"
-import Approvecancelsubscription from "./Components/Approve/subscriptionapproval"
-import Viewunapprovedcourse from "./Components/Approve/viewunapprovedcourse"
+import Viewalllearners from "./Components/user/listofusers/showalllearners";
+import Approvecancelsubscription from "./Components/Approve/subscriptionapproval";
+import Viewunapprovedcourse from "./Components/Approve/viewunapprovedcourse";
 import Viewmylearners from "./Components/Instructor/viewmylearners";
-import Viewmystudentsassignments from "./Components/Instructor/viewmystudentsassignment"
-import Resetpassword from "./Components/form/resetpassword"
+import Viewmystudentsassignments from "./Components/Instructor/viewmystudentsassignment";
+import Resetpassword from "./Components/form/resetpassword";
+import Forgotpassword from "./Components/form/submitforgotpasswordrequest";
+import Quizmarks from "./Components/common/quiz/quizmarks";
 function App() {
   return (
     <div>
@@ -70,12 +72,26 @@ function App() {
           />
           <Route path="/viewwishlist" element={<Viewwishlist />} />
           <Route path="/viewlearners" element={<Viewalllearners />} />
-          <Route path="/approvecancelsubscription/:learnerId" element={<Approvecancelsubscription />} /> 
-          <Route path="/viewunapprovedcourse" element={<Viewunapprovedcourse />} /> 
-          <Route path="/learners" element={<Viewmylearners />} /> 
-          <Route path="/viewmystudentsassignments/:learnerId" element={<Viewmystudentsassignments />} /> 
-          <Route path="/reset-password/:token/:userId" element={<Resetpassword />} /> 
-          
+          <Route
+            path="/approvecancelsubscription/:learnerId"
+            element={<Approvecancelsubscription />}
+          />
+          <Route
+            path="/viewunapprovedcourse"
+            element={<Viewunapprovedcourse />}
+          />
+          <Route path="/learners" element={<Viewmylearners />} />
+          <Route
+            path="/viewmystudentsassignments/:learnerId"
+            element={<Viewmystudentsassignments />}
+          />
+          <Route
+            path="/reset-password/:token/:userId"
+            element={<Resetpassword />}
+          />
+
+          <Route path="/forgotpassword" element={<Forgotpassword />} />
+          <Route path="/quizmarks" element={<Quizmarks />} />
         </Routes>
         <Footer />
       </BrowserRouter>

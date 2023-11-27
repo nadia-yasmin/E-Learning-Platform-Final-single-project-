@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useParams, useNavigate, Link } from "react-router-dom";
+import { useForm, Controller } from "react-hook-form";
 import axiosInstance from "../../../Utils/axiosInstance";
 import {
   Card,
@@ -55,7 +56,8 @@ const Viewlesson = () => {
   const renderTabContent = () => {
     switch (value) {
       case "one":
-        return ( <div
+        return (
+          <div
             style={{
               display: "flex",
               justifyContent: "center",
@@ -64,13 +66,15 @@ const Viewlesson = () => {
               maxWidth: "90vh",
               marginLeft: "450px",
               marginTop: "20PX",
-              border: "2px dashed #4CAF50", 
-              padding: "20px", 
+              border: "2px dashed #4CAF50",
+              padding: "20px",
               borderRadius: "10px",
-              boxShadow: "0 4px 8px rgba(0, 0, 0, 0.1)"
-          }}
-        ><Typography>{lessonData.description}</Typography>
-        </div>);
+              boxShadow: "0 4px 8px rgba(0, 0, 0, 0.1)",
+            }}
+          >
+            <Typography>{lessonData.description}</Typography>
+          </div>
+        );
       case "two":
         return (
           <Grid container justifyContent="center">
@@ -108,7 +112,7 @@ const Viewlesson = () => {
         return <Assignment lessonData={lessonData} />;
       // return <div>hi</div>
       case "five":
-        return <PostForm />;
+        return <PostForm lessonData={lessonData} />;
       default:
         return null;
     }
