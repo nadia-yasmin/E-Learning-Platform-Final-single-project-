@@ -23,6 +23,7 @@ import LinearColor from "../../common/loader/loader";
 import QuizForm from "../../common/quiz/quiz";
 import Assignment from "../../common/assignment/assignment";
 import PostForm from "../../common/discussion/post";
+import Showdiscussion from "../../common/discussion/showdiscussion";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 const Viewlesson = () => {
@@ -112,7 +113,13 @@ const Viewlesson = () => {
         return <Assignment lessonData={lessonData} />;
       // return <div>hi</div>
       case "five":
-        return <PostForm lessonData={lessonData} />;
+        return (
+          <div>
+            {" "}
+            <PostForm lessonData={lessonData} />
+            <Showdiscussion lessonData={lessonData} />
+          </div>
+        );
       default:
         return null;
     }

@@ -496,32 +496,28 @@ class lessonController {
       }
 
       let discussionData = {};
-      if (reference) {
-        const learner = await learnerModel.findById(reference);
-        if (learner) {
-          discussionData = {
-            learnerId: user._id,
-            text: `${learner.name} - ${text}`,
-            lessonId,
-          };
-        } else {
-          const instructor = await instructorModel.findById(reference);
-          console.log("instructor, reference", instructor, reference);
-          discussionData = {
-            instructorId: user._id,
-            text: `${instructor.name} - ${text}`,
-            lessonId,
-          };
+      if (user.role === "learner") {
+        const learner = await learnerModel.findOne({ email });
+        if (!learner) {
+          return res
+            .status(404)
+            .json({ error: "Learner not found for the given email" });
         }
-      } else if (user.role === "learner") {
         discussionData = {
-          learnerId: user._id,
+          learnerId: learner._id,
           text: `${text}`,
           lessonId,
         };
       } else if (user.role === "instructor") {
+        const instructor = await instructorModel.findOne({ email });
+        if (!instructor) {
+          return res
+            .status(404)
+            .json({ error: "Instructor not found for the given email" });
+        }
+
         discussionData = {
-          instructorId: user._id,
+          instructorId: instructor._id,
           text: `${text}`,
           lessonId,
         };
@@ -532,11 +528,9 @@ class lessonController {
         });
 
         if (existingDiscussion) {
-          // If the lesson already has a discussion, update the existing discussion
           existingDiscussion.discussion.push(discussionData);
           await existingDiscussion.save();
         } else {
-          // If the lesson doesn't have a discussion, create a new discussion
           const discussion = await discussionModel.create({
             discussion: [discussionData],
           });
@@ -548,7 +542,6 @@ class lessonController {
           }
         }
       } else {
-        // If the lesson doesn't have a discussion, create a new discussion
         const discussion = await discussionModel.create({
           discussion: [discussionData],
         });
@@ -580,29 +573,42 @@ class lessonController {
       if (!discussion) {
         return res.status(404).json({ error: "Discussion not found" });
       }
-      const learnerIds = discussion.discussion
-        .filter((item) => item.learnerId)
-        .map((item) => item.learnerId);
+      // console.log("discussion", discussion);
+      const populatedDiscussionArray = [];
+      for (const discussionItem of discussion.discussion) {
+        if (discussionItem.learnerId) {
+          console.log("discussionItem", discussionItem);
+          const populatedDiscussionItem = await discussionModel.populate(
+            discussionItem,
+            {
+              path: "learnerId",
+              model: "learners",
+            }
+          );
+          // console.log("populatedDiscussionItem", populatedDiscussionItem);
 
-      const instructorIds = discussion.discussion
-        .filter((item) => item.instructorId)
-        .map((item) => item.instructorId);
+          populatedDiscussionArray.push(populatedDiscussionItem);
+        } else if (discussionItem.instructorId) {
+          // console.log("discussionItem", discussionItem);
+          const populatedDiscussionItem = await discussionModel.populate(
+            discussionItem,
+            {
+              path: "instructorId",
+              model: "instructors",
+            }
+          );
+          // console.log("populatedDiscussionItem", populatedDiscussionItem);
 
-      await discussionModel.populate(discussion, {
-        path: "discussion.learnerId",
-        model: "learners",
-        match: { _id: { $in: learnerIds } },
-      });
-
-      await discussionModel.populate(discussion, {
-        path: "discussion.instructorId",
-        model: "instructors",
-        match: { _id: { $in: instructorIds } },
-      });
+          populatedDiscussionArray.push(populatedDiscussionItem);
+        } else {
+          // If learnerId is null, push the item without populating
+          populatedDiscussionArray.push(discussionItem);
+        }
+      }
 
       return res.status(200).json({
         message: "Discussion fetched successfully",
-        discussion: discussion,
+        discussion: populatedDiscussionArray,
       });
     } catch (error) {
       console.error("Discussion fetch error", error);

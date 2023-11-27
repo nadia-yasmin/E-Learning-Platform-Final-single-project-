@@ -32,6 +32,7 @@ import Viewmystudentsassignments from "./Components/Instructor/viewmystudentsass
 import Resetpassword from "./Components/form/resetpassword";
 import Forgotpassword from "./Components/form/submitforgotpasswordrequest";
 import Quizmarks from "./Components/common/quiz/quizmarks";
+import RecordVideo from "./Components/course/postcourse/video";
 function App() {
   return (
     <div>
@@ -90,6 +91,7 @@ function App() {
             element={<Resetpassword />}
           />
 
+          <Route path="/recordvideo" element={<RecordVideo />} />
           <Route path="/forgotpassword" element={<Forgotpassword />} />
           <Route path="/quizmarks" element={<Quizmarks />} />
         </Routes>

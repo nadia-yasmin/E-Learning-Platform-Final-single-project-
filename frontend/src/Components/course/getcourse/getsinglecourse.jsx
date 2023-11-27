@@ -338,23 +338,23 @@ const ViewCourse = () => {
         </Grid>
       </Grid>
       <Grid item xs={12} md={12} className="your-center-class">
-  <Grid container spacing={2}>
-    {courseData.reviews && courseData.reviews.length > 0 ? (
-      courseData.reviews.map((review, index) => (
-        <Testimonial
-          key={index}
-          // rating={review.rating}
-          text={review.text}
-          author={review.learnerId.name}
-          imageSrc={review.learnerId.image}
-          alt={review.learnerId.name}
-        />
-      ))
-    ) : (
-      <LinearColor />
-    )}
-  </Grid>
-</Grid>
+        <Grid container spacing={2}>
+          {courseData.reviews && courseData.reviews.length > 0 ? (
+            courseData.reviews.map((review, index) => (
+              <Testimonial
+                key={index}
+                // rating={review.rating}
+                text={review.text}
+                author={review.learnerId.name}
+                imageSrc={review.learnerId.image}
+                alt={review.learnerId.name}
+              />
+            ))
+          ) : (
+            <LinearColor />
+          )}
+        </Grid>
+      </Grid>
 
       {/* </> */}
     </Grid>

@@ -4,6 +4,7 @@ import { useForm, Controller } from "react-hook-form";
 import { TextField, Stack, InputLabel } from "@mui/material";
 import { Container, Paper, Avatar, Grid } from "@mui/material";
 import Input from "@mui/material/Input";
+import { useRecordWebcam } from "react-record-webcam";
 import { useParams, useNavigate } from "react-router-dom";
 import { ThemeProvider, createTheme } from "@mui/material/styles";
 import { styled } from "@mui/system";
@@ -60,7 +61,22 @@ const Addcourse = () => {
   const typeAnchorRef = React.useRef(null);
   const [categoryId, setSelectedCategoryId] = useState(null);
   const [typeId, setSelectedTypeId] = useState(null);
-
+  const {
+    activeRecordings,
+    cancelRecording,
+    clearPreview,
+    closeCamera,
+    createRecording,
+    devicesByType,
+    devicesById,
+    download,
+    muteRecording,
+    openCamera,
+    pauseRecording,
+    resumeRecording,
+    startRecording,
+    stopRecording,
+  } = useRecordWebcam();
   const handleCategoryItemClick = async (categoryId) => {
     await new Promise((resolve) => {
       setSelectedCategoryId(categoryId);
@@ -79,7 +95,24 @@ const Addcourse = () => {
     });
   };
   console.log("selectedTypeId", typeId);
+  const [videoDeviceId, setVideoDeviceId] = React.useState("");
+  const [audioDeviceId, setAudioDeviceId] = React.useState("");
 
+  const handleSelect = async (event) => {
+    const { deviceid: deviceId } =
+      event.target.options[event.target.selectedIndex].dataset;
+    if (devicesById[deviceId].type === "videoinput") {
+      setVideoDeviceId(deviceId);
+    }
+    if (devicesById[deviceId].type === "audioinput") {
+      setAudioDeviceId(deviceId);
+    }
+  };
+
+  const start = async () => {
+    const recording = await createRecording(videoDeviceId, audioDeviceId);
+    if (recording) await openCamera(recording.id);
+  };
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -422,6 +455,121 @@ const Addcourse = () => {
                 <p style={{ color: "red" }}>{errors.intro.message}</p>
               )}
             </Grid>
+            <Grid item xs={12}>
+              <div>
+                <div className="input">
+                  <div>
+                    <h4>Select video input</h4>
+                    <select className="input-select" onChange={handleSelect}>
+                      {devicesByType?.video?.map((device) => (
+                        <option
+                          key={device.deviceId}
+                          data-deviceid={device.deviceId}
+                        >
+                          {device.label}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                  <div>
+                    <h4>Select audio input</h4>
+                    <select className="input-select" onChange={handleSelect}>
+                      {devicesByType?.audio?.map((device) => (
+                        <option
+                          key={device.deviceId}
+                          data-deviceid={device.deviceId}
+                        >
+                          {device.label}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                </div>
+                <div className="input-start">
+                  <button onClick={start}>Open camera</button>
+                </div>
+                <div className="devices">
+                  {activeRecordings?.map((recording) => (
+                    <div className="device" key={recording.id}>
+                      <p>Live</p>
+                      <div className="device-list">
+                        <small>Status: {recording.status}</small>
+                        <small>Video: {recording.videoLabel}</small>
+                        <small>Audio: {recording.audioLabel}</small>
+                      </div>
+                      <video
+                        ref={recording.webcamRef}
+                        loop
+                        autoPlay
+                        playsInline
+                      />
+                      <div className="controls">
+                        <button
+                          disabled={
+                            recording.status === "RECORDING" ||
+                            recording.status === "PAUSED"
+                          }
+                          onClick={() => startRecording(recording.id)}
+                        >
+                          Record
+                        </button>
+                        <button
+                          disabled={
+                            recording.status !== "RECORDING" &&
+                            recording.status !== "PAUSED"
+                          }
+                          onClick={() =>
+                            recording.status === "PAUSED"
+                              ? resumeRecording(recording.id)
+                              : pauseRecording(recording.id)
+                          }
+                        >
+                          {recording.status === "PAUSED" ? "Resume" : "Pause"}
+                        </button>
+                        <button
+                          className={recording.isMuted ? "selected" : ""}
+                          onClick={() => muteRecording(recording.id)}
+                        >
+                          Mute
+                        </button>
+                        <button
+                          disabled={recording.status !== "RECORDING"}
+                          onClick={() => stopRecording(recording.id)}
+                        >
+                          Stop
+                        </button>
+                        <button onClick={() => cancelRecording(recording.id)}>
+                          Cancel
+                        </button>
+                      </div>
+                      <div className="preview">
+                        <p>Preview</p>
+                        <video
+                          ref={recording.previewRef}
+                          autoPlay
+                          loop
+                          playsInline
+                        />
+                        <div className="controls">
+                          <button onClick={() => download(recording.id)}>
+                            Download
+                          </button>
+                          <button onClick={() => clearPreview(recording.id)}>
+                            Clear preview
+                          </button>
+                          <button
+                            onClick={() => saveAndSendToBackend(recording)}
+                          >
+                            Upload
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </Grid>
+
             <Grid item xs={12}>
               <InputLabel htmlFor="image">Thumbnail image</InputLabel>
               <Controller

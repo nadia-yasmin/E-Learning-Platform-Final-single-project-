@@ -13,12 +13,17 @@ import { useNavigate } from "react-router-dom";
 import LinearColor from "../../common/loader/loader";
 import axiosInstance from "../../../Utils/axiosInstance";
 import Getallcoursetemplate from "./common/getallcoursetemplate";
+import Pagination from "@mui/material/Pagination";
+import Stack from "@mui/material/Stack";
 const defaultTheme = createTheme();
 
 const Getallcourse = () => {
   const { courseData, loading } = useCourseHook();
   const navigate = useNavigate();
   const [categoryData, setCategoryData] = useState([]);
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 6;
+
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -31,11 +36,22 @@ const Getallcourse = () => {
     };
     fetchData();
   }, []);
+
   console.log("courseData from page", courseData);
+
   const handleCategoryClick = (categoryId) => {
     navigate(`/allcourses/${categoryId}`);
     console.log("Category ID is ", categoryId);
   };
+
+  const indexOfLastItem = currentPage * itemsPerPage;
+  const indexOfFirstItem = indexOfLastItem - itemsPerPage;
+  const currentItems = courseData.slice(indexOfFirstItem, indexOfLastItem);
+
+  const paginate = (pageNumber) => {
+    setCurrentPage(pageNumber);
+  };
+
   return (
     <ThemeProvider theme={defaultTheme}>
       <CssBaseline />
@@ -50,7 +66,23 @@ const Getallcourse = () => {
             paddingTop: "10px",
           }}
         />
-        <Getallcoursetemplate courseData={courseData} />
+
+        {/* Check if data is loaded before rendering */}
+        {!loading && (
+          <React.Fragment>
+            <Getallcoursetemplate courseData={currentItems} />
+
+            <Stack marginLeft={"450px"} spacing={10}>
+              {/* Calculate number of pages based on currentItems */}
+              <Pagination
+                count={Math.ceil(courseData.length / itemsPerPage)}
+                size="large"
+                onChange={(event, value) => paginate(value)}
+              />
+            </Stack>
+          </React.Fragment>
+        )}
+
         <Heading4
           text={"All Categories"}
           variant={"h4"}
@@ -61,6 +93,7 @@ const Getallcourse = () => {
             paddingTop: "10px",
           }}
         />
+
         <Container sx={{ py: 8 }} maxWidth="md">
           {categoryData && categoryData.length > 0 ? (
             <Grid container spacing={4}>
