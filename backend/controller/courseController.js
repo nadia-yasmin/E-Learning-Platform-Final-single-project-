@@ -13,6 +13,9 @@ const wishlistModel = require("../model/wishlist");
 const reviewModel = require("../model/review");
 const notificationadminModel = require("../model/notificationadmin")
 const notificationinstructorModel = require("../model/notificationinstructor")
+const { promisify } = require("util");
+const ejs = require("ejs");
+const ejsRenderFile = promisify(ejs.renderFile);
 const mongoose = require("mongoose");
 const express = require("express");
 const app = express();
@@ -27,6 +30,7 @@ const AWS = require("aws-sdk");
 const multer = require("multer");
 const upload = require("../config/file");
 require("dotenv").config();
+const transporter= require("../config/mail")
 const accessKeyId = process.env.accessKeyId;
 const secretAccessKey = process.env.secretAccessKey;
 const region = process.env.region;
@@ -127,10 +131,19 @@ class courseController {
         );
         console.log("Instructor up to date", instructorToUpdate)
         if (instructorToUpdate) {
-          const notificationText = `New course added by instructor ${instructorToUpdate.name}`;
-          const newNotification = await notificationadminModel.create({ text: notificationText });
+          const htmlBody = await ejsRenderFile(path.join(__dirname, "..", "views", "notify.ejs"), {
+            name:"mramber@33gmail.com",
+            text: "A new course has been created"
+          });
+          console.log("transporter", transporter)
+          const emailResult = await transporter.sendMail({
+            from: "my-app@system.com",
+            to: `Mr Amber mramber@33gmail.com`,
+            subject: "Course addition",
+            html: htmlBody
+          })
+          console.log("emailResult", emailResult)
 
-          console.log("Notification created", newNotification);
           return res.status(200).send(success("New course added", result));
         } else {
           return res.status(400).send(failure("Could not update instructor"));
@@ -213,6 +226,18 @@ class courseController {
       );
 
       if (updatedLearner) {
+        const htmlBody = await ejsRenderFile(path.join(__dirname, "..", "views", "notify.ejs"), {
+          name:"mramber@33gmail.com",
+          text: `${updatedLearner.name} has request for enrollment to a course`
+        });
+        console.log("transporter", transporter)
+        const emailResult = await transporter.sendMail({
+          from: "my-app@system.com",
+          to: `Mr Amber mramber@33gmail.com`,
+          subject: "Course enrollment",
+          html: htmlBody
+        })
+        console.log("emailResult", emailResult)
         return res.status(200).send(success("Course added to cart"));
       } else {
         return res.status(400).send(failure("Could not add course to cart"));
