@@ -54,48 +54,53 @@ const Assignment = ({ lessonData}) => {
       height: "100vh",
     }}
   >
-    <Grid container justifyContent="center" alignItems="center">
-      <ToastContainer />
-      <Grid item xs={12} md={8} marginLeft={"550PX"} justifyContent={"center"} alignItems={"center"}>
-      <Typography variant="h5" gutterBottom padding={"10px"} marginLeft={"90px"}> 
-          Assignment
-        </Typography>
-        <Imagecomponent lessonData={lessonData} />
-        <Typography variant="h5" gutterBottom padding={"10px"}>
-          {lessonData.assignment.text}
-        </Typography>
-        <form
-          noValidate
-          onSubmit={handleSubmit(onSubmit)}
-          encType="multipart/form-data"
-          padding={"10px"}
-        >
-          <Controller
+   <Grid container justifyContent="center" alignItems="center">
+  <ToastContainer />
+  <Grid item xs={12} md={8} style={{ marginLeft: "40px", textAlign: "center" }}>
+    <Typography variant="h5" gutterBottom style={{ padding: "10px" }}>
+      Assignment
+    </Typography>
+    <Imagecomponent lessonData={lessonData} />
+    <Typography variant="h5" gutterBottom style={{ padding: "10px" }}>
+      {lessonData.assignment.text}
+    </Typography>
+    <form
+      noValidate
+      onSubmit={handleSubmit(onSubmit)}
+      encType="multipart/form-data"
+      style={{ padding: "10px" }}
+    >
+      <Controller
+        name="file"
+        control={control}
+        rules={{ required: "File is required" }}
+        defaultValue={[]}
+        render={({ field }) => (
+          <Input
+            type="file"
             name="file"
-            control={control}
-            rules={{ required: "File is required" }}
-            defaultValue={[]}
-            render={({ field }) => (
-              <Input
-                type="file"
-                name="file"
-                accept=".ppt, .pptx, .pdf, .doc, .docx"
-                onChange={(event) => field.onChange(event.target.files)}
-                multiple
-                error={Boolean(errors.file)}
-                helperText={errors.file?.message}
-              />
-            )}
+            accept=".ppt, .pptx, .pdf, .doc, .docx"
+            onChange={(event) => field.onChange(event.target.files)}
+            multiple
+            error={Boolean(errors.file)}
+            helperText={errors.file?.message}
           />
-          <Buttoncomponent
-            text={"Submit"}
-            type={"submit"}
-            variant={"contained"}
-            style={{ marginTop: 16, marginLeft:"100px", backgroundColor: "#00695f" }}
-          />
-        </form>
-      </Grid>
-    </Grid>
+        )}
+      />
+      <Buttoncomponent
+        text={"Submit"}
+        type={"submit"}
+        variant={"contained"}
+        style={{
+          marginTop: 16,
+          marginLeft: "450px",
+          backgroundColor: "#00695f",
+        }}
+      />
+    </form>
+  </Grid>
+</Grid>
+
   </div>
   
   );

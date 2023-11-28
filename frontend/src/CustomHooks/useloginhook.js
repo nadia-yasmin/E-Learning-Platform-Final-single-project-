@@ -32,10 +32,11 @@ const useLoginHook = (token, userId, newPassword, oldPassword, role) => {
         if (data.success) {
           const token = data.data.token;
           setRefresh(!refresh)
-          navigate("/dashboard")
           localStorage.setItem("userdata", JSON.stringify(data.data));
           localStorage.setItem("token", token);
           console.log("userdata token",data.data,token)
+          navigate("/dashboard")
+         
         }
         console.log("Successfully logged in:", data);
         localStorage.setItem("responseData", data.message);
@@ -46,7 +47,7 @@ const useLoginHook = (token, userId, newPassword, oldPassword, role) => {
       });
   };
 
-  return { createLogin ,successAlert, errorAlert, alertMessage };
+  return { createLogin ,successAlert, errorAlert, alertMessage ,refresh};
 };
 
 export default useLoginHook;

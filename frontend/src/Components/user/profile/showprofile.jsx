@@ -47,7 +47,7 @@ const ShowProfile = () => {
     };
   
     fetchData();
-  }, []);
+  }, [userdata._id]);
   
   if (errorMessage) {
     return <ShowErrorMessage errorMessage={errorMessage} />;

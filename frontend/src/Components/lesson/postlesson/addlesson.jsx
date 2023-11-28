@@ -4,6 +4,7 @@ import { useForm, Controller } from "react-hook-form";
 import Buttoncomponent from "../../form/common/button/button";
 import axiosInstancefile from "../../../Utils/axiosinstanceform"
 import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 import {
   TextField,
   Stack,
@@ -84,6 +85,8 @@ const Addlesson = () => {
 
   return (
     <CenteredContainer>
+      <ToastContainer />
+      
       <StyledPaper elevation={6}>
         <Avatar src="/broken-image.jpg" style={{ marginBottom: 16 }} />
         <form

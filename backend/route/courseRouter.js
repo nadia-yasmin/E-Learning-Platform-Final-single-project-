@@ -115,7 +115,7 @@ routes.get("/getalltypes", courseController.getalltypes);
 //done
 routes.post("/addrate", isAuthorised,courseController.addRate);
 //done
-routes.put("/updateRate", isAuthorised.updateRate);
+routes.put("/updateRate", isAuthorised,courseController.updateRate);
 //done
 routes.delete("/deleterate",isAuthorised, courseController.deleteRate);
 //done

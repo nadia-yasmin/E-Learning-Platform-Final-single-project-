@@ -23,6 +23,9 @@ const Getallcourse = () => {
   const [categoryData, setCategoryData] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 6;
+  let pageCount = 0;
+
+
 
   useEffect(() => {
     const fetchData = async () => {
@@ -38,7 +41,9 @@ const Getallcourse = () => {
   }, []);
 
   console.log("courseData from page", courseData);
-
+  if (courseData.length > 0) {
+    pageCount = Math.ceil(courseData.length / itemsPerPage);
+  }
   const handleCategoryClick = (categoryId) => {
     navigate(`/allcourses/${categoryId}`);
     console.log("Category ID is ", categoryId);
@@ -70,12 +75,11 @@ const Getallcourse = () => {
         {/* Check if data is loaded before rendering */}
         {!loading && (
           <React.Fragment>
-            <Getallcoursetemplate courseData={currentItems} />
-
-            <Stack marginLeft={"450px"} spacing={10}>
-              {/* Calculate number of pages based on currentItems */}
+            <Getallcoursetemplate courseData={currentItems}/>
+            <Stack marginLeft={"600px"} spacing={10}>
               <Pagination
-                count={Math.ceil(courseData.length / itemsPerPage)}
+                count={pageCount}
+                variant="outlined"
                 size="large"
                 onChange={(event, value) => paginate(value)}
               />

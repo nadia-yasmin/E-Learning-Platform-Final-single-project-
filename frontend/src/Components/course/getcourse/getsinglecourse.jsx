@@ -149,14 +149,23 @@ const ViewCourse = () => {
   }
 
   return (
-    <Grid container spacing={2}>
-      {/* {courseData && courseData.length > 0 ? (
-        <> */}
-      <Grid item xs={12} md={12}>
-        <Card>
+    <Grid container spacing={2} className="course-container">
+      <Grid item xs={12} md={12} className="center-content">
+        {courseData.title && (
+          <Typography
+            component="h2"
+            variant="h5"
+            className="course-title"
+          >
+            {courseData.title}
+          </Typography>
+        )}
+      </Grid>
+      <Grid item xs={12} md={12} className="center-content">
+        <Card style={{ width: '1300px', margin: '10px auto' }}>
           <CardActionArea component="a" href="#">
-            <Card className="your-card-class">
-              <CardContent className="your-card-content-class">
+            <div className="flex-container">
+              <div className="text-content">
                 <CourseDetails
                   title={courseData.title}
                   category={courseData.category}
@@ -164,18 +173,20 @@ const ViewCourse = () => {
                   description={courseData.description}
                   courseId={courseData._id}
                 />
-              </CardContent>
-              <Imagecomponent courseData={courseData} />
-            </Card>
+              </div>
+              <div className="image-container">
+                <Imagecomponent courseData={courseData} />
+              </div>
+            </div>
           </CardActionArea>
         </Card>
       </Grid>
       <Grid item xs={12} md={12}>
-        <Card>
+        <Card style={{ width: '1000px', margin: '10px auto' }}>
           <CardActionArea component="a" href="#">
-            <CardContent>
+            <CardContent style={{ textAlign: 'center' }}>
               <Typography variant="h5" component="div">
-                Preview this course: {courseData.title}
+                Preview this course
               </Typography>
               <Typography variant="subtitle1" color="text.secondary">
                 Published at: {courseData?.createdAt}
@@ -187,9 +198,11 @@ const ViewCourse = () => {
                 )}
               </Typography>
             </CardContent>
+
             <VideoContainer
               width="80%"
               height={"80%"}
+          
               url={courseData.intro}
               playing={false}
               muted={true}
@@ -202,10 +215,12 @@ const ViewCourse = () => {
         </Card>
       </Grid>
       <Grid item xs={12} md={12} className="your-center-class">
-        <Typography variant="h6" component="div">
+        <Typography variant="h6" component="div" style={{ width: '1300px', margin: '10px auto', textAlign:"center"}}>
           Contents
         </Typography>
+
         {Array.from({ length: courseData.content?.week || 0 }, (_, index) => (
+          <div style={{ width: '1300px', margin: '10px auto' }}>
           <AccordionItem
             key={index}
             index={index}
@@ -215,6 +230,7 @@ const ViewCourse = () => {
             lessonData={lessonData}
             courseId={courseId}
           />
+          </div>
         ))}
       </Grid>
       <Grid item xs={12} md={12} className="your-center-class">
@@ -338,7 +354,7 @@ const ViewCourse = () => {
         </Grid>
       </Grid>
       <Grid item xs={12} md={12} className="your-center-class">
-        <Grid container spacing={2}>
+        <Grid container spacing={2} >
           {courseData.reviews && courseData.reviews.length > 0 ? (
             courseData.reviews.map((review, index) => (
               <Testimonial

@@ -47,7 +47,7 @@ const Login = () => {
   } = useForm();
   const [email, setEmail] = useState("");
   const [password, setPasword] = useState("");
-  const { createLogin, successAlert, errorAlert, alertMessage } =
+  const { createLogin, successAlert, errorAlert, alertMessage,refresh } =
     useLoginHook();
 
   const handleEmailChange = (e) => {
@@ -58,6 +58,7 @@ const Login = () => {
   };
 
   const onSubmit = (data) => {
+    localStorage.clear();
     createLogin(data);
   };
 

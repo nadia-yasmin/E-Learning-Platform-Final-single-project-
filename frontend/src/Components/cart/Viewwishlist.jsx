@@ -84,7 +84,7 @@ const Viewwishlist = () => {
             marginBottom: "50px",
           }}
         >
-          Subscription requests
+          My wishlist
         </Typography>
 
         {showErrorMessage ? (

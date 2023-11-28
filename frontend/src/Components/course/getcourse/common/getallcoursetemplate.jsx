@@ -20,10 +20,23 @@ import "react-toastify/dist/ReactToastify.css";
 const defaultTheme = createTheme();
 const Getallcoursetemplate = ({ courseData }) => {
   const navigate = useNavigate();
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 6;
+  let pageCount = 0;
   const [userData, setUserData] = useState(
     JSON.parse(localStorage.getItem("userdata"))
   );
+  if (courseData.length > 0) {
+    pageCount = Math.ceil(courseData.length / itemsPerPage);
+  }
 
+  const indexOfLastItem = currentPage * itemsPerPage;
+  const indexOfFirstItem = indexOfLastItem - itemsPerPage;
+  const currentItems = courseData.slice(indexOfFirstItem, indexOfLastItem);
+
+  const paginate = (pageNumber) => {
+    setCurrentPage(pageNumber);
+  };
   const addToCart = async (courseId) => {
     try {
       console.log("courseId", courseId);
@@ -124,7 +137,7 @@ const Getallcoursetemplate = ({ courseData }) => {
       ) : (
         <LinearColor />
       )}
-    </Container>
+          </Container>
   );
 };
 export default Getallcoursetemplate;

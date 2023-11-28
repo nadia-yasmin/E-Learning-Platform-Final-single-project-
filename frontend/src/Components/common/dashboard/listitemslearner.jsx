@@ -42,11 +42,7 @@ export const mainListItemsLearner = (
       text="My courses"
       to="/getsubscribedcourses"
     />
-    <MainListItem
-      icon={<PsychologyAltIcon />}
-      text="Discussion"
-      to="/discussion"
-    />
+
   </>
 );
 
@@ -55,17 +51,15 @@ export const secondaryListItemsLearner = (
     <ListSubheader component="div" inset>
       Saved reports
     </ListSubheader>
-    <MainListItem
-      icon={<SubscriptionsIcon />}
-      text="Subscriptions Request"
-      to="/subscriptions"
-    />
 
-    <MainListItem
-      icon={<ShoppingCartIcon />}
-      text="Cart"
-      to={`/viewcart/${userData._id}`}
-    />
+{userData && (
+  <MainListItem
+    icon={<ShoppingCartIcon />}
+    text="Cart"
+    to={`/viewcart/${userData._id}`}
+  />
+)}
+
     <MainListItem
       icon={<FavoriteBorderIcon />}
       text="Wishlist"

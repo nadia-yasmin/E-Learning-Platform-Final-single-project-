@@ -84,6 +84,10 @@ function App() {
               element={<Showquizadmin />}
             />
             <Route path="/addquiz/:lessonId" element={<Addquiz />} />
+            <Route
+              path="/viewmystudentsassignments/:learnerId"
+              element={<Viewmystudentsassignments />}
+            />
           </Route>
 
 
@@ -98,11 +102,6 @@ function App() {
               element={<Getsubscribedcourse />}
             />
             <Route path="/viewwishlist" element={<Viewwishlist />} />
-
-            <Route
-              path="/viewmystudentsassignments/:learnerId"
-              element={<Viewmystudentsassignments />}
-            />
           </Route>
 
          //ADMIN

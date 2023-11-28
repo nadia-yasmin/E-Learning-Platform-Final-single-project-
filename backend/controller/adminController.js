@@ -9,6 +9,8 @@ const express = require("express");
 const app = express();
 const bcrypt = require("bcrypt");
 const { validationResult } = require("express-validator");
+const notificationadminModel = require("../model/notificationadmin")
+const notificationinstructorModel = require("../model/notificationinstructor")
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 const jsonwebtoken = require("jsonwebtoken");
@@ -69,6 +71,7 @@ class adminController {
       }
       if (approve) {
         console.log("approval worked");
+       
         learner.course[courseIndex].enrollment = true;
         const course = await courseModel.findById(courseId);
         if (!course) {
@@ -122,7 +125,10 @@ class adminController {
       }
       if (approve) {
         course.approved = true;
-        await course.save();
+        await course.save();const 
+        notificationText = `${course.title} has been approved`;
+        const newNotification = await notificationinstructorModel.create({ text: notificationText });
+        console.log("newNotification",newNotification)
         return res.status(200).send(success("Course approved successfully"));
       } else {
         course.approved = false;

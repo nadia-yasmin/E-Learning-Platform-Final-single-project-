@@ -6,11 +6,13 @@ const cartModel = require("../model/cart");
 const learnerModel = require("../model/learner");
 const transactionModel = require("../model/transaction");
 const categoryModel = require("../model/category");
-const instructorModel= require("../model/instructor")
+const instructorModel = require("../model/instructor")
 const typeModel = require("../model/types");
 const rateModel = require("../model/rate");
 const wishlistModel = require("../model/wishlist");
 const reviewModel = require("../model/review");
+const notificationadminModel = require("../model/notificationadmin")
+const notificationinstructorModel = require("../model/notificationinstructor")
 const mongoose = require("mongoose");
 const express = require("express");
 const app = express();
@@ -34,7 +36,7 @@ class courseController {
     try {
       const { title, instructor, categoryId, typeId, description, paid } =
         req.body;
-      console.log("accessKeyId,secretAccessKey ,region",accessKeyId,secretAccessKey ,region);
+      console.log("accessKeyId,secretAccessKey ,region", accessKeyId, secretAccessKey, region);
       let image = req.files["image"][0];
       let intro = req.files["intro"][0];
 
@@ -116,20 +118,24 @@ class courseController {
         image: image1,
         intro: intro1,
       });
-      console.log("instructor",instructor)
+      console.log("instructor", instructor)
       if (result) {
         const instructorToUpdate = await instructorModel.findOneAndUpdate(
-          { _id: instructor},
+          { _id: instructor },
           { $push: { courseId: result._id } },
           { new: true }
         );
-        console.log("Instructor up to date",instructorToUpdate)
+        console.log("Instructor up to date", instructorToUpdate)
         if (instructorToUpdate) {
+          const notificationText = `New course added by instructor ${instructorToUpdate.name}`;
+          const newNotification = await notificationadminModel.create({ text: notificationText });
+
+          console.log("Notification created", newNotification);
           return res.status(200).send(success("New course added", result));
         } else {
           return res.status(400).send(failure("Could not update instructor"));
         }
-      } 
+      }
       else {
         return res.status(400).send(failure("Could not add a new course"));
       }
@@ -316,7 +322,7 @@ class courseController {
         }
       }
 
-      const query = {};
+      const query = { approved: true };
       if (!page) {
         page = 1;
       }
@@ -737,11 +743,12 @@ class courseController {
         learnerId: learner._id,
       });
       if (existingReview) {
-        return res.status(400).send(
-          failure({
-            error: "You have already provided a review for this book.",
-          })
-        );
+        existingReview.text = text;
+        const updatedReview = await existingReview.save();
+        return res.status(200).json({
+          message: "Review updated successfully",
+          review: updatedReview,
+        });
       }
       const newReview = new reviewModel({
         text,

@@ -6,8 +6,9 @@ import Buttoncomponent from "../../form/common/button/button";
 import MenuItem from "@mui/material/MenuItem";
 import axiosInstance from "../../../Utils/axiosInstance";
 import { styled } from "@mui/system";
-import { toast } from "react-toastify";
 import {useParams} from "react-router-dom"
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 const StyledPaper = styled(Paper)(({ theme }) => ({
   marginTop: theme.spacing(8),
   display: "flex",
@@ -51,7 +52,7 @@ const createPost = async (data) => {
         `/addquiz?lessonId=${lessonId}`,
         data
       );
-      toast.success(response);
+      toast.success(response.data.message);
       console.log("Quiz created", response);
     } catch (error) {
       console.error("Error fetching data:", error);
@@ -64,6 +65,7 @@ console.log("lessonId",lessonId)
   };
   return (
     <CenteredContainer>
+        <ToastContainer />
       <StyledPaper elevation={6}>
         <Avatar src="/broken-image.jpg" style={{ marginBottom: 16 }} />
         <form

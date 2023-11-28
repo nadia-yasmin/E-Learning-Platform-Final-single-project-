@@ -3,11 +3,13 @@ import CardMedia from "@mui/material/CardMedia";
 import { styled } from "@mui/system";
 
 const StyledCardMedia = styled(CardMedia)({
-  width: 350,
+  marginTop:"5px",
+  marginLeft:"425px",
+  width: 150,
+  height: 150, 
   objectFit: "cover",
-  display: { xs: "none", sm: "block" }
+  display: { xs: "none", sm: "block" },
 });
-
 const Imagecomponent = ({ courseData, lessonData,link }) => {
   return (
     <StyledCardMedia

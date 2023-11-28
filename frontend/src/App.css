@@ -26,6 +26,16 @@ body {
 .product-removal { float: left; width: 9%; }
 .product-line-price { float: left; width: 12%; text-align: right; }
 
+.preview-card {
+  margin-bottom: 20px; 
+}
+
+.course-title {
+  font-size: 24px;
+  font-weight: bold;
+  margin-bottom: 8px;
+}
+
 /* This is used as the traditional .clearfix class */
 .group:before,
 .group:after {
