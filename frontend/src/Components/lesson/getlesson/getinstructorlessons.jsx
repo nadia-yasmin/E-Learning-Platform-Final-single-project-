@@ -16,9 +16,11 @@ import Typography from '@mui/material/Typography';
 import AddIcon from '@mui/icons-material/Add';
 import {useNavigate,useParams} from "react-router-dom"
 import "sweetalert2/dist/sweetalert2.css";
+import LinearColor from '../../common/loader/loader';
 import ArrowForwardIcon from '@mui/icons-material/ArrowForward';
 const Getinstructorslesson = () => {
 const [courseData, setCourseData] = useState([]);
+
 const navigate= useNavigate()
 const {courseId}=useParams()
   useEffect(() => {
@@ -60,8 +62,9 @@ const {courseId}=useParams()
    const handleShowQuiz = (lessonId) => {
     navigate(`/showquizbylesson/${lessonId}`)
    };
+   console.log("courseData", courseData)
    
-  return (
+  return courseData && courseData.length>0? (
     // <div>Hi</div>
     <Container maxWidth="md" sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', marginTop: '20px', marginBottom: "800px" }}>
       <Typography variant="h4" component="div" gutterBottom>
@@ -102,7 +105,7 @@ const {courseId}=useParams()
       </Typography>
     )}
     </Container>
-  );
+  ):(<LinearColor/>);
 };
 
 export default Getinstructorslesson;

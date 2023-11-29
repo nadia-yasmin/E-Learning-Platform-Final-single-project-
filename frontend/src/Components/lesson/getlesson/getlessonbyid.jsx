@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { useParams, useNavigate, Link } from "react-router-dom";
 import { useForm, Controller } from "react-hook-form";
 import axiosInstance from "../../../Utils/axiosInstance";
+
 import {
   Card,
   CardContent,
@@ -124,7 +125,7 @@ const Viewlesson = () => {
         return null;
     }
   };
-  return (
+  return lessonData? (
     <Grid container spacing={2} alignItems={"center"} justifyContent="center">
       {/* First Grid Item */}
       <ToastContainer />
@@ -133,11 +134,13 @@ const Viewlesson = () => {
           <CardActionArea component="a" href="#">
             <Card sx={{ display: "flex" }}>
               <CardContent sx={{ flex: 1 }}>
+            
                 <CourseDetails
                   number={lessonData.number}
                   title={lessonData.title}
                   // description={lessonData.description}
                 />
+    
               </CardContent>
             </Card>
           </CardActionArea>
@@ -185,6 +188,6 @@ const Viewlesson = () => {
         {renderTabContent()}
       </Grid>
     </Grid>
-  );
+  ):(<LinearColor/>);
 };
 export default Viewlesson;

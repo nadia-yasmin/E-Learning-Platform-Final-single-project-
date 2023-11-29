@@ -74,6 +74,30 @@ const CourseDetails = ({
             </ListItemText>
           </ListItem>
         )}
+        {number && (
+          <ListItem>
+            <ListItemText>
+              <Typography
+                variant="subtitle1"
+                color="primary"
+              >
+                Lesson no: {number}
+              </Typography>
+            </ListItemText>
+          </ListItem>
+        )}
+        {title && (
+          <ListItem>
+            <ListItemText>
+              <Typography
+                variant="subtitle1"
+                color="primary"
+              >
+                  Title: {title}
+              </Typography>
+            </ListItemText>
+          </ListItem>
+        )}
       </List>
   </>
 );

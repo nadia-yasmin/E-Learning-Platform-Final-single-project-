@@ -144,11 +144,11 @@ const ViewCourse = () => {
     </Grid>
   );
 
-  if (loading) {
-    return <LinearColor />;
-  }
-
-  return (
+  // if (loading) {
+  //   return <LinearColor />;
+  // }
+  console.log("The courseData is",courseData)
+  return courseData? (
     <Grid container spacing={2} className="course-container">
       <Grid item xs={12} md={12} className="center-content">
         {courseData.title && (
@@ -374,6 +374,6 @@ const ViewCourse = () => {
 
       {/* </> */}
     </Grid>
-  );
+  ):(<LinearColor/>);
 };
 export default ViewCourse;
